@@ -25,7 +25,7 @@ export default class Table extends Component {
     ];
     for (let header of LOG_HEADERS) {
       headers.push(
-        <thead>{header}</thead>
+        <th>{header}</th>
       )
     }
     
@@ -42,7 +42,9 @@ export default class Table extends Component {
     return (
       <table className="table">
         <thead>
-          {headers}
+          <tr>
+            {headers}
+          </tr>
         </thead>
         <tbody>
           {entryRows}

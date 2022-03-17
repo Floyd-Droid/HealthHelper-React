@@ -20,7 +20,7 @@ export default class FilterableFoodTable extends Component {
 
   render() {
     return (
-      <div className="entryDisplayContents">
+      <div className="entryDisplay">
         <div className="searchBar">
           <SearchBar
             searchText={this.state.searchText}
