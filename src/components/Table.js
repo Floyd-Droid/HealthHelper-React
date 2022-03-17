@@ -7,13 +7,7 @@ export default class Table extends Component {
   }
 
   render() {
-    // let entries = this.props.entries;
-    // For now, use dummy data for entries.
-    const entries = [{
-      name: 'eggs', servingSize: '1', servingUnit: 'item(s)', calories: '70', totalFat: 'g', satFat: '0',
-      transFat: '0', polyFat: '0', monoFat: '0', chol: '185', sodium: '70', totalCarbs: '0', totalFiber: '0',
-      solFiber: '0', insolFiber: '0', totalSugars: '0', addedSugars: '0', protein: '6'
-    }]
+    let entries = this.props.entries;
     const entryRows = [];
 
     // Set up headers. Eventually need a component to handle variable headers
@@ -36,8 +30,6 @@ export default class Table extends Component {
           entry={entry} />
       )
     })
-
-    console.log(entryRows)
 
     return (
       <table className="table">
