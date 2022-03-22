@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import SearchBar from './SearchBar.js';
-import Table from './Table.js';
+import LogTable from './LogTable.js';
 
 
-export default class FilterableFoodTable extends Component {
+export default class EntryDisplay extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -80,7 +80,7 @@ export default class FilterableFoodTable extends Component {
             onSearchTextChange={this.handleSearchTextChange} />
         </div>
         <div className="table">
-          <Table
+          <LogTable
             status={this.props.status}
             entries={this.state.entries}
             date={this.props.date} />
