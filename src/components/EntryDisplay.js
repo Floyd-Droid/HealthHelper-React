@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import SearchBar from './SearchBar.js';
 import LogTable from './LogTable.js';
+import { getLogEntries } from '../TableData.js'
 
 
 export default class EntryDisplay extends Component {
@@ -47,7 +47,6 @@ export default class EntryDisplay extends Component {
     let url = '';
     let userId = this.props.userId;
 
-    // Fetch index or log entries
     if (status === 'logs') {
       let formattedDate = this.getFormattedDate(date, 'url');
       url = `/api/${userId}/logs?date=${formattedDate}`;
@@ -57,28 +56,17 @@ export default class EntryDisplay extends Component {
       console.log("see updateEntries")
     }
 
-    fetch(url)
-      .then(response => {
-        return response.json();
-      })
+    getLogEntries(url)
       .then(data => {
         this.setState({
           entries: data
-        });
-      })
-      .catch(error => {
-        console.log(error)
+        })
       })
   }
 
   render() {
     return (
       <div className="entryDisplay">
-        <div className="searchBar">
-          <SearchBar
-            searchText={this.state.searchText}
-            onSearchTextChange={this.handleSearchTextChange} />
-        </div>
         <div className="table">
           <LogTable
             status={this.props.status}

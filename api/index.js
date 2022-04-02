@@ -21,20 +21,17 @@ app.use((bodyParser.json()));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-app.get("/api/:userId/logs", (req, res) => {
+app.get("/api/:userId/logs", async (req, res) => {
   // Retrieve log data by date
   let userId = req.params.userId;
   let date = req.query.date
 
-  logModel.getLogEntries(userId, date)
-    .then((dbResponse) => {
-      res.status(200).json(dbResponse); 
-    })
-    .catch((error) => {
-      console.log("NETWORK ERROR in app.get /logs:")
-      console.log(error);
-      res.status(500).send(error);
-    })
+  try {
+    const dbResult = await logModel.getLogEntries(userId, date)
+    res.status(200).json(dbResult); 
+  } catch (err) {
+    res.status(500).send(err);
+  }
 });
 
 app.listen(PORT, () => {

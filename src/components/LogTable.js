@@ -2,7 +2,7 @@ import React from 'react';
 import { organizeLogEntries } from '../TableData.js';
 import { useTable } from 'react-table';
 
-// no pagination or editing
+
 export default function LogTable(props) {
   let entries = props.entries;
   let organizedEntries = organizeLogEntries(entries);
