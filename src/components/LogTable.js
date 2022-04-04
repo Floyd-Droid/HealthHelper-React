@@ -1,7 +1,23 @@
 import React from 'react';
 import { organizeLogEntries } from '../TableData.js';
-import { useTable } from 'react-table';
+import { useTable, useRowSelect } from 'react-table';
 
+const IndeterminateCheckbox = React.forwardRef(
+  ({ indeterminate, ...rest }, ref) => {
+    const defaultRef = React.useRef()
+    const resolvedRef = ref || defaultRef
+
+    React.useEffect(() => {
+      resolvedRef.current.indeterminate = indeterminate
+    }, [resolvedRef, indeterminate])
+
+    return (
+      <>
+        <input type="checkbox" ref={resolvedRef} {...rest} />
+      </>
+    )
+  }
+)
 
 export default function LogTable(props) {
   let entries = props.entries;
@@ -98,6 +114,26 @@ export default function LogTable(props) {
   } = useTable(
     { columns, 
       data,
+      autoResetSelectedRows: false,
+    },
+    useRowSelect,
+    hooks => {
+      hooks.visibleColumns.push(columns => [
+        {
+          id: 'selection',
+          Header: ({ getToggleAllRowsSelectedProps }) => (
+            <div>
+              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
+            </div>
+          ),
+          Cell: ({ row }) => (
+            <div>
+              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
+            </div>
+          ),
+        },
+        ...columns
+      ])
     }
   )
 
