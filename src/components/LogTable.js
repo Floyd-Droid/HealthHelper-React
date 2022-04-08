@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable, useRowSelect, usePagination, useFilters } from 'react-table';
+import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 import { organizeLogEntries } from '../TableData.js';
 import {
   IndeterminateCheckbox, TextFilter, NumberRangeFilter
@@ -38,10 +38,12 @@ function Table({ columns, data }) {
       data,
       defaultColumn,
       autoResetFilters: false,
+      autoResetSortBy: false,
       autoResetSelectedRows: false,
       autoResetPage: false
     },
     useFilters,
+    useSortBy,
     usePagination,
     useRowSelect,
     hooks => {
@@ -71,7 +73,12 @@ function Table({ columns, data }) {
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps()}>
+                <th {...column.getHeaderProps(column.getSortByToggleProps())}
+                  onClick={() => {
+                    if (typeof column.toggleSortBy === 'function') {
+                      column.toggleSortBy(!column.isSortedDesc)
+                    }
+                  }}>
                   {column.render('Header')}
                   <div>{column.canFilter ? column.render('Filter') : null}</div>
                 </th>
