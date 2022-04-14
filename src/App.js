@@ -12,6 +12,9 @@ class App extends React.Component {
       date: new Date()
     };
 
+    this.getAddIndexPage = this.getAddIndexPage.bind(this);
+    this.getPage = this.getPage.bind(this);
+    this.getTablePage = this.getTablePage.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
   }
 
@@ -28,7 +31,7 @@ class App extends React.Component {
         break;
       default:
         // Show log for current date by default.
-        result = this.getTablePage('logs');
+        result = this.getTablePage();
     }
     return result;
   }

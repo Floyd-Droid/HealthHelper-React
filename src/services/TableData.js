@@ -1,14 +1,5 @@
 // Functions that calculate and organize database entry info for display in a table.
 
-export async function getLogEntries(url) {
-  try {
-    const res = await fetch(url)
-    return res.json()
-  } catch (err) {
-    console.log(err)
-  }
-}
-
 export function round(num, precision) {
   let round = Math.round(num + "e+" + precision) + ("e-" + precision);
   return Number(round);
@@ -61,6 +52,24 @@ export function organizeLogEntries(entries) {
 
     organizedEntries.push(organizedEntry);
   };
-  console.log(organizedEntries)
+  return organizedEntries;
+}
+
+export function organizeIndexEntries(entries) {
+  // Organize index entry information to be displayed in the table.
+  let organizedEntries = [];
+
+  for (let entry of entries) {
+
+    Object.keys(entry).forEach((key) => {
+      entry[key] = entry[key] === null ? '' : entry[key];
+    })
+
+    let cost_per_serving = entry.cost_per_container / entry.servings_per_container;
+    entry.cost_per_serving = round(cost_per_serving, 2);
+
+    organizedEntries.push(entry);
+  };
+
   return organizedEntries;
 }

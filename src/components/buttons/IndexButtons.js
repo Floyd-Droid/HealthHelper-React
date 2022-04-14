@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class LogButtons extends React.Component {
+export default class IndexButtons extends React.Component {
   constructor(props) {
     super(props);
 
@@ -12,7 +12,7 @@ export default class LogButtons extends React.Component {
 
   handleDeleteEntries(e) {
     e.preventDefault();
-    console.log('This will delete the selected entries')
+    console.log('this will delete the selected entries');
   }
 
   handleNav(e) {
@@ -34,15 +34,18 @@ export default class LogButtons extends React.Component {
 
   render() {
     return (
-      <div className="log-buttons">
+      <div className="index-buttons">
         <form onSubmit={this.handleNav}>
-          <button type="submit" name="sub" value="index">Go to Index</button>
-          <button type="submit" name="sub" value="addLog">Add entries</button>
+          <button type="submit" name="sub" value="logs">Go to logs</button>
+          <button type="submit" name="sub" value="addIndex">Add an entry</button>
           <button onClick={this.handleDeleteEntries}>Delete selected entries</button>
           <button onClick={this.handleResetData}>Undo changes</button>
           <button onClick={this.handleSubmit}>Submit changes</button>
         </form>
+
       </div>
+
     );
   }
+
 }

@@ -1,6 +1,7 @@
 import React from 'react';
-import LogTable from './LogTable.js';
-import { getLogEntries } from '../TableData.js'
+import IndexTable from './IndexTable'
+import LogTable from './LogTable';
+import { getEntries } from '../services/EntryService'
 
 
 export default class EntryDisplay extends React.Component {
@@ -58,7 +59,7 @@ export default class EntryDisplay extends React.Component {
       console.log("see updateEntries")
     }
 
-    getLogEntries(url)
+    getEntries(url)
       .then(data => {
         this.setState({
           entries: data
@@ -79,7 +80,12 @@ export default class EntryDisplay extends React.Component {
             />
           }
           {this.props.status==='index' &&
-          <div>Index Table</div>}
+            <IndexTable
+              status={this.props.status}
+              entries={this.state.entries}
+              date={this.props.date} 
+              onNavSubmit={this.handleNavSubmit}
+            />}
         </div>
       </div>
     );

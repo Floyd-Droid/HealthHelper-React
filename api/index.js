@@ -3,7 +3,8 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const PORT = process.env.PORT || 3001;
 
-const logModel = require("./models/logModel.js");
+const logModel = require('./models/logModel.js');
+const indexModel = require('./models/indexModel.js');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use((bodyParser.json()));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
+// Log endpoints
 app.get("/api/:userId/logs", async (req, res) => {
   // Retrieve log data by date
   let userId = req.params.userId;
@@ -33,6 +35,19 @@ app.get("/api/:userId/logs", async (req, res) => {
     res.status(500).send(err);
   }
 });
+
+
+// Index endpoints
+app.get('/api/:userId/index', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const dbResult = await indexModel.getIndexEntries(userId);
+    console.log(dbResult)
+    res.status(200).json(dbResult);
+  } catch (err) {
+    res.status(500).send(err);
+  }
+})
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);

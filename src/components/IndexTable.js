@@ -1,8 +1,8 @@
 import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 
-import LogButtons from './buttons/LogButtons';
-import { organizeLogEntries } from '../services/TableData';
+import IndexButtons from './buttons/IndexButtons';
+import { organizeIndexEntries } from '../services/TableData';
 import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data }) {
@@ -145,9 +145,9 @@ function Table({ columns, data }) {
   )
 }
 
-export default function LogTable(props) {
+export default function IndexTable(props) {
   let entries = props.entries;
-  let organizedEntries = organizeLogEntries(entries);
+  let organizedEntries = organizeIndexEntries(entries);
 
   const columns = React.useMemo(
     () => [
@@ -158,8 +158,28 @@ export default function LogTable(props) {
         filter: 'basic'
       },
       {
-        Header: 'Amount',
-        accessor: 'amount',
+        Header: 'Serving (Weight)',
+        accessor: 'serving_by_weight',
+        disableFilters: true
+      },
+      {
+        Header: 'Weight Unit',
+        accessor: 'weight_unit',
+        disableFilters: true
+      },
+      {
+        Header: 'Serving (Volume)',
+        accessor: 'serving_by_volume',
+        disableFilters: true
+      },
+      {
+        Header: 'Volume Unit',
+        accessor: 'volume_unit',
+        disableFilters: true
+      },
+      {
+        Header: 'Serving (Item)',
+        accessor: 'serving_by_item',
         disableFilters: true
       },
       {
@@ -223,8 +243,16 @@ export default function LogTable(props) {
         accessor: 'protein'
       },
       {
-        Header: 'Cost',
-        accessor: 'cost'
+        Header: 'Cost per Container',
+        accessor: 'cost_per_container'
+      },
+      {
+        Header: 'Servings per Container',
+        accessor: 'servings_per_container'
+      },
+      {
+        Header: 'Cost per Serving',
+        accessor: 'cost_per_serving'
       },
     ],
     []
@@ -240,7 +268,7 @@ export default function LogTable(props) {
         columns={columns}
         data={data}
       />
-      <LogButtons 
+      <IndexButtons 
         onNavSubmit={props.onNavSubmit}
       />
     </>
