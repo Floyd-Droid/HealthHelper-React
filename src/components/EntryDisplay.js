@@ -1,15 +1,18 @@
-import React, { Component } from 'react';
+import React from 'react';
 import LogTable from './LogTable.js';
 import { getLogEntries } from '../TableData.js'
 
 
-export default class EntryDisplay extends Component {
+export default class EntryDisplay extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       entries: [],
       searchText: ''
     };
+
+    this.handleNavSubmit = this.handleNavSubmit.bind(this);
+    this.updateEntries = this.updateEntries.bind(this);
   }
 
   componentDidMount() {
@@ -35,10 +38,9 @@ export default class EntryDisplay extends Component {
     }
   }
 
-  handleSearchTextChange(searchText) {
-    this.setState({
-      searchText: searchText
-    })
+  handleNavSubmit(newStatus) {
+    // Pass the button's value to App component to update the status
+    this.props.onNavFormSubmit(newStatus);
   }
 
   updateEntries() {
@@ -68,10 +70,16 @@ export default class EntryDisplay extends Component {
     return (
       <div className="entryDisplay">
         <div className="table">
-          <LogTable
-            status={this.props.status}
-            entries={this.state.entries}
-            date={this.props.date} />
+          {this.props.status==='logs' && 
+            <LogTable
+              status={this.props.status}
+              entries={this.state.entries}
+              date={this.props.date} 
+              onNavSubmit={this.handleNavSubmit}
+            />
+          }
+          {this.props.status==='index' &&
+          <div>Index Table</div>}
         </div>
       </div>
     );

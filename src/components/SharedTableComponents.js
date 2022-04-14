@@ -18,7 +18,7 @@ export const IndeterminateCheckbox = React.forwardRef(
 )
 
 export function TextFilter({ column: { filterValue, preFilteredRows, setFilter } }) {
-  const count = preFilteredRows.length; // Not using
+  const count = preFilteredRows.length;
 
   return (
     <div className="text-filter">
@@ -34,7 +34,6 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter }
         placeholder={'Search...'}
       />
     </div>
-
   )
 }
 

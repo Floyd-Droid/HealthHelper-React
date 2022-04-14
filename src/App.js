@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import './App.css';
 import EntryDisplay from './components/EntryDisplay.js';
 
 
 class App extends React.Component {
-
   constructor(props) {
     super(props);
     this.state = {
@@ -12,6 +11,8 @@ class App extends React.Component {
       userId: 1, // Hard-code for now
       date: new Date()
     };
+
+    this.updateStatus = this.updateStatus.bind(this);
   }
 
   getPage() {
@@ -19,35 +20,33 @@ class App extends React.Component {
     let status = this.state.status;
     let result;
     switch (status) {
-      case 'logs': case 'index':
-        result = this.getIndexOrLogPage();
+      case 'logs': case 'index': case 'addLog':
+        result = this.getTablePage();
         break;
-      case 'addLogEntry':
-        result = this.getAddLogEntryPage();
-        break;
-      case 'addIndexEntry':
-        result = this.getAddIndexEntryPage();
+      case 'addIndex':
+        result = this.getAddIndexPage();
         break;
       default:
         // Show log for current date by default.
-        result = this.getIndexOrLogPage('logs');
+        result = this.getTablePage('logs');
     }
     return result;
   }
 
-  getIndexOrLogPage() {
+  getTablePage() {
     return (
       <div>
         <EntryDisplay
           status={this.state.status}
           date={this.state.date}
-          userId={this.state.userId}/>
+          userId={this.state.userId}
+          onNavFormSubmit={this.updateStatus}
+        />
       </div>
     )
   }
 
-  getAddLogEntryPage() {
-
+  getAddIndexPage() {
     return (
       <div>
         Placeholder
@@ -55,12 +54,10 @@ class App extends React.Component {
     )
   }
 
-  getAddIndexEntryPage() {
-    return (
-      <div>
-        Placeholder
-      </div>
-    )
+  updateStatus(newStatus) {
+    this.setState({
+      status: newStatus
+    });
   }
   
   render() {

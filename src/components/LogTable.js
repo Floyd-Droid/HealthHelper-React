@@ -1,11 +1,9 @@
 import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
-import { organizeLogEntries } from '../TableData.js';
-import {
-  IndeterminateCheckbox, TextFilter, NumberRangeFilter
-} from './SharedTableComponents'
 
-
+import LogButtons from './buttons/LogButtons';
+import { organizeLogEntries } from '../TableData';
+import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data }) {
   const defaultColumn = React.useMemo(
@@ -145,7 +143,6 @@ function Table({ columns, data }) {
       </div>
     </>
   )
-
 }
 
 export default function LogTable(props) {
@@ -242,6 +239,9 @@ export default function LogTable(props) {
       <Table
         columns={columns}
         data={data}
+      />
+      <LogButtons 
+        onNavSubmit={props.onNavSubmit}
       />
     </>
   )

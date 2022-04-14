@@ -1,6 +1,6 @@
 // Functions that calculate and organize database entry info for display in a table.
 
-async function getLogEntries(url) {
+export async function getLogEntries(url) {
   try {
     const res = await fetch(url)
     return res.json()
@@ -9,13 +9,13 @@ async function getLogEntries(url) {
   }
 }
 
-function round(num, precision) {
+export function round(num, precision) {
   let round = Math.round(num + "e+" + precision) + ("e-" + precision);
   return Number(round);
 }
 
 
-function organizeLogEntries(entries) {
+export function organizeLogEntries(entries) {
   let servings;
   let organizedEntries = [];
 
@@ -51,7 +51,6 @@ function organizeLogEntries(entries) {
       } else if (entry[key] === null) {
         entry[key] = '';
       }
-
     })
 
     entry.amount = entry.amount ? entry.amount + ' ' + entry.amount_unit : '';
@@ -64,9 +63,4 @@ function organizeLogEntries(entries) {
   };
   console.log(organizedEntries)
   return organizedEntries;
-}
-
-module.exports = {
-  getLogEntries,
-  organizeLogEntries,
 }

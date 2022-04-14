@@ -3,8 +3,8 @@ const { pool } = require("../db.js");
 async function getLogEntries(userId, date) {
 
   const q = `
-    SELECT logs.name, logs.amount, logs.amount_unit,
-      food_index.serving_by_weight, food_index.weight_unit,
+    SELECT logs.id, logs.amount, logs.amount_unit,
+      food_index.name, food_index.serving_by_weight, food_index.weight_unit,
       food_index.serving_by_volume, food_index.volume_unit, food_index.serving_by_item,
       food_index_macro.calories, food_index_macro.total_fat, food_index_macro.sat_fat,
       food_index_macro.trans_fat, food_index_macro.poly_fat, food_index_macro.mono_fat,
@@ -19,7 +19,7 @@ async function getLogEntries(userId, date) {
     WHERE logs.user_id = ($1)
     AND logs.timestamp_added::date = date ($2)
     ORDER BY logs.timestamp_added ASC;
-    `;
+  `;
 
     try {
       const dbResponse = await pool.query(q, [userId, date]);
