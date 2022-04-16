@@ -6,17 +6,17 @@ export function round(num, precision) {
 }
 
 
-export function organizeLogEntries(entries) {
+export function prepareForLogTable(entries) {
+  // Make a deep copy of the entries. [why do i need this? maybe i don't!]
+  //let entriesCopy = JSON.parse(JSON.stringify(entries))
+
   let servings;
-  let organizedEntries = [];
+  let preparedEntries = [];
+  
+  for (let entry of entries) {
 
-  // The table is populated with 'NaN'. Creating a deep copy of the entries solves this.
-  let entriesCopy = JSON.parse(JSON.stringify(entries))
-
-  for (let entry of entriesCopy) {
-
-    // Calculate the number of servings the entry is. 
-    // Divide the amount by its corresponding serving size
+    // Calculate the number of servings. 
+    // Divide the amount by its corresponding serving size (match the units)
     if (entry.amount_unit === entry.weight_unit) {
       servings = entry.amount / entry.serving_by_weight;
     } else if (entry.amount_unit === entry.volume_unit) {
@@ -26,16 +26,16 @@ export function organizeLogEntries(entries) {
     }
 
     // Calculate the cost of the entry
+    // Set the cost per serving to be null if we have incomplete info
     let costPerServing = entry.cost_per_container && entry.servings_per_container
       ? entry.cost_per_container / entry.servings_per_container
       : null;
 
-    // Set the cost to emtpy strig if cost per serving is null
     entry.cost = costPerServing ? round(costPerServing, 2) : '';
 
     Object.keys(entry).forEach((key) => {
 
-      if (typeof entry[key] === 'number' && key !== 'amount') {
+      if (typeof entry[key] === 'number' && key !== 'amount' && key !== 'id') {
         let result = entry[key] * servings;
         let precision = key === 'cost' ? 2 : 1;
         entry[key] = round(result, precision);
@@ -44,32 +44,28 @@ export function organizeLogEntries(entries) {
       }
     })
 
-    entry.amount = entry.amount ? entry.amount + ' ' + entry.amount_unit : '';
-
-    const { amount_unit, serving_by_weight, weight_unit, serving_by_volume,
-      volume_unit, serving_by_item, cost_per_container, servings_per_container,
-      ...organizedEntry } = entry;
-
-    organizedEntries.push(organizedEntry);
+    preparedEntries.push(entry);
   };
-  return organizedEntries;
+
+  return preparedEntries;
 }
 
-export function organizeIndexEntries(entries) {
-  // Organize index entry information to be displayed in the table.
-  let organizedEntries = [];
+export function prepareForIndexTable(entries) {
+
+  let preparedEntries = [];
 
   for (let entry of entries) {
-
     Object.keys(entry).forEach((key) => {
-      entry[key] = entry[key] === null ? '' : entry[key];
+      if (key !== 'id') {
+        entry[key] = entry[key] === null ? '' : entry[key];
+      }
     })
 
     let cost_per_serving = entry.cost_per_container / entry.servings_per_container;
     entry.cost_per_serving = round(cost_per_serving, 2);
 
-    organizedEntries.push(entry);
+    preparedEntries.push(entry);
   };
 
-  return organizedEntries;
+  return preparedEntries;
 }

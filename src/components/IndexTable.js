@@ -2,10 +2,11 @@ import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
-import { organizeIndexEntries } from '../services/TableData';
+import { prepareForIndexTable } from '../services/TableData';
 import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data }) {
+
   const defaultColumn = React.useMemo(
     () => ({
       Filter: NumberRangeFilter,
@@ -147,7 +148,7 @@ function Table({ columns, data }) {
 
 export default function IndexTable(props) {
   let entries = props.entries;
-  let organizedEntries = organizeIndexEntries(entries);
+  let preparedEntries = prepareForIndexTable(entries);
 
   const columns = React.useMemo(
     () => [
@@ -259,7 +260,7 @@ export default function IndexTable(props) {
   )
 
   const data = React.useMemo(
-    () => organizedEntries, [organizedEntries]
+    () => preparedEntries, [preparedEntries]
   )
 
   return (

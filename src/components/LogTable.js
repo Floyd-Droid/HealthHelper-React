@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { organizeLogEntries } from '../services/TableData';
+import { prepareForLogTable } from '../services/TableData';
 import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data }) {
@@ -147,7 +147,7 @@ function Table({ columns, data }) {
 
 export default function LogTable(props) {
   let entries = props.entries;
-  let organizedEntries = organizeLogEntries(entries);
+  let preparedEntries = prepareForLogTable(entries);
 
   const columns = React.useMemo(
     () => [
@@ -160,6 +160,11 @@ export default function LogTable(props) {
       {
         Header: 'Amount',
         accessor: 'amount',
+        disableFilters: true
+      },
+      {
+        Header: 'Unit',
+        accessor: 'amount_unit',
         disableFilters: true
       },
       {
@@ -231,7 +236,7 @@ export default function LogTable(props) {
   )
 
   const data = React.useMemo(
-    () => organizedEntries, [organizedEntries]
+    () => preparedEntries, [preparedEntries]
   )
 
   return (
