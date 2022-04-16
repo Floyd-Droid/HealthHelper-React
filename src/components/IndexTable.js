@@ -3,12 +3,13 @@ import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 're
 
 import IndexButtons from './buttons/IndexButtons';
 import { prepareForIndexTable } from '../services/TableData';
-import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
+import { EditableInputCell, IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
-function Table({ columns, data }) {
+function Table({ columns, data, updateTableData, skipPageReset }) {
 
   const defaultColumn = React.useMemo(
     () => ({
+      Cell: EditableInputCell,
       Filter: NumberRangeFilter,
       filter: 'between'
     }),
@@ -36,10 +37,11 @@ function Table({ columns, data }) {
       columns,
       data,
       defaultColumn,
+      autoResetPage: !skipPageReset,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
-      autoResetPage: false
+      updateTableData,
     },
     useFilters,
     useSortBy,
@@ -259,17 +261,41 @@ export default function IndexTable(props) {
     []
   )
 
-  const data = React.useMemo(
-    () => preparedEntries, [preparedEntries]
-  )
+  const [data, setData] = React.useState(preparedEntries)
+  const [originalData] = React.useState(data);
+  const [skipPageReset, setSkipPageReset] = React.useState(false);
+
+  const updateTableData = (rowIndex, columnId, value) => {
+    setSkipPageReset(true);
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...old[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    )
+  }
+
+  React.useEffect(() => {
+    setSkipPageReset(false)
+  }, [data])
+
+  const resetData = () => setData(originalData)
 
   return (
     <>
       <Table
         columns={columns}
         data={data}
+        updateTableData={updateTableData}
+        skipPageReset={skipPageReset}
       />
-      <IndexButtons 
+      <IndexButtons
+        onResetData={resetData}
         onNavSubmit={props.onNavSubmit}
       />
     </>

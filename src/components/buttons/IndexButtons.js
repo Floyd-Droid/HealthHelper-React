@@ -23,7 +23,7 @@ export default class IndexButtons extends React.Component {
 
   handleResetData(e) {
     e.preventDefault();
-    console.log('this will reset the data')
+    this.props.onResetData()
   }
 
   handleSubmit(e) {
@@ -42,10 +42,7 @@ export default class IndexButtons extends React.Component {
           <button onClick={this.handleResetData}>Undo changes</button>
           <button onClick={this.handleSubmit}>Submit changes</button>
         </form>
-
       </div>
-
     );
   }
-
 }

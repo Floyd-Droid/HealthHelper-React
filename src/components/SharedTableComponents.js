@@ -81,3 +81,32 @@ export function NumberRangeFilter({
     </>
   )
 }
+
+export const EditableInputCell = ({
+  value: initialValue,
+  row: { index },
+  column: { id },
+  updateTableData
+}) => {
+  const [value, setValue] = React.useState(initialValue);
+
+  const onChange = e => {
+      setValue(e.target.value);
+  }
+
+  const onBlur = () => {
+      updateTableData(index, id, value);
+  }
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  let inputClassName = id === 'name' ? 'cell-input name-input text-left' : 'cell-input num-input text-center';
+
+  return (
+    <div className='cell-input-wrapper'>
+      <input className={inputClassName} value={value} onChange={onChange} onBlur={onBlur} />
+    </div>
+  )
+}
