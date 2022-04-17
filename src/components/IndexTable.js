@@ -2,7 +2,8 @@ import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
-import { prepareForIndexTable } from '../services/TableData';
+import { getEntries } from '../services/EntryService';
+import { prepareForIndexTable, getFormattedDate } from '../services/TableData';
 import { EditableInputCell, IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data, updateTableData, skipPageReset }) {
@@ -149,8 +150,8 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
 }
 
 export default function IndexTable(props) {
-  let entries = props.entries;
-  let preparedEntries = prepareForIndexTable(entries);
+  let userId = props.userId
+  let date = props.date
 
   const columns = React.useMemo(
     () => [
@@ -261,9 +262,24 @@ export default function IndexTable(props) {
     []
   )
 
-  const [data, setData] = React.useState(preparedEntries)
-  const [originalData] = React.useState(data);
+  const [entries, setEntries] = React.useState([])
+  const [data, setData] = React.useState([])
+  const [originalData, setOriginalData] = React.useState([]);
   const [skipPageReset, setSkipPageReset] = React.useState(false);
+
+  // Fetch the entries and set to state
+  React.useEffect(() => {
+    const url = `/api/${userId}/index`;
+
+    getEntries(url)
+      .then(entries => {
+        setEntries(entries)
+        const preparedEntries = prepareForIndexTable(entries)
+        setData(preparedEntries)
+        setOriginalData(preparedEntries)
+      })
+    }, [date]
+  )
 
   const updateTableData = (rowIndex, columnId, value) => {
     setSkipPageReset(true);

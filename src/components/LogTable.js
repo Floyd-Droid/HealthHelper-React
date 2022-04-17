@@ -2,10 +2,11 @@ import React from 'react';
 import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { prepareForLogTable } from '../services/TableData';
-import { IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
+import { getEntries } from '../services/EntryService';
+import { prepareForLogTable, getFormattedDate } from '../services/TableData';
+import { EditableInputCell, IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
-function Table({ columns, data }) {
+function Table({ columns, data, updateTableData, skipPageReset }) {
   const defaultColumn = React.useMemo(
     () => ({
       Filter: NumberRangeFilter,
@@ -35,10 +36,11 @@ function Table({ columns, data }) {
       columns,
       data,
       defaultColumn,
+      autoResetPage: !skipPageReset,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
-      autoResetPage: false
+      updateTableData,
     },
     useFilters,
     useSortBy,
@@ -146,9 +148,9 @@ function Table({ columns, data }) {
 }
 
 export default function LogTable(props) {
-  let entries = props.entries;
-  let preparedEntries = prepareForLogTable(entries);
-
+  let userId = props.userId
+  let date = props.date
+  
   const columns = React.useMemo(
     () => [
       {
@@ -160,6 +162,7 @@ export default function LogTable(props) {
       {
         Header: 'Amount',
         accessor: 'amount',
+        Cell: EditableInputCell,
         disableFilters: true
       },
       {
@@ -235,17 +238,57 @@ export default function LogTable(props) {
     []
   )
 
-  const data = React.useMemo(
-    () => preparedEntries, [preparedEntries]
+  const [entries, setEntries] = React.useState([])
+  const [data, setData] = React.useState([])
+  const [originalData, setOriginalData] = React.useState([]);
+  const [skipPageReset, setSkipPageReset] = React.useState(false);
+
+  // Fetch the entries and set to state
+  React.useEffect(() => {
+    const formattedDate = getFormattedDate(date, 'url');
+    const url = `/api/${userId}/logs?date=${formattedDate}`;
+
+    getEntries(url)
+      .then(entries => {
+        setEntries(entries)
+        const preparedEntries = prepareForLogTable(entries)
+        setData(preparedEntries)
+        setOriginalData(preparedEntries)
+      })
+    }, [date]
   )
 
+  const updateTableData = (rowIndex, columnId, value) => {
+    setSkipPageReset(true);
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...old[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    )
+  }
+
+  React.useEffect(() => {
+    setSkipPageReset(false)
+  }, [data])
+
+  const resetData = () => setData(originalData)
+  
   return (
     <>
       <Table
         columns={columns}
         data={data}
+        updateTableData={updateTableData}
+        skipPageReset={skipPageReset}
       />
-      <LogButtons 
+      <LogButtons
+        onResetData={resetData}
         onNavSubmit={props.onNavSubmit}
       />
     </>

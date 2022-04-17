@@ -69,3 +69,16 @@ export function prepareForIndexTable(entries) {
 
   return preparedEntries;
 }
+
+export function getFormattedDate(date, context) {
+  // date is a Date() obj to be converted to a formatted string depending on context
+  // context is a string that determines if the date will be formatted for url or human readability
+  if (context === 'table') {
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  } else if (context === 'url') {
+    let slash_date = date.toLocaleDateString('en-CA', { year: 'numeric', month: 'numeric', day: 'numeric' });
+    return slash_date.replace(/\//g, '-');
+  } else {
+    console.log("see getFormattedDate")
+  }
+}

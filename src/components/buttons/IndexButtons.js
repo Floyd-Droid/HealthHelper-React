@@ -23,7 +23,7 @@ export default class IndexButtons extends React.Component {
 
   handleResetData(e) {
     e.preventDefault();
-    this.props.onResetData()
+    this.props.onResetData();
   }
 
   handleSubmit(e) {

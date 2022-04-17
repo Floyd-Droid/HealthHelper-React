@@ -23,7 +23,7 @@ export default class LogButtons extends React.Component {
 
   handleResetData(e) {
     e.preventDefault();
-    console.log('this will reset the data')
+    this.props.onResetData();
   }
 
   handleSubmit(e) {
