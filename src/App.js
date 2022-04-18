@@ -1,5 +1,6 @@
 import React from 'react';
 import './App.css';
+import './index.css'
 
 import LogTable from './components/LogTable';
 import IndexTable from './components/IndexTable';
@@ -25,7 +26,7 @@ class App extends React.Component {
   
   render() {
     return (
-      <div className="appContainer">
+      <div className="app-container p-3">
         {this.state.status === 'logs' &&
           <div>
             <LogTable

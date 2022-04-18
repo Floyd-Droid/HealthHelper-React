@@ -1,25 +1,40 @@
-div.entryDisplay {
-  height: 100%;
-  width: 100%;
+
+
+/* ----- Table ----- */
+
+.edited {
+  background-color: rgb(135,206,250);
 }
 
-table {
-  border-collapse: collapse;
-  width: 100%;
+.error {
+  color: red;
 }
 
-th,
-td {
-  border: 1px solid #ffffff;
-  text-align: center;
-  padding: 8px;
-  font-size: 16px;
+/* Input */
+
+input.cell-input {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  background-color: inherit;
 }
 
-th {
-  background-color: rgb(117, 201, 250);
+div.range-filter {
+  padding-top: 5px;
 }
 
-td {
-  background-color: rgb(205, 235, 253);
+input.range-filter {
+  width: 60px;
+}
+
+input.num-input {
+  width: 40px;
+}
+
+select.weight-select {
+  width: 55px;
+}
+
+select.volume-select {
+  width: 75px;
 }

@@ -71,12 +71,12 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
 
   return (
     <>
-      <table {...getTableProps()}>
-        <thead>
+      <table className="table table-bordered table-striped table-sm" {...getTableProps()}>
+        <thead className="thead-dark">
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className="text-center" {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (typeof column.toggleSortBy === 'function') {
                       column.toggleSortBy(!column.isSortedDesc)
@@ -95,7 +95,7 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className="text-center" {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
