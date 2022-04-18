@@ -3,7 +3,7 @@ import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 're
 
 import IndexButtons from './buttons/IndexButtons';
 import { getEntries } from '../services/EntryService';
-import { prepareForIndexTable, getFormattedDate } from '../services/TableData';
+import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
 

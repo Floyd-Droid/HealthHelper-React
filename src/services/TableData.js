@@ -1,4 +1,7 @@
-// Functions that calculate and organize database entry info for display in a table.
+// Functions and variables to display entries in a table
+
+export const weightUnits = ['g', 'mg', 'kg', 'lbs', 'oz']
+export const volumeUnits = ['tbsp', 'tsp', 'cup(s)', 'gal', 'pt', 'qt', 'L', 'mL']
 
 export function round(num, precision) {
   let round = Math.round(num + "e+" + precision) + ("e-" + precision);
