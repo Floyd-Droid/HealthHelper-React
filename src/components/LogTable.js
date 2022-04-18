@@ -4,7 +4,8 @@ import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 're
 import LogButtons from './buttons/LogButtons';
 import { getEntries } from '../services/EntryService';
 import { prepareForLogTable, getFormattedDate } from '../services/TableData';
-import { EditableInputCell, IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
+import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
+  TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
 function Table({ columns, data, updateTableData, skipPageReset }) {
   const defaultColumn = React.useMemo(
@@ -168,6 +169,7 @@ export default function LogTable(props) {
       {
         Header: 'Unit',
         accessor: 'amount_unit',
+        Cell: EditableSelectCell,
         disableFilters: true
       },
       {

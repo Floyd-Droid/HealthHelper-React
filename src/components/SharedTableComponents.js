@@ -110,3 +110,74 @@ export const EditableInputCell = ({
     </div>
   )
 }
+
+export const EditableSelectCell = ({
+  value: initialValue,
+  row: { index, original },
+  column: { id },
+  updateTableData,
+}) => {
+  const [value, setValue] = React.useState(initialValue);
+
+  const onChange = e => {
+    setValue(e.target.value);
+  }
+
+  const onBlur = () => {
+    updateTableData(index, id, value);
+  }
+
+  React.useEffect(() => {
+    setValue(initialValue);
+  }, [initialValue]);
+
+  const weightUnits = ['g', 'mg', 'kg', 'lbs', 'oz']
+  const volumeUnits = ['tbsp', 'tsp', 'cup(s)', 'gal', 'pt', 'qt', 'L', 'mL']
+
+  // conditionally add log amount units (only if they exist).
+  // Below works since the spread operator does nothing if the operand is an empty array
+  const amountUnits = [
+    ...(original.weight_unit ? [original.weight_unit] : []),
+    ...(original.volume_unit ? [original.volume_unit] : []),
+    ...(original.serving_by_item ? ['item(s)'] : []),
+  ]
+
+  const amountSelect = (
+    <select className='amount-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+      <option key='0' value='' disabled hidden>---</option>
+      {amountUnits.map((unit, i) => {
+        return <option key={i + 1} value={unit}>{unit}</option>
+      })}
+    </select>
+  )
+
+  const weightSelect = (
+    <select className='weight-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+      <option key='0' value='' disabled hidden>---</option>
+      {weightUnits.map((unit, i) => {
+        return <option key={i + 1} value={unit}>{unit}</option>
+      })}
+    </select>
+  )
+
+  const volumeSelect = (
+    <select className='volume-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+      <option key="0" value='' disabled hidden>---</option>
+      {volumeUnits.map((unit, i) => {
+        return <option key={i + 1}>{unit}</option>
+      })}
+    </select>
+  )
+
+  const selectDiv = (
+    <div className='cell-wrapper'>
+      <div className='select-wrapper'>
+        {id === 'amount_unit' && amountSelect}
+        {id === 'weight_unit' && weightSelect}
+        {id === 'volume_unit' && volumeSelect}
+      </div>
+    </div>
+  )
+
+  return selectDiv;
+}

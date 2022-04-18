@@ -4,7 +4,8 @@ import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 're
 import IndexButtons from './buttons/IndexButtons';
 import { getEntries } from '../services/EntryService';
 import { prepareForIndexTable, getFormattedDate } from '../services/TableData';
-import { EditableInputCell, IndeterminateCheckbox, TextFilter, NumberRangeFilter} from './SharedTableComponents';
+import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
+  TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
 function Table({ columns, data, updateTableData, skipPageReset }) {
 
@@ -169,6 +170,7 @@ export default function IndexTable(props) {
       {
         Header: 'Weight Unit',
         accessor: 'weight_unit',
+        Cell: EditableSelectCell,
         disableFilters: true
       },
       {
@@ -179,6 +181,7 @@ export default function IndexTable(props) {
       {
         Header: 'Volume Unit',
         accessor: 'volume_unit',
+        Cell: EditableSelectCell,
         disableFilters: true
       },
       {
