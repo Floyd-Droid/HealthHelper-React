@@ -10,8 +10,6 @@ export function round(num, precision) {
 
 
 export function prepareForLogTable(entries) {
-  // Make a deep copy of the entries. [why do i need this? maybe i don't!]
-  //let entriesCopy = JSON.parse(JSON.stringify(entries))
 
   let servings;
   let preparedEntries = [];

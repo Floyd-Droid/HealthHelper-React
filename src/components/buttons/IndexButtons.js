@@ -4,10 +4,16 @@ export default class IndexButtons extends React.Component {
   constructor(props) {
     super(props);
 
+    this.handleAddNewRow = this.handleAddNewRow.bind(this);
     this.handleDeleteEntries = this.handleDeleteEntries.bind(this);
     this.handleNav = this.handleNav.bind(this);
     this.handleResetData = this.handleResetData.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleAddNewRow(e) {
+    e.preventDefault();
+    this.props.onAddNewRow();
   }
 
   handleDeleteEntries(e) {
@@ -37,7 +43,7 @@ export default class IndexButtons extends React.Component {
       <div className="index-buttons">
         <form onSubmit={this.handleNav}>
           <button type="submit" name="sub" value="logs">Go to logs</button>
-          <button type="submit" name="sub" value="addIndex">Add an entry</button>
+          <button onClick={this.handleAddNewRow}>+</button>
           <button onClick={this.handleDeleteEntries}>Delete selected entries</button>
           <button onClick={this.handleResetData}>Undo changes</button>
           <button onClick={this.handleSubmit}>Submit changes</button>

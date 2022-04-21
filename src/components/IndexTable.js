@@ -259,7 +259,8 @@ export default function IndexTable(props) {
       },
       {
         Header: 'Cost per Serving',
-        accessor: 'cost_per_serving'
+        accessor: 'cost_per_serving',
+        Cell: ({ value }) => value
       },
     ],
     []
@@ -299,11 +300,49 @@ export default function IndexTable(props) {
     )
   }
 
+  const resetData = () => setData(originalData)
+
+  const addNewRow = () => {
+    const newRow = {
+      isNew: true,
+      name: '',
+      serving_by_weight: '',
+      weight_unit: '',
+      serving_by_volume: '',
+      volume_unit: '',
+      serving_by_item: '',
+      calories: '',
+      total_fat: '',
+      sat_fat: '',
+      trans_fat: '',
+      poly_fat: '',
+      mono_fat: '',
+      cholesterol: '',
+      sodium: '',
+      total_carbs: '',
+      total_fiber: '',
+      sol_fiber: '',
+      insol_fiber: '',
+      total_sugars: '',
+      added_sugars: '',
+      protein: '',
+      cost_per_container: '',
+      servings_per_container: '',
+      cost_per_serving: '',
+    }
+
+
+
+    // for (let key of Object.keys(newRow)) {
+    //   updateTableData(0, key, newRow[key])
+    // }
+
+    setData(oldData => [newRow, ...oldData])
+  }
+
   React.useEffect(() => {
     setSkipPageReset(false)
   }, [data])
-
-  const resetData = () => setData(originalData)
 
   return (
     <>
@@ -314,6 +353,7 @@ export default function IndexTable(props) {
         skipPageReset={skipPageReset}
       />
       <IndexButtons
+        onAddNewRow={addNewRow}
         onResetData={resetData}
         onNavSubmit={props.onNavSubmit}
       />

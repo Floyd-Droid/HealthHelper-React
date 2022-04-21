@@ -168,6 +168,7 @@ export const EditableSelectCell = ({
   column: { id },
   updateTableData,
 }) => {
+  
   const [value, setValue] = React.useState(initialValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('')
@@ -179,7 +180,7 @@ export const EditableSelectCell = ({
     ...(original.volume_unit ? [original.volume_unit] : []),
     ...(original.serving_by_item ? ['item(s)'] : []),
   ]
-  
+
   const onChange = e => {
     setValue(e.target.value);
 
@@ -208,7 +209,7 @@ export const EditableSelectCell = ({
   }, [initialValue]);
 
   const amountSelect = (
-    <select className='amount-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+    <select className='amount-select' value={value} onChange={onChange} onBlur={onBlur}>
       {amountUnits.map((unit, i) => {
         return <option key={i} value={unit}>{unit}</option>
       })}
@@ -216,7 +217,7 @@ export const EditableSelectCell = ({
   )
 
   const weightSelect = (
-    <select className='weight-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+    <select className='weight-select' value={value} onChange={onChange} onBlur={onBlur}>
       <option key='0' value=''>---</option>
       {weightUnits.map((unit, i) => {
         return <option key={i + 1} value={unit}>{unit}</option>
@@ -225,10 +226,10 @@ export const EditableSelectCell = ({
   )
 
   const volumeSelect = (
-    <select className='volume-select' defaultValue={value} onChange={onChange} onBlur={onBlur}>
+    <select className='volume-select' value={value} onChange={onChange} onBlur={onBlur}>
       <option key="0" value=''>---</option>
       {volumeUnits.map((unit, i) => {
-        return <option key={i + 1}>{unit}</option>
+        return <option key={i + 1} value={unit}>{unit}</option>
       })}
     </select>
   )
