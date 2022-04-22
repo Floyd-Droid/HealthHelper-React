@@ -74,7 +74,7 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
       <table className="table table-bordered table-striped table-sm" {...getTableProps()}>
         <thead className="thead-dark">
           {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr className='header-row' {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <th className="text-center" {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
@@ -95,7 +95,7 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className="text-center" {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -331,13 +331,42 @@ export default function IndexTable(props) {
       cost_per_serving: '',
     }
 
-
-
-    // for (let key of Object.keys(newRow)) {
-    //   updateTableData(0, key, newRow[key])
-    // }
-
     setData(oldData => [newRow, ...oldData])
+  }
+
+  function validateServingSize() {
+    // Ensure that at least one serving size section is filled out
+    // Run this when submitting to the DB
+    let table = document.getElementsByTagName('table')[0]
+
+    for (let row of table.rows) {
+      // Skip over the header row:
+      if (row.className === 'header-row') {
+        continue
+      }
+
+      const servWeight = row.getElementsByClassName('serving_by_weight')[0].value
+      const weightUnit = row.getElementsByClassName('weight_unit')[0].value
+      const servVolume = row.getElementsByClassName('serving_by_volume')[0].value
+      const volumeUnit = row.getElementsByClassName('volume_unit')[0].value
+      const servItem = row.getElementsByClassName('serving_by_item')[0].value
+
+      if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
+        // TODO - provide better message display
+        alert(
+          `Please fill in at least one of the serving size field sets for each entry:\n
+          \u2022 Weight quantity and weight unit
+          \u2022 Volume quantity and volume unit
+          \u2022 Item quantity
+          `)
+      }
+    }
+  }
+
+  const submitChanges = () => {
+    validateServingSize()
+
+    // TODO - PUT to DB
   }
 
   React.useEffect(() => {
@@ -354,8 +383,9 @@ export default function IndexTable(props) {
       />
       <IndexButtons
         onAddNewRow={addNewRow}
-        onResetData={resetData}
         onNavSubmit={props.onNavSubmit}
+        onResetData={resetData}
+        onSubmit={submitChanges}
       />
     </>
   )

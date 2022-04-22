@@ -128,11 +128,9 @@ export const EditableInputCell = ({
     setValue(initialValue);
   }, [initialValue]);
 
-  let inputClassName = id === 'name' ? 'cell-input name-input text-left' : 'cell-input num-input text-center';
-  let divClassName = 'cell-input-wrapper';
-  if (isEdited) {
-    divClassName += ' edited';
-  }
+  let inputClassName = id === 'name' ? `${id} cell-input text-left` : `${id} cell-input num-input text-center`;
+
+  let divClassName = isEdited ? 'cell-input-wrapper edited' : 'cell-input-wrapper'
 
   return (
     <div className='cell-wrapper'>
@@ -154,12 +152,6 @@ function validateSelect(key, value, amountUnits) {
     message = units.includes(value) ? '' : 'Select a valid unit';
   }
   return message;
-}
-
-function validateServingSize() {
-  // Ensure that at least one serving size section is filled out
-  // Run this when submitting to the DB
-  console.log('placeholder')
 }
 
 export const EditableSelectCell = ({
@@ -208,31 +200,31 @@ export const EditableSelectCell = ({
     setValue(initialValue);
   }, [initialValue]);
 
-  const amountSelect = (
-    <select className='amount-select' value={value} onChange={onChange} onBlur={onBlur}>
-      {amountUnits.map((unit, i) => {
-        return <option key={i} value={unit}>{unit}</option>
-      })}
-    </select>
-  )
+  let unitSelect;
 
-  const weightSelect = (
-    <select className='weight-select' value={value} onChange={onChange} onBlur={onBlur}>
-      <option key='0' value=''>---</option>
-      {weightUnits.map((unit, i) => {
-        return <option key={i + 1} value={unit}>{unit}</option>
-      })}
-    </select>
-  )
+  if (id === 'amount_unit') {
+    console.log('amount')
+    unitSelect = (
+      <select className={ `${id} serv-input` } value={value} onChange={onChange} onBlur={onBlur}>
+        {amountUnits.map((unit, i) => {
+          return <option key={i} value={unit}>{unit}</option>
+        })}
+      </select>
+    )
+  } else {
+    let units = id === 'weight_unit' ? weightUnits: volumeUnits;
 
-  const volumeSelect = (
-    <select className='volume-select' value={value} onChange={onChange} onBlur={onBlur}>
-      <option key="0" value=''>---</option>
-      {volumeUnits.map((unit, i) => {
-        return <option key={i + 1} value={unit}>{unit}</option>
-      })}
-    </select>
-  )
+    unitSelect = (
+      <select className={`${id} serv-input`} value={value} onChange={onChange} onBlur={onBlur}>
+        <option key='0' value=''>---</option>
+        {units.map((unit, i) => {
+          return <option key={i + 1} value={unit}>{unit}</option>
+        })}
+      </select>
+    )
+  } 
+
+  // console.log(unitSelect.className)
 
   let divClassName = 'select-wrapper p-1';
 
@@ -243,9 +235,7 @@ export const EditableSelectCell = ({
   const selectDiv = (
     <div className='cell-wrapper'>
       <div className={divClassName}>
-        {id === 'amount_unit' && amountSelect}
-        {id === 'weight_unit' && weightSelect}
-        {id === 'volume_unit' && volumeSelect}
+        {unitSelect}
       </div>
       {errorMessage && <div className='error'>{errorMessage}</div>}
     </div>
