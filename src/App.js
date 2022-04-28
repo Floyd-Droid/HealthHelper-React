@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import './index.css'
 
 import LogTable from './components/LogTable';
@@ -26,22 +25,20 @@ class App extends React.Component {
   
   render() {
     return (
-      <div className="app-container p-3">
+      <div className='app-container container-fluid vh-100 vw-100' >
         {this.state.status === 'logs' &&
-          <div>
-            <LogTable
-              userId={this.state.userId}
-              date={this.state.date} 
-              onNavSubmit={this.updateStatus}
-            />
-        </div>}
+          <LogTable
+            userId={this.state.userId}
+            date={this.state.date} 
+            onNavSubmit={this.updateStatus}
+          />
+        }
         {this.state.status === 'index' &&
-          <div>
-            <IndexTable
-              userId={this.state.userId}
-              onNavSubmit={this.updateStatus}
-            />
-        </div>}
+          <IndexTable
+            userId={this.state.userId}
+            onNavSubmit={this.updateStatus}
+          />
+        }
       </div>
     );
   }

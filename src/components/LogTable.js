@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
+import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
 import { getEntries } from '../services/EntryService';
@@ -7,7 +7,7 @@ import { prepareForLogTable, getFormattedDate } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
-function Table({ columns, data, updateTableData, skipPageReset }) {
+function Table({ columns, data, updateTableData }) {
   const defaultColumn = React.useMemo(
     () => ({
       Filter: NumberRangeFilter,
@@ -21,23 +21,14 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
+    rows,
     selectedFlatRows,
-    state: { pageIndex, pageSize, selectedRowIds }
+    state: {selectedRowIds }
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
-      autoResetPage: !skipPageReset,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
@@ -45,7 +36,6 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
     },
     useFilters,
     useSortBy,
-    usePagination,
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
@@ -69,12 +59,12 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
 
   return (
     <>
-      <table className="table table-bordered table-striped table-sm" {...getTableProps()}>
-        <thead className="thead-dark">
+      <table className='table table-bordered table-striped table-sm position-relative' {...getTableProps()}>
+        <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className="text-center" {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className='text-center text-white position-sticky top-0 bg-log-header' {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (typeof column.toggleSortBy === 'function') {
                       column.toggleSortBy(!column.isSortedDesc)
@@ -88,62 +78,18 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
+          {rows.map((row, i) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <tr className='' {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className="text-center" {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
           })}
         </tbody>
       </table>
-      <div className="pagination">
-        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'<<'}
-        </button>{' '}
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'<'}
-        </button>{' '}
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'>'}
-        </button>{' '}
-        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          {'>>'}
-        </button>{' '}
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-        <span>
-          | Go to page:{' '}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(page)
-            }}
-            style={{ width: '50px' }}
-          />
-        </span>{' '}
-        <select
-          value={pageSize}
-          onChange={e => {
-            setPageSize(Number(e.target.value))
-          }}
-        >
-          {[10, 20, 30, 40, 50].map(pageSize => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
     </>
   )
 }
@@ -275,24 +221,24 @@ export default function LogTable(props) {
     )
   }
 
-  React.useEffect(() => {
-    setSkipPageReset(false)
-  }, [data])
-
   const resetData = () => setData(originalData)
   
   return (
     <>
-      <Table
-        columns={columns}
-        data={data}
-        updateTableData={updateTableData}
-        skipPageReset={skipPageReset}
-      />
-      <LogButtons
-        onResetData={resetData}
-        onNavSubmit={props.onNavSubmit}
-      />
+      <div className='table-container'>
+        <Table
+          columns={columns}
+          data={data}
+          updateTableData={updateTableData}
+          skipPageReset={skipPageReset}
+        />
+      </div>
+      <div className='button-container position-sticky bottom-0 w-100 p-2 bg-log-btn-container'>
+        <LogButtons
+          onResetData={resetData}
+          onNavSubmit={props.onNavSubmit}
+        />
+      </div>
     </>
   )
 }

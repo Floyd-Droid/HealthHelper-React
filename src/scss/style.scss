@@ -1,0 +1,17 @@
+@import "../../node_modules/bootstrap/scss/functions";
+
+$theme-colors: (
+    log-header: rgb(51, 153, 235),
+    log-btn: rgb(255, 160, 71),
+    log-btn-container: white,
+    index-header: rgb(51, 153, 235),
+    index-btn: rgb(255, 160, 71),
+    index-btn-container: white,
+);
+
+@import "../../node_modules/bootstrap/scss/variables";
+@import "../../node_modules/bootstrap/scss/mixins";
+
+
+// Set the changes by importing bootstrap
+@import "../../node_modules/bootstrap/scss/bootstrap";

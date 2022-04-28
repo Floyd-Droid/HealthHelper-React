@@ -1,4 +1,5 @@
 import React from 'react';
+import $ from 'jquery';
 
 export default class IndexButtons extends React.Component {
   constructor(props) {
@@ -24,7 +25,7 @@ export default class IndexButtons extends React.Component {
   handleNav(e) {
     // Navigate to selected page by updating the App's status
     e.preventDefault();
-    this.props.onNavSubmit(document.activeElement.value);
+    this.props.onNavSubmit('logs');
   }
 
   handleResetData(e) {
@@ -40,15 +41,13 @@ export default class IndexButtons extends React.Component {
 
   render() {
     return (
-      <div className="index-buttons">
-        <form onSubmit={this.handleNav}>
-          <button type="submit" name="sub" value="logs">Go to logs</button>
-          <button onClick={this.handleAddNewRow}>+</button>
-          <button onClick={this.handleDeleteEntries}>Delete selected entries</button>
-          <button onClick={this.handleResetData}>Undo changes</button>
-          <button onClick={this.handleSubmit}>Submit changes</button>
-        </form>
-      </div>
+      <form>
+        <button className='bg-index-btn' onClick={this.handleNav}>Go to logs</button>
+        <button className='bg-index-btn' onClick={this.handleAddNewRow}>+</button>
+        <button className='bg-index-btn' onClick={this.handleDeleteEntries}>Delete selected entries</button>
+        <button className='bg-index-btn' onClick={this.handleResetData}>Undo changes</button>
+        <button className='bg-index-btn' onClick={this.handleSubmit}>Submit changes</button>
+      </form>
     );
   }
 }

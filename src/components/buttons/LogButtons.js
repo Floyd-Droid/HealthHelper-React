@@ -18,7 +18,7 @@ export default class LogButtons extends React.Component {
   handleNav(e) {
     // Navigate to selected page by updating the App's status
     e.preventDefault();
-    this.props.onNavSubmit(document.activeElement.value);
+    this.props.onNavSubmit(e.target.value);
   }
 
   handleResetData(e) {
@@ -34,15 +34,13 @@ export default class LogButtons extends React.Component {
 
   render() {
     return (
-      <div className="log-buttons">
-        <form onSubmit={this.handleNav}>
-          <button type="submit" name="sub" value="index">Go to Index</button>
-          <button type="submit" name="sub" value="addLog">Add entries</button>
-          <button onClick={this.handleDeleteEntries}>Delete selected entries</button>
-          <button onClick={this.handleResetData}>Undo changes</button>
-          <button onClick={this.handleSubmit}>Submit changes</button>
-        </form>
-      </div>
+      <form>
+        <button className='bg-log-btn' onClick={this.handleNav} value='index'>Go to index</button>
+        <button className='bg-log-btn' onClick={this.handleNav} value='addLog'>Add entries</button>
+        <button className='bg-log-btn' onClick={this.handleDeleteEntries}>Delete selected entries</button>
+        <button className='bg-log-btn' onClick={this.handleResetData}>Undo changes</button>
+        <button className='bg-log-btn' onClick={this.handleSubmit}>Submit changes</button>
+      </form>
     );
   }
 }

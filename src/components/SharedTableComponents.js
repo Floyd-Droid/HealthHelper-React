@@ -56,7 +56,8 @@ export function NumberRangeFilter({
     <>
       <div className="range-filter">
         <input
-          className="header-filter range-filter"
+          className="header-filter range-filter" 
+          style={{width: '60px'}}
           value={filterValue[0] || ''}
           type="number"
           onChange={e => {
@@ -70,6 +71,7 @@ export function NumberRangeFilter({
       <div className="range-filter">
         <input
           className="header-filter range-filter"
+          style={{width: '60px'}}
           value={filterValue[1] || ''}
           type="number"
           onChange={e => {
@@ -97,8 +99,9 @@ function validateInput(key, value) {
 
 export const EditableInputCell = ({
   value: initialValue,
-  row: { index },
+  row: { index, original },
   column: { id },
+  updateEditedEntryIds,
   updateTableData,
 }) => {
   const [value, setValue] = React.useState(initialValue);
@@ -107,10 +110,14 @@ export const EditableInputCell = ({
 
   const onChange = e => {
     setValue(e.target.value);
-    if (String(e.target.value) !== String(initialValue)) {
-      setIsEdited(true);
-    } else {
-      setIsEdited(false);
+
+    // Track the edited input values
+    if ((String(e.target.value) !== String(initialValue)) && !isEdited) {
+      updateEditedEntryIds(original.id, 'add')
+      setIsEdited(true)
+    } else if ((String(e.target.value) !== String(initialValue)) && isEdited) {
+      updateEditedEntryIds(original.id, 'remove')
+      setIsEdited(false)
     }
   }
 
@@ -129,15 +136,26 @@ export const EditableInputCell = ({
   }, [initialValue]);
 
   let inputClassName = id === 'name' ? `${id} cell-input text-left` : `${id} cell-input num-input text-center`;
+  inputClassName += ' p-0 m-0 border-0'  //bg-inherit
 
-  let divClassName = isEdited ? 'cell-input-wrapper edited' : 'cell-input-wrapper'
+  let divClassName = isEdited ? 'cell-input-wrapper bg-primary' : 'cell-input-wrapper'
+
+  
+
+  let input = (<input className={inputClassName} style={id==='name' ? {} : {width: '40px'}} 
+    value={value} onChange={onChange} onBlur={onBlur} />
+  )
+
+  let newNameInput = (<input className={inputClassName} autoFocus
+     value={value} onChange={onChange} onBlur={onBlur} />
+  )
 
   return (
     <div className='cell-wrapper'>
       <div className={divClassName}>
-        <input className={inputClassName} value={value} onChange={onChange} onBlur={onBlur} />
+        {original.isNew  && id === 'name' ? newNameInput: input}
       </div>
-      {errorMessage && <div className='error'>{errorMessage}</div>}
+      {errorMessage && <div className='error text-danger'>{errorMessage}</div>}
     </div>
   )
 }
@@ -165,8 +183,6 @@ export const EditableSelectCell = ({
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('')
 
-    // conditionally add log amount units (only if they exist).
-  // Below works since the spread operator does nothing if the operand is an empty array
   const amountUnits = [
     ...(original.weight_unit ? [original.weight_unit] : []),
     ...(original.volume_unit ? [original.volume_unit] : []),
@@ -203,9 +219,8 @@ export const EditableSelectCell = ({
   let unitSelect;
 
   if (id === 'amount_unit') {
-    console.log('amount')
     unitSelect = (
-      <select className={ `${id} serv-input` } value={value} onChange={onChange} onBlur={onBlur}>
+      <select className={ `${id} serv-input` } style={{width: '85px'}} value={value} onChange={onChange} onBlur={onBlur}>
         {amountUnits.map((unit, i) => {
           return <option key={i} value={unit}>{unit}</option>
         })}
@@ -215,7 +230,8 @@ export const EditableSelectCell = ({
     let units = id === 'weight_unit' ? weightUnits: volumeUnits;
 
     unitSelect = (
-      <select className={`${id} serv-input`} value={value} onChange={onChange} onBlur={onBlur}>
+      <select className={`${id} serv-input`} style={id==='weight_unit' ? {width: '55px'} : {width: '75px'}}
+      value={value} onChange={onChange} onBlur={onBlur}>
         <option key='0' value=''>---</option>
         {units.map((unit, i) => {
           return <option key={i + 1} value={unit}>{unit}</option>
@@ -224,12 +240,10 @@ export const EditableSelectCell = ({
     )
   } 
 
-  // console.log(unitSelect.className)
-
   let divClassName = 'select-wrapper p-1';
 
   if (isEdited) {
-    divClassName += ' edited'
+    divClassName += ' bg-primary'
   }
 
   const selectDiv = (
@@ -237,7 +251,7 @@ export const EditableSelectCell = ({
       <div className={divClassName}>
         {unitSelect}
       </div>
-      {errorMessage && <div className='error'>{errorMessage}</div>}
+      {errorMessage && <div className='error text-danger'>{errorMessage}</div>}
     </div>
   )
 

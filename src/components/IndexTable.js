@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTable, useRowSelect, usePagination, useSortBy, useFilters } from 'react-table';
+import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
 import { getEntries } from '../services/EntryService';
@@ -7,7 +7,7 @@ import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
-function Table({ columns, data, updateTableData, skipPageReset }) {
+function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -23,31 +23,22 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
     getTableBodyProps,
     headerGroups,
     prepareRow,
-    page,
-    canPreviousPage,
-    canNextPage,
-    pageOptions,
-    pageCount,
-    gotoPage,
-    nextPage,
-    previousPage,
-    setPageSize,
+    rows,
     selectedFlatRows,
-    state: { pageIndex, pageSize, selectedRowIds }
+    state: { selectedRowIds }
   } = useTable(
     {
       columns,
       data,
       defaultColumn,
-      autoResetPage: !skipPageReset,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
+      updateEditedEntryIds,
       updateTableData,
     },
     useFilters,
     useSortBy,
-    usePagination,
     useRowSelect,
     hooks => {
       hooks.visibleColumns.push(columns => [
@@ -71,12 +62,12 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
 
   return (
     <>
-      <table className="table table-bordered table-striped table-sm" {...getTableProps()}>
-        <thead className="thead-dark">
+      <table className='table table-bordered table-striped table-sm position-relative' id='index-table' {...getTableProps()}>
+        <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
-            <tr className='header-row' {...headerGroup.getHeaderGroupProps()}>
+            <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className="text-center" {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className='text-center text-white position-sticky top-0 bg-index-header' {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (typeof column.toggleSortBy === 'function') {
                       column.toggleSortBy(!column.isSortedDesc)
@@ -90,7 +81,7 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
           ))}
         </thead>
         <tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
+          {rows.map((row, i) => {
             prepareRow(row)
             return (
               <tr {...row.getRowProps()}>
@@ -102,50 +93,6 @@ function Table({ columns, data, updateTableData, skipPageReset }) {
           })}
         </tbody>
       </table>
-      <div className="pagination">
-        <button onClick={() => gotoPage(0)} disabled={!canPreviousPage}>
-          {'<<'}
-        </button>{' '}
-        <button onClick={() => previousPage()} disabled={!canPreviousPage}>
-          {'<'}
-        </button>{' '}
-        <button onClick={() => nextPage()} disabled={!canNextPage}>
-          {'>'}
-        </button>{' '}
-        <button onClick={() => gotoPage(pageCount - 1)} disabled={!canNextPage}>
-          {'>>'}
-        </button>{' '}
-        <span>
-          Page{' '}
-          <strong>
-            {pageIndex + 1} of {pageOptions.length}
-          </strong>{' '}
-        </span>
-        <span>
-          | Go to page:{' '}
-          <input
-            type="number"
-            defaultValue={pageIndex + 1}
-            onChange={e => {
-              const page = e.target.value ? Number(e.target.value) - 1 : 0
-              gotoPage(page)
-            }}
-            style={{ width: '50px' }}
-          />
-        </span>{' '}
-        <select
-          value={pageSize}
-          onChange={e => {
-            setPageSize(Number(e.target.value))
-          }}
-        >
-          {[10, 20, 30, 40, 50].map(pageSize => (
-            <option key={pageSize} value={pageSize}>
-              Show {pageSize}
-            </option>
-          ))}
-        </select>
-      </div>
     </>
   )
 }
@@ -269,16 +216,16 @@ export default function IndexTable(props) {
   const [entries, setEntries] = React.useState([])
   const [data, setData] = React.useState([])
   const [originalData, setOriginalData] = React.useState([]);
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
+  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
   // Fetch the entries and set to state
   React.useEffect(() => {
     const url = `/api/${userId}/index`;
 
     getEntries(url)
-      .then(entries => {
-        setEntries(entries)
-        const preparedEntries = prepareForIndexTable(entries)
+      .then(dbEntries => {
+        setEntries(dbEntries)
+        const preparedEntries = prepareForIndexTable(dbEntries)
         setData(preparedEntries)
         setOriginalData(preparedEntries)
       })
@@ -286,7 +233,6 @@ export default function IndexTable(props) {
   )
 
   const updateTableData = (rowIndex, columnId, value) => {
-    setSkipPageReset(true);
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -300,43 +246,22 @@ export default function IndexTable(props) {
     )
   }
 
-  const resetData = () => setData(originalData)
-
-  const addNewRow = () => {
-    const newRow = {
-      isNew: true,
-      name: '',
-      serving_by_weight: '',
-      weight_unit: '',
-      serving_by_volume: '',
-      volume_unit: '',
-      serving_by_item: '',
-      calories: '',
-      total_fat: '',
-      sat_fat: '',
-      trans_fat: '',
-      poly_fat: '',
-      mono_fat: '',
-      cholesterol: '',
-      sodium: '',
-      total_carbs: '',
-      total_fiber: '',
-      sol_fiber: '',
-      insol_fiber: '',
-      total_sugars: '',
-      added_sugars: '',
-      protein: '',
-      cost_per_container: '',
-      servings_per_container: '',
-      cost_per_serving: '',
+  const updateEditedEntryIds = (entryId, action) => {
+    // Track which existing entries have been edited by the user
+    if (action === 'add') {
+      setEditedEntryIds(old => [...old, entryId])
+    } else {
+      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)))
     }
-
-    setData(oldData => [newRow, ...oldData])
   }
+
+  const resetData = () => setData(originalData)
 
   function validateServingSize() {
     // Ensure that at least one serving size section is filled out
     // Run this when submitting to the DB
+
+    // TODO - learn to use React refs to access DOM nodes instead
     let table = document.getElementsByTagName('table')[0]
 
     for (let row of table.rows) {
@@ -369,24 +294,55 @@ export default function IndexTable(props) {
     // TODO - PUT to DB
   }
 
-  React.useEffect(() => {
-    setSkipPageReset(false)
-  }, [data])
+  const addNewRow = () => {
+    const newRow = {
+      isNew: true,
+      name: '',
+      serving_by_weight: '',
+      weight_unit: '',
+      serving_by_volume: '',
+      volume_unit: '',
+      serving_by_item: '',
+      calories: '',
+      total_fat: '',
+      sat_fat: '',
+      trans_fat: '',
+      poly_fat: '',
+      mono_fat: '',
+      cholesterol: '',
+      sodium: '',
+      total_carbs: '',
+      total_fiber: '',
+      sol_fiber: '',
+      insol_fiber: '',
+      total_sugars: '',
+      added_sugars: '',
+      protein: '',
+      cost_per_container: '',
+      servings_per_container: '',
+      cost_per_serving: '',
+    }
+    setData(old => [...old, newRow]);
+  }
 
   return (
     <>
-      <Table
-        columns={columns}
-        data={data}
-        updateTableData={updateTableData}
-        skipPageReset={skipPageReset}
-      />
-      <IndexButtons
-        onAddNewRow={addNewRow}
-        onNavSubmit={props.onNavSubmit}
-        onResetData={resetData}
-        onSubmit={submitChanges}
-      />
+      <div className='table-container'>
+        <Table
+          columns={columns}
+          data={data}
+          updateEditedEntryIds={updateEditedEntryIds}
+          updateTableData={updateTableData}
+        />
+      </div>
+      <div className='button-container position-sticky bottom-0 w-100 p-2 bg-index-btn-container'>
+        <IndexButtons
+          onAddNewRow={addNewRow}
+          onNavSubmit={props.onNavSubmit}
+          onResetData={resetData}
+          onSubmit={submitChanges}
+        />
+      </div>
     </>
   )
 }
