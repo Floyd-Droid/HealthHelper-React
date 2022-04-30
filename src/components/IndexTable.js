@@ -7,7 +7,7 @@ import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
-function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
+function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -34,6 +34,7 @@ function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
+      dbData,
       updateEditedEntryIds,
       updateTableData,
     },
@@ -215,7 +216,7 @@ export default function IndexTable(props) {
 
   const [entries, setEntries] = React.useState([])
   const [data, setData] = React.useState([])
-  const [originalData, setOriginalData] = React.useState([]);
+  const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
   // Fetch the entries and set to state
@@ -227,7 +228,7 @@ export default function IndexTable(props) {
         setEntries(dbEntries)
         const preparedEntries = prepareForIndexTable(dbEntries)
         setData(preparedEntries)
-        setOriginalData(preparedEntries)
+        setDbData(preparedEntries)
       })
     }, [date]
   )
@@ -254,8 +255,6 @@ export default function IndexTable(props) {
       setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)))
     }
   }
-
-  const resetData = () => setData(originalData)
 
   function validateServingSize() {
     // Ensure that at least one serving size section is filled out
@@ -323,6 +322,11 @@ export default function IndexTable(props) {
       cost_per_serving: '',
     }
     setData(old => [...old, newRow]);
+  }  
+  
+  const resetData = () => {
+    setData(dbData)
+    setEditedEntryIds([])
   }
 
   return (
@@ -331,6 +335,7 @@ export default function IndexTable(props) {
         <Table
           columns={columns}
           data={data}
+          dbData={dbData}
           updateEditedEntryIds={updateEditedEntryIds}
           updateTableData={updateTableData}
         />

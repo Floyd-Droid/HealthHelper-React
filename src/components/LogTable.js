@@ -7,7 +7,8 @@ import { prepareForLogTable, getFormattedDate } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
-function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
+function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData }) {
+
   const defaultColumn = React.useMemo(
     () => ({
       Filter: NumberRangeFilter,
@@ -32,6 +33,7 @@ function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
+      dbData,
       updateEditedEntryIds,
       updateTableData,
     },
@@ -189,7 +191,7 @@ export default function LogTable(props) {
 
   const [entries, setEntries] = React.useState([])
   const [data, setData] = React.useState([])
-  const [originalData, setOriginalData] = React.useState([]);
+  const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
   // Fetch the entries and set to state
@@ -202,7 +204,7 @@ export default function LogTable(props) {
         setEntries(entries)
         const preparedEntries = prepareForLogTable(entries)
         setData(preparedEntries)
-        setOriginalData(preparedEntries)
+        setDbData(preparedEntries)
       })
     }, [date]
   )
@@ -230,7 +232,10 @@ export default function LogTable(props) {
     }
   }
 
-  const resetData = () => setData(originalData)
+  const resetData = () => {
+    setData(dbData)
+    setEditedEntryIds([])
+  }
   
   return (
     <>
@@ -238,6 +243,7 @@ export default function LogTable(props) {
         <Table
           columns={columns}
           data={data}
+          dbData={dbData}
           updateEditedEntryIds={updateEditedEntryIds}
           updateTableData={updateTableData}
         />

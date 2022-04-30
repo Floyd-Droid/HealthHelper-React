@@ -99,42 +99,66 @@ function validateInput(key, value) {
 }
 
 export const EditableInputCell = ({
-  value: initialValue,
+  value: initialCellValue,
   row: { index, original },
   column: { id },
+  dbData,
   updateEditedEntryIds,
   updateTableData,
 }) => {
-  const [value, setValue] = React.useState(initialValue);
+
+  // var: original - the entry data currently held in the react-table
+  // var: initialCellValue - the initial value of the cell based on data passed to react-table
+  // var: dbData - the entry data from the last database fetch
+
+  // Find the corresponding value from the last fetch (the true initial value)
+  var init;
+  for (let entry of dbData) {
+    if (entry.id == original.id) {
+      init = entry[id]
+      break;
+    }
+  }
+
+  // var: initialValue - the initial value from the last database fetch
+  const [initialValue, setInitialValue] = React.useState('')
+
+  const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const onChange = e => {
-    setValue(e.target.value);
+    let newVal = e.target.value
+    setValue(newVal);
 
-    // Track the edited input values
-    if ((String(e.target.value) !== String(initialValue)) && !isEdited) {
+    // Track the edited entries by id
+    if ((String(newVal) !== String(initialValue)) && !isEdited) {
       updateEditedEntryIds(original.id, 'add')
       setIsEdited(true)
-    } else if ((String(e.target.value) === String(initialValue)) && isEdited) {
+    } else if ((String(newVal) === String(initialValue)) && isEdited) {
       updateEditedEntryIds(original.id, 'remove')
       setIsEdited(false)
     }
-  }
 
-  const onBlur = () => {
-    const validationMessage = validateInput(id, value);
+    const validationMessage = validateInput(id, newVal);
     if (validationMessage) {
       setErrorMessage(validationMessage);
     } else {
       setErrorMessage('');
-      updateTableData(index, id, value);
     }
+
+    updateTableData(index, id, newVal);
   }
 
   React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setInitialValue(init)
+    setValue(initialCellValue);
+
+    if (String(initialCellValue) === String(init)) {
+      setIsEdited(false)
+      setErrorMessage('')
+    }
+  }, [initialCellValue, init]);
 
   let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
   inputClassName += ' p-0 m-0 border-0'
@@ -147,13 +171,12 @@ export const EditableInputCell = ({
     divClassName += ' bg-cell-edit';
   }
 
-
   const autoFocus = id === 'name' && original.isNew;
 
   const input = (<input className={inputClassName}
       {...(autoFocus ? {autoFocus} : {})}
       style={(id==='name' ? {} : {width: '40px'})}
-      value={value} onChange={onChange} onBlur={onBlur} />
+      value={value} onChange={onChange} />
     )
 
   return (
@@ -176,13 +199,24 @@ function validateSelect(key, value, amountUnits) {
 }
 
 export const EditableSelectCell = ({
-  value: initialValue,
+  value: initialCellValue,
   row: { index, original },
   column: { id },
+  dbData,
   updateTableData,
 }) => {
-  
-  const [value, setValue] = React.useState(initialValue);
+
+  // Find the original value from the last fetch
+  var init;
+  for (let entry of dbData) {
+    if (entry.id == original.id) {
+      init = entry[id]
+      break;
+    }
+  }
+
+  const [initialValue, setInitialValue] = React.useState('')
+  const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('')
 
@@ -193,31 +227,29 @@ export const EditableSelectCell = ({
   ]
 
   const onChange = e => {
-    setValue(e.target.value);
+    let newVal = e.target.value
+    setValue(newVal);
 
-    if (String(e.target.value) !== String(initialValue)) {
+    if (String(newVal) !== String(initialValue)) {
       setIsEdited(true);
     } else {
       setIsEdited(false);
     }
 
-    const validationMessage = validateSelect(id, e.target.value, amountUnits);
+    const validationMessage = validateSelect(id, newVal, amountUnits);
     if (validationMessage) {
       setErrorMessage(validationMessage);
     } else {
       setErrorMessage('');
     }
-  }
 
-  const onBlur = () => {
-    if (!errorMessage) {
-      updateTableData(index, id, value);  
-    }
+    updateTableData(index, id, newVal);
   }
 
   React.useEffect(() => {
-    setValue(initialValue);
-  }, [initialValue]);
+    setValue(initialCellValue);
+    setInitialValue(init)
+  }, [initialCellValue, init]);
 
   let units = (id === 'amount_unit')
     ? amountUnits 
@@ -226,7 +258,7 @@ export const EditableSelectCell = ({
       : volumeUnits;
 
   let unitSelect = (
-    <select className={ `${id}` } value={value} onChange={onChange} onBlur={onBlur}
+    <select className={ `${id}` } value={value} onChange={onChange}
       style={(id === 'amount_unit' ? {width: '85px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
       {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
       {units.map((unit, i) => {
@@ -235,7 +267,7 @@ export const EditableSelectCell = ({
     </select>
   )
 
-  let divClassName = 'p-1';
+  let divClassName = 'p-2 m-0';
 
   if (isEdited) {
     divClassName += ' bg-cell-edit'
@@ -243,10 +275,7 @@ export const EditableSelectCell = ({
 
   const selectDiv = (
     <div className={divClassName}>
-      <div className='m-0 p-0'>
-        {unitSelect}
-      </div>
-      {errorMessage && <div className='error text-danger'>{errorMessage}</div>}
+      {unitSelect}
     </div>
   )
 
