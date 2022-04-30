@@ -49,6 +49,19 @@ app.get('/api/:userId/index', async (req, res) => {
   }
 })
 
+app.put('/api/:userId/index', async (req, res) => {
+  const userId = req.params.userId;
+  const body = req.body
+
+  try {
+    const dbResult = await indexModel.updateIndexEntries(body, userId);
+    res.status(200).json(dbResult);
+  } catch (err) {
+    console.log(err)
+    res.status(500).send(err);
+  }
+})
+
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
 });

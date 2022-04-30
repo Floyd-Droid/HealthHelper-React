@@ -112,7 +112,7 @@ export const EditableInputCell = ({
   // var: dbData - the entry data from the last database fetch
 
   // Find the corresponding value from the last fetch (the true initial value)
-  var init;
+  let init;
   for (let entry of dbData) {
     if (entry.id == original.id) {
       init = entry[id]
@@ -191,9 +191,9 @@ function validateSelect(key, value, amountUnits) {
   if (key === 'amount_unit') {
     message = amountUnits.includes(value) ? '' : 'Select a valid unit';
   } else {
-    let units = key === 'weight_unit' ? weightUnits : volumeUnits;
-    units.push('')
-    message = units.includes(value) ? '' : 'Select a valid unit';
+    let tmpUnits = key === 'weight_unit' ? [...weightUnits] : [...volumeUnits];
+    tmpUnits.push('')
+    message = tmpUnits.includes(value) ? '' : 'Select a valid unit';
   }
   return message;
 }
@@ -203,11 +203,12 @@ export const EditableSelectCell = ({
   row: { index, original },
   column: { id },
   dbData,
+  updateEditedEntryIds,
   updateTableData,
 }) => {
 
   // Find the original value from the last fetch
-  var init;
+  let init;
   for (let entry of dbData) {
     if (entry.id == original.id) {
       init = entry[id]
@@ -230,10 +231,13 @@ export const EditableSelectCell = ({
     let newVal = e.target.value
     setValue(newVal);
 
+    // Track the edited entries by id
     if (String(newVal) !== String(initialValue)) {
-      setIsEdited(true);
-    } else {
-      setIsEdited(false);
+      updateEditedEntryIds(original.id, 'add')
+      setIsEdited(true)
+    } else if (String(newVal) === String(initialValue)) {
+      updateEditedEntryIds(original.id, 'remove')
+      setIsEdited(false)
     }
 
     const validationMessage = validateSelect(id, newVal, amountUnits);
@@ -256,13 +260,13 @@ export const EditableSelectCell = ({
     : id === 'weight_unit' 
       ? weightUnits
       : volumeUnits;
-
+  
   let unitSelect = (
     <select className={ `${id}` } value={value} onChange={onChange}
       style={(id === 'amount_unit' ? {width: '85px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
       {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
       {units.map((unit, i) => {
-        return <option key={i + 1} value={unit}>{unit}</option>
+        return <option key={i} value={unit}>{unit}</option>
       })}
     </select>
   )

@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
-import { getEntries } from '../services/EntryService';
+import { getEntries, updateEntryData } from '../services/EntryService';
 import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
@@ -288,9 +288,23 @@ export default function IndexTable(props) {
   }
 
   const submitChanges = () => {
-    validateServingSize()
+    //validateServingSize()
 
-    // TODO - PUT to DB
+    const editedEntries = [];
+
+    for (let id of editedEntryIds) {
+      for (let entry of data) {
+        if (entry.id === id) {
+          editedEntries.push(entry)
+        }
+      }
+    }
+
+    let url = `api/${userId}/index`;
+    updateEntryData(url, editedEntries)
+      .then(response => {
+        console.log(response)
+      }).catch(e => console.log('error in updateDb: \n', e))
   }
 
   const addNewRow = () => {
