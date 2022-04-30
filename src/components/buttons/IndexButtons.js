@@ -1,5 +1,4 @@
 import React from 'react';
-import $ from 'jquery';
 
 export default class IndexButtons extends React.Component {
   constructor(props) {
@@ -42,11 +41,13 @@ export default class IndexButtons extends React.Component {
   render() {
     return (
       <form>
-        <button className='bg-index-btn' onClick={this.handleNav}>Go to logs</button>
-        <button className='bg-index-btn' onClick={this.handleAddNewRow}>+</button>
-        <button className='bg-index-btn' onClick={this.handleDeleteEntries}>Delete selected entries</button>
-        <button className='bg-index-btn' onClick={this.handleResetData}>Undo changes</button>
-        <button className='bg-index-btn' onClick={this.handleSubmit}>Submit changes</button>
+        <div className='d-flex justify-content-start'>
+          <button type='button' className='btn bg-btn mr-3' onClick={this.handleNav}>Go to logs</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleAddNewRow}>+</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleDeleteEntries}>Delete selected entries</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleResetData}>Undo changes</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleSubmit}>Submit changes</button>
+        </div>
       </form>
     );
   }

@@ -25,7 +25,7 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter }
   return (
     <div className="text-filter">
       <input
-        className="header-filter text-filter"
+        className="header-filter text-filter bg-white"
         value={filterValue || ''}
         onChange={e => {
           setFilter(e.target.value || undefined)
@@ -56,7 +56,7 @@ export function NumberRangeFilter({
     <>
       <div className="range-filter">
         <input
-          className="header-filter range-filter" 
+          className="header-filter range-filter bg-white" 
           style={{width: '60px'}}
           value={filterValue[0] || ''}
           type="number"
@@ -70,7 +70,7 @@ export function NumberRangeFilter({
       </div>
       <div className="range-filter">
         <input
-          className="header-filter range-filter"
+          className="header-filter range-filter bg-white"
           style={{width: '60px'}}
           value={filterValue[1] || ''}
           type="number"
@@ -91,6 +91,7 @@ function validateInput(key, value) {
   let message = '';
   if (key === 'name') {
     message = value === '' ? 'Name is required': '';
+    // handle duplicate names eventually
   } else if (isNaN(Number(value))){
     message = 'Must be a number';
   }
@@ -115,7 +116,7 @@ export const EditableInputCell = ({
     if ((String(e.target.value) !== String(initialValue)) && !isEdited) {
       updateEditedEntryIds(original.id, 'add')
       setIsEdited(true)
-    } else if ((String(e.target.value) !== String(initialValue)) && isEdited) {
+    } else if ((String(e.target.value) === String(initialValue)) && isEdited) {
       updateEditedEntryIds(original.id, 'remove')
       setIsEdited(false)
     }
@@ -135,27 +136,29 @@ export const EditableInputCell = ({
     setValue(initialValue);
   }, [initialValue]);
 
-  let inputClassName = id === 'name' ? `${id} cell-input text-left` : `${id} cell-input num-input text-center`;
-  inputClassName += ' p-0 m-0 border-0'  //bg-inherit
+  let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
+  inputClassName += ' p-0 m-0 border-0'
 
-  let divClassName = isEdited ? 'cell-input-wrapper bg-primary' : 'cell-input-wrapper'
+  let divClassName = '';
 
-  
+  if (isEdited && errorMessage) {
+    divClassName += ' bg-cell-error';
+  } else if (isEdited) {
+    divClassName += ' bg-cell-edit';
+  }
 
-  let input = (<input className={inputClassName} style={id==='name' ? {} : {width: '40px'}} 
-    value={value} onChange={onChange} onBlur={onBlur} />
-  )
 
-  let newNameInput = (<input className={inputClassName} autoFocus
-     value={value} onChange={onChange} onBlur={onBlur} />
-  )
+  const autoFocus = id === 'name' && original.isNew;
+
+  const input = (<input className={inputClassName}
+      {...(autoFocus ? {autoFocus} : {})}
+      style={(id==='name' ? {} : {width: '40px'})}
+      value={value} onChange={onChange} onBlur={onBlur} />
+    )
 
   return (
-    <div className='cell-wrapper'>
-      <div className={divClassName}>
-        {original.isNew  && id === 'name' ? newNameInput: input}
-      </div>
-      {errorMessage && <div className='error text-danger'>{errorMessage}</div>}
+    <div className={divClassName}>
+      {input}
     </div>
   )
 }
@@ -216,39 +219,31 @@ export const EditableSelectCell = ({
     setValue(initialValue);
   }, [initialValue]);
 
-  let unitSelect;
+  let units = (id === 'amount_unit')
+    ? amountUnits 
+    : id === 'weight_unit' 
+      ? weightUnits
+      : volumeUnits;
 
-  if (id === 'amount_unit') {
-    unitSelect = (
-      <select className={ `${id} serv-input` } style={{width: '85px'}} value={value} onChange={onChange} onBlur={onBlur}>
-        {amountUnits.map((unit, i) => {
-          return <option key={i} value={unit}>{unit}</option>
-        })}
-      </select>
-    )
-  } else {
-    let units = id === 'weight_unit' ? weightUnits: volumeUnits;
+  let unitSelect = (
+    <select className={ `${id}` } value={value} onChange={onChange} onBlur={onBlur}
+      style={(id === 'amount_unit' ? {width: '85px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
+      {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
+      {units.map((unit, i) => {
+        return <option key={i + 1} value={unit}>{unit}</option>
+      })}
+    </select>
+  )
 
-    unitSelect = (
-      <select className={`${id} serv-input`} style={id==='weight_unit' ? {width: '55px'} : {width: '75px'}}
-      value={value} onChange={onChange} onBlur={onBlur}>
-        <option key='0' value=''>---</option>
-        {units.map((unit, i) => {
-          return <option key={i + 1} value={unit}>{unit}</option>
-        })}
-      </select>
-    )
-  } 
-
-  let divClassName = 'select-wrapper p-1';
+  let divClassName = 'p-1';
 
   if (isEdited) {
-    divClassName += ' bg-primary'
+    divClassName += ' bg-cell-edit'
   }
 
   const selectDiv = (
-    <div className='cell-wrapper'>
-      <div className={divClassName}>
+    <div className={divClassName}>
+      <div className='m-0 p-0'>
         {unitSelect}
       </div>
       {errorMessage && <div className='error text-danger'>{errorMessage}</div>}

@@ -62,12 +62,12 @@ function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
 
   return (
     <>
-      <table className='table table-bordered table-striped table-sm position-relative' id='index-table' {...getTableProps()}>
+      <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-index-header' {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className='text-center text-white position-sticky top-0 bg-header' {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (typeof column.toggleSortBy === 'function') {
                       column.toggleSortBy(!column.isSortedDesc)
@@ -86,7 +86,7 @@ function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='p-0 m-0 text-center align-middle' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -327,7 +327,7 @@ export default function IndexTable(props) {
 
   return (
     <>
-      <div className='table-container'>
+      <div className='container-fluid p-3'>
         <Table
           columns={columns}
           data={data}
@@ -335,7 +335,7 @@ export default function IndexTable(props) {
           updateTableData={updateTableData}
         />
       </div>
-      <div className='button-container position-sticky bottom-0 w-100 p-2 bg-index-btn-container'>
+      <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <IndexButtons
           onAddNewRow={addNewRow}
           onNavSubmit={props.onNavSubmit}

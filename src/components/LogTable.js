@@ -7,7 +7,7 @@ import { prepareForLogTable, getFormattedDate } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
-function Table({ columns, data, updateTableData }) {
+function Table({ columns, data, updateEditedEntryIds, updateTableData }) {
   const defaultColumn = React.useMemo(
     () => ({
       Filter: NumberRangeFilter,
@@ -32,6 +32,7 @@ function Table({ columns, data, updateTableData }) {
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
+      updateEditedEntryIds,
       updateTableData,
     },
     useFilters,
@@ -59,12 +60,12 @@ function Table({ columns, data, updateTableData }) {
 
   return (
     <>
-      <table className='table table-bordered table-striped table-sm position-relative' {...getTableProps()}>
+      <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-log-header' {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className='text-center text-white position-sticky top-0 bg-header' {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (typeof column.toggleSortBy === 'function') {
                       column.toggleSortBy(!column.isSortedDesc)
@@ -81,9 +82,9 @@ function Table({ columns, data, updateTableData }) {
           {rows.map((row, i) => {
             prepareRow(row)
             return (
-              <tr className='' {...row.getRowProps()}>
+              <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className='' {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='p-0 m-0 text-center align-middle' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -189,7 +190,7 @@ export default function LogTable(props) {
   const [entries, setEntries] = React.useState([])
   const [data, setData] = React.useState([])
   const [originalData, setOriginalData] = React.useState([]);
-  const [skipPageReset, setSkipPageReset] = React.useState(false);
+  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
   // Fetch the entries and set to state
   React.useEffect(() => {
@@ -207,7 +208,6 @@ export default function LogTable(props) {
   )
 
   const updateTableData = (rowIndex, columnId, value) => {
-    setSkipPageReset(true);
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -221,19 +221,28 @@ export default function LogTable(props) {
     )
   }
 
+  const updateEditedEntryIds = (entryId, action) => {
+    // Track which existing entries have been edited by the user
+    if (action === 'add') {
+      setEditedEntryIds(old => [...old, entryId])
+    } else {
+      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)))
+    }
+  }
+
   const resetData = () => setData(originalData)
   
   return (
     <>
-      <div className='table-container'>
+      <div className='container-fluid p-3'>
         <Table
           columns={columns}
           data={data}
+          updateEditedEntryIds={updateEditedEntryIds}
           updateTableData={updateTableData}
-          skipPageReset={skipPageReset}
         />
       </div>
-      <div className='button-container position-sticky bottom-0 w-100 p-2 bg-log-btn-container'>
+      <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <LogButtons
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
