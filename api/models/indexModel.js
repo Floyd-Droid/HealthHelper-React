@@ -14,7 +14,7 @@ async function getIndexEntries(userId) {
     FROM food_index
     LEFT JOIN food_index_macro ON food_index.id = food_index_macro.id
     LEFT JOIN cost ON food_index.id = cost.id
-    WHERE food_index.user_id = ($1)
+    WHERE food_index.user_id = $1
     ORDER BY food_index.name ASC;
   `;
 
@@ -22,7 +22,7 @@ async function getIndexEntries(userId) {
     const dbResponse = await pool.query(q, [userId])
     return dbResponse.rows;
   } catch (err) {
-    console.log(err.stack)
+    console.log(err)
   }
 }
 

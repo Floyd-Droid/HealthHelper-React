@@ -1,4 +1,5 @@
 const { pool } = require("../db.js");
+const { prepareForDbUpdate } = require("../../src/services/EntryService.js");
 
 async function getLogEntries(userId, date) {
 
@@ -16,19 +17,53 @@ async function getLogEntries(userId, date) {
     LEFT JOIN food_index ON logs.id = food_index.id
     LEFT JOIN food_index_macro ON food_index.id = food_index_macro.id
     LEFT JOIN cost ON logs.id = cost.id
-    WHERE logs.user_id = ($1)
+    WHERE logs.user_id = $1
     AND logs.timestamp_added::date = date ($2)
     ORDER BY logs.timestamp_added ASC;
   `;
 
     try {
-      const dbResponse = await pool.query(q, [userId, date]);
+      const dbResponse = await pool.query(q, [Number(userId), date]);
       return dbResponse.rows;
     } catch (err) {
       console.log(error)
     }
 }
 
+async function updateLogEntries(body, date, userId) {
+  const client = await pool.connect();
+
+  const preparedEntries = prepareForDbUpdate(body)
+
+  for (let entry of preparedEntries) {
+    try {
+      await client.query('BEGIN')
+      const updateLogsQuery = `
+        UPDATE logs
+        SET
+          amount = $1,
+          amount_unit = $2
+        WHERE logs.id = $3
+        AND logs.timestamp_added::date = date ($4)
+        AND logs.user_id = $5; 
+      `
+      const logValues = [entry.amount, entry.amount_unit, entry.id, date, Number(userId)]
+
+      const res = await client.query(updateLogsQuery, logValues)
+
+    } catch (err) {
+        console.log('log model err: \n', err)
+        await client.query('ROLLBACK')
+        throw err
+    } 
+  }
+
+  client.release()
+
+  return 'success';
+}
+
 module.exports = {
   getLogEntries,
+  updateLogEntries,
 }

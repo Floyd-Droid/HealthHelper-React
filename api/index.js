@@ -36,13 +36,26 @@ app.get("/api/:userId/logs", async (req, res) => {
   }
 });
 
+app.put('/api/:userId/logs', async (req, res) => {
+  const userId = req.params.userId;
+  const date = req.query.date;
+  const body = req.body
+
+  try {
+    const dbResult = await logModel.updateLogEntries(body, date, userId);
+    res.status(200).json(dbResult);
+  } catch (err) {
+    console.log(err)
+    res.status(500).send(err);
+  }
+})
+
 
 // Index endpoints
 app.get('/api/:userId/index', async (req, res) => {
   const userId = req.params.userId;
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
-    console.log(dbResult)
     res.status(200).json(dbResult);
   } catch (err) {
     res.status(500).send(err);

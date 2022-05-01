@@ -253,6 +253,11 @@ export const EditableSelectCell = ({
   React.useEffect(() => {
     setValue(initialCellValue);
     setInitialValue(init)
+
+    if (String(initialCellValue) === String(init)) {
+      setIsEdited(false)
+      setErrorMessage('')
+    }
   }, [initialCellValue, init]);
 
   let units = (id === 'amount_unit')
@@ -273,8 +278,10 @@ export const EditableSelectCell = ({
 
   let divClassName = 'p-2 m-0';
 
-  if (isEdited) {
-    divClassName += ' bg-cell-edit'
+  if (isEdited && errorMessage) {
+    divClassName += ' bg-cell-error';
+  } else if (isEdited) {
+    divClassName += ' bg-cell-edit';
   }
 
   const selectDiv = (

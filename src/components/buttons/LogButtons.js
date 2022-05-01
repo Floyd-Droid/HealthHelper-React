@@ -29,7 +29,7 @@ export default class LogButtons extends React.Component {
   handleSubmit(e) {
     // Update the DB
     e.preventDefault();
-    console.log('this will update the database')
+    this.props.onSubmit();
   }
 
   render() {

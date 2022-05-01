@@ -2,8 +2,8 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { getEntries } from '../services/EntryService';
-import { prepareForLogTable, getFormattedDate } from '../services/TableData';
+import { getEntries, updateEntryData } from '../services/EntryService';
+import { getFormattedDate, prepareForLogTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
@@ -194,8 +194,7 @@ export default function LogTable(props) {
   const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
-  // Fetch the entries and set to state
-  React.useEffect(() => {
+  const fetchEntries = () => {
     const formattedDate = getFormattedDate(date, 'url');
     const url = `/api/${userId}/logs?date=${formattedDate}`;
 
@@ -206,8 +205,11 @@ export default function LogTable(props) {
         setData(preparedEntries)
         setDbData(preparedEntries)
       })
-    }, [date]
-  )
+  }
+
+  React.useEffect(() => {
+    fetchEntries()
+  }, [date])
 
   const updateTableData = (rowIndex, columnId, value) => {
     setData(old =>
@@ -232,6 +234,27 @@ export default function LogTable(props) {
     }
   }
 
+  const submitChanges = () => {
+
+    const editedEntries = [];
+
+    for (let editedEntryId of editedEntryIds) {
+      for (let entry of data) {
+        if (entry.id === editedEntryId) {
+          editedEntries.push(entry)
+        }
+      }
+    }
+
+    let formattedDate = getFormattedDate(date, 'url')
+
+    let url = `api/${userId}/logs?date=${formattedDate}`;
+    updateEntryData(url, editedEntries)
+      .then(response => {
+        fetchEntries();
+      }).catch(e => console.log('error in updateDb: \n', e))
+  }
+
   const resetData = () => {
     setData(dbData)
     setEditedEntryIds([])
@@ -252,6 +275,7 @@ export default function LogTable(props) {
         <LogButtons
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
+          onSubmit={submitChanges}
         />
       </div>
     </>

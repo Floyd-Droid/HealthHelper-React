@@ -219,8 +219,7 @@ export default function IndexTable(props) {
   const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
 
-  // Fetch the entries and set to state
-  React.useEffect(() => {
+  const fetchEntries = () => {
     const url = `/api/${userId}/index`;
 
     getEntries(url)
@@ -230,7 +229,12 @@ export default function IndexTable(props) {
         setData(preparedEntries)
         setDbData(preparedEntries)
       })
-    }, [date]
+  }
+
+  // Fetch the entries and set to state
+  React.useEffect(() => {
+    fetchEntries()
+    }, []
   )
 
   const updateTableData = (rowIndex, columnId, value) => {
@@ -303,7 +307,7 @@ export default function IndexTable(props) {
     let url = `api/${userId}/index`;
     updateEntryData(url, editedEntries)
       .then(response => {
-        console.log(response)
+        fetchEntries();
       }).catch(e => console.log('error in updateDb: \n', e))
   }
 
