@@ -131,13 +131,15 @@ export const EditableInputCell = ({
     let newVal = e.target.value
     setValue(newVal);
 
-    // Track the edited entries by id
-    if ((String(newVal) !== String(initialValue)) && !isEdited) {
-      updateEditedEntryIds(original.id, 'add')
-      setIsEdited(true)
-    } else if ((String(newVal) === String(initialValue)) && isEdited) {
-      updateEditedEntryIds(original.id, 'remove')
-      setIsEdited(false)
+    // Track the edited entries by id. Ignore new entries
+    if (!original.isNew) {
+      if ((String(newVal) !== String(initialValue)) && !isEdited) {
+        updateEditedEntryIds(original.id, 'add')
+        setIsEdited(true)
+      } else if ((String(newVal) === String(initialValue)) && isEdited) {
+        updateEditedEntryIds(original.id, 'remove')
+        setIsEdited(false)
+      }
     }
 
     const validationMessage = validateInput(id, newVal);
@@ -231,13 +233,15 @@ export const EditableSelectCell = ({
     let newVal = e.target.value
     setValue(newVal);
 
-    // Track the edited entries by id
-    if (String(newVal) !== String(initialValue)) {
-      updateEditedEntryIds(original.id, 'add')
-      setIsEdited(true)
-    } else if (String(newVal) === String(initialValue)) {
-      updateEditedEntryIds(original.id, 'remove')
-      setIsEdited(false)
+    // Track the edited entries by id. Ignore new entries
+    if (!original.isNew) {
+      if (String(newVal) !== String(initialValue)) {
+        updateEditedEntryIds(original.id, 'add')
+        setIsEdited(true)
+      } else if (String(newVal) === String(initialValue)) {
+        updateEditedEntryIds(original.id, 'remove')
+        setIsEdited(false)
+      }
     }
 
     const validationMessage = validateSelect(id, newVal, amountUnits);

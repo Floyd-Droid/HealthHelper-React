@@ -1,5 +1,5 @@
 const { pool } = require("../db.js");
-const { prepareForDbUpdate } = require("../../src/services/EntryService.js");
+const { prepareForUpdate } = require("../../src/services/EntryService.js");
 
 async function getLogEntries(userId, date) {
 
@@ -26,18 +26,19 @@ async function getLogEntries(userId, date) {
       const dbResponse = await pool.query(q, [Number(userId), date]);
       return dbResponse.rows;
     } catch (err) {
-      console.log(error)
+      console.log(error);
     }
 }
 
 async function updateLogEntries(body, date, userId) {
   const client = await pool.connect();
 
-  const preparedEntries = prepareForDbUpdate(body)
+  const preparedEntries = prepareForUpdate(body);
 
   for (let entry of preparedEntries) {
     try {
-      await client.query('BEGIN')
+      await client.query('BEGIN');
+
       const updateLogsQuery = `
         UPDATE logs
         SET
@@ -46,21 +47,23 @@ async function updateLogEntries(body, date, userId) {
         WHERE logs.id = $3
         AND logs.timestamp_added::date = date ($4)
         AND logs.user_id = $5; 
-      `
-      const logValues = [entry.amount, entry.amount_unit, entry.id, date, Number(userId)]
+      `;
+      const logValues = [entry.amount, entry.amount_unit, entry.id, date, Number(userId)];
 
-      const res = await client.query(updateLogsQuery, logValues)
+      await client.query(updateLogsQuery, logValues);
 
     } catch (err) {
-        console.log('log model err: \n', err)
-        await client.query('ROLLBACK')
-        throw err
+        console.log('log model err: \n', err);
+        await client.query('ROLLBACK');
+        throw err;
     } 
   }
 
-  client.release()
+  client.release();
 
-  return 'success';
+  const result = {message: 'Entries successfully updated'};
+
+  return result;
 }
 
 module.exports = {

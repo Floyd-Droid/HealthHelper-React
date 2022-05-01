@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
-import { getEntries, updateEntryData } from '../services/EntryService';
+import { createOrUpdateEntries, getEntries } from '../services/EntryService';
 import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
@@ -218,6 +218,7 @@ export default function IndexTable(props) {
   const [data, setData] = React.useState([])
   const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
+  const [newRowIndices, setNewRowIndices] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -295,7 +296,9 @@ export default function IndexTable(props) {
     //validateServingSize()
 
     const editedEntries = [];
+    const newEntries = [];
 
+    // Gather edited entries
     for (let id of editedEntryIds) {
       for (let entry of data) {
         if (entry.id === id) {
@@ -304,11 +307,21 @@ export default function IndexTable(props) {
       }
     }
 
+    // Gather new entries
+    for (let newEntry of data.reverse()) {
+      if (newEntry.isNew) {
+        newEntries.push(newEntry)
+      } else {
+        break;
+      }
+    }
+
     let url = `api/${userId}/index`;
-    updateEntryData(url, editedEntries)
+
+    createOrUpdateEntries(url, newEntries, editedEntries)
       .then(response => {
         fetchEntries();
-      }).catch(e => console.log('error in updateDb: \n', e))
+      }).catch(err => console.log('error in updateDb: \n', err))
   }
 
   const addNewRow = () => {

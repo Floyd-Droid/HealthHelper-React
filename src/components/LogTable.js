@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { getEntries, updateEntryData } from '../services/EntryService';
+import { getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, prepareForLogTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
@@ -249,7 +249,7 @@ export default function LogTable(props) {
     let formattedDate = getFormattedDate(date, 'url')
 
     let url = `api/${userId}/logs?date=${formattedDate}`;
-    updateEntryData(url, editedEntries)
+    updateEntries(url, editedEntries)
       .then(response => {
         fetchEntries();
       }).catch(e => console.log('error in updateDb: \n', e))

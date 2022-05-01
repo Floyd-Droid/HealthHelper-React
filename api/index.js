@@ -26,7 +26,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.get("/api/:userId/logs", async (req, res) => {
   // Retrieve log data by date
   let userId = req.params.userId;
-  let date = req.query.date
+  let date = req.query.date;
 
   try {
     const dbResult = await logModel.getLogEntries(userId, date)
@@ -39,13 +39,13 @@ app.get("/api/:userId/logs", async (req, res) => {
 app.put('/api/:userId/logs', async (req, res) => {
   const userId = req.params.userId;
   const date = req.query.date;
-  const body = req.body
+  const body = req.body;
 
   try {
     const dbResult = await logModel.updateLogEntries(body, date, userId);
     res.status(200).json(dbResult);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send(err);
   }
 })
@@ -54,6 +54,7 @@ app.put('/api/:userId/logs', async (req, res) => {
 // Index endpoints
 app.get('/api/:userId/index', async (req, res) => {
   const userId = req.params.userId;
+
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
     res.status(200).json(dbResult);
@@ -62,15 +63,28 @@ app.get('/api/:userId/index', async (req, res) => {
   }
 })
 
+app.post('/api/:userId/index', async (req, res) => {
+  const body = req.body;
+  const userId = req.params.userId;
+
+  try {
+    const dbResult = await indexModel.createIndexEntries(body, userId);
+    res.status(200).json(dbResult);
+  } catch (err) {
+    console.log(err);
+    res.status(500).send(err);
+  }
+})
+
 app.put('/api/:userId/index', async (req, res) => {
   const userId = req.params.userId;
-  const body = req.body
+  const body = req.body;
 
   try {
     const dbResult = await indexModel.updateIndexEntries(body, userId);
     res.status(200).json(dbResult);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     res.status(500).send(err);
   }
 })
