@@ -30,9 +30,11 @@ app.get("/api/:userId/logs", async (req, res) => {
 
   try {
     const dbResult = await logModel.getLogEntries(userId, date)
-    res.status(200).json(dbResult); 
+    const code = dbResult.error ? 500 : 200;
+    res.status(code).json(dbResult); 
   } catch (err) {
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send();
   }
 });
 
@@ -42,11 +44,24 @@ app.put('/api/:userId/logs', async (req, res) => {
   const body = req.body;
 
   try {
-    const dbResult = await logModel.updateLogEntries(body, date, userId);
+    const dbResult = await logModel.updateLogEntries(body, userId, date);
     res.status(200).json(dbResult);
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send();
+  } 
+})
+
+app.delete('/api/:userId/logs', async (req, res) => {
+  const userId = req.params.userId;
+  const date = req.query.date;
+
+  try {
+    const dbResult = await logModel.deleteLogEntries(req.body, userId, date);
+    res.status(200).json();
+  } catch(err) {
+    console.log(err)
+    res.status(500).send();
   }
 })
 
@@ -57,9 +72,11 @@ app.get('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
-    res.status(200).json(dbResult);
+    const code = dbResult.error ? 500 : 200;
+    res.status(code).json(dbResult); 
   } catch (err) {
-    res.status(500).send(err);
+    console.log(err)
+    res.status(500).send();
   }
 })
 
@@ -72,7 +89,7 @@ app.post('/api/:userId/index', async (req, res) => {
     res.status(200).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send();
   }
 })
 
@@ -85,8 +102,24 @@ app.put('/api/:userId/index', async (req, res) => {
     res.status(200).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).send(err);
+    res.status(500).send();
   }
+})
+
+app.delete('/api/:userId/index', async (req, res) => {
+  const userId = req.params.userId;
+  const entryIds = req.body;
+
+  console.log('DELETE')
+
+  try {
+    const dbResult = await indexModel.deleteIndexEntries(entryIds, userId);
+    res.status(200).json(dbResult);
+  } catch(err) {
+    console.log(err);
+    res.status(500).send();
+  }
+
 })
 
 app.listen(PORT, () => {

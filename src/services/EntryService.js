@@ -1,9 +1,9 @@
 async function getEntries(url) {
   try {
     const res = await fetch(url);
-    return res.json();
+    return res;
   } catch (err) {
-    console.log(err);
+    console.log('err in getEntries: ', err);
   }
 }
 
@@ -14,11 +14,13 @@ async function updateEntries(url, entries) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entries)
     });
-    return res.json();
+
+    return res;
   } catch (err) {
-    console.log(err);
+    console.log('err in updateEntries: ', err);
   }
-}
+} 
+
 
 async function createEntries(url, entries) {
   try {
@@ -27,23 +29,49 @@ async function createEntries(url, entries) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entries)
     });
-    return res.json();
+    return res;
   } catch (err) {
     console.log(err);
   }
 }
 
 async function createOrUpdateEntries(url, newEntries, editedEntries) {
-  let createRes, updateRes;
+  let result = {messages: [], errors: []};
 
   try {
     if (newEntries.length) {
-      createRes = await createEntries(url, newEntries);
+      const createRes = await createEntries(url, newEntries);
+      if (createRes.ok) {
+        result.messages.push('Creation successful');
+      } else {
+        result.errors.push('Creation failed');
+      }
     }
     if (editedEntries.length) {
-      updateRes = await updateEntries(url, editedEntries);
+      const updateRes = await updateEntries(url, editedEntries);
+      if (updateRes.ok) {
+        result.messages.push('Update successful');
+      } else {
+        result.errors.push('Update failed');
+      }
     }
-    return [createRes, updateRes];
+
+    return result;
+  } catch(err) {
+    console.log(err);
+  }
+}
+
+async function deleteEntries(url, entryIds) {
+
+  try {
+    const res = await fetch(url, {
+      method: 'DELETE',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(entryIds)
+    });
+
+    return res;
   } catch(err) {
     console.log(err);
   }
@@ -68,6 +96,7 @@ function prepareForUpdate(entries) {
 
 module.exports = {
   createOrUpdateEntries,
+  deleteEntries,
   getEntries,
   updateEntries,
   prepareForUpdate

@@ -24,16 +24,17 @@ async function getLogEntries(userId, date) {
 
     try {
       const dbResponse = await pool.query(q, [Number(userId), date]);
-      return dbResponse.rows;
+      return {entries: dbResponse.rows};
     } catch (err) {
-      console.log(error);
+      console.log('error in getLogEntries: ', err)
+      return {error: 'Database error'}
     }
 }
 
-async function updateLogEntries(body, date, userId) {
+async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
-  const preparedEntries = prepareForUpdate(body);
+  const preparedEntries = prepareForUpdate(entries);
 
   for (let entry of preparedEntries) {
     try {
@@ -44,29 +45,49 @@ async function updateLogEntries(body, date, userId) {
         SET
           amount = $1,
           amount_unit = $2
-        WHERE logs.id = $3
-        AND logs.timestamp_added::date = date ($4)
-        AND logs.user_id = $5; 
+        WHERE id = $3
+        AND user_id = $4
+        AND timestamp_added::date = date ($5); 
       `;
-      const logValues = [entry.amount, entry.amount_unit, entry.id, date, Number(userId)];
 
-      await client.query(updateLogsQuery, logValues);
+      let values = [entry.amount, entry.amount_unit, entry.id, Number(userId), date];
 
+      await client.query(updateLogsQuery, values);
     } catch (err) {
-        console.log('log model err: \n', err);
-        await client.query('ROLLBACK');
-        throw err;
+      await client.query('ROLLBACK');
+      console.log(err)
     } 
   }
-
   client.release();
 
-  const result = {message: 'Entries successfully updated'};
+  return {message: 'Entries successfully updated'};
+}
 
-  return result;
+async function deleteLogEntries(ids, userId, date) {
+  const client = await pool.connect();
+
+  const deleteLogsQuery = `
+    DELETE FROM logs
+    WHERE id = $1
+    AND user_id = $2
+    AND timestamp_added::date = date ($3);
+  `
+
+  for (let id of ids) {
+    try {
+      let values = [id, userId, date]
+      await client.query(deleteLogsQuery, values)
+    } catch(err) {
+      console.log(err)
+    }
+  }
+  client.release();
+
+  return {message: 'Entries successfully deleted'};
 }
 
 module.exports = {
+  deleteLogEntries,
   getLogEntries,
   updateLogEntries,
 }

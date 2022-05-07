@@ -2,12 +2,12 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { getEntries, updateEntries } from '../services/EntryService';
+import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, prepareForLogTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter } from './SharedTableComponents';
 
-function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData }) {
+function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -35,6 +35,7 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
       autoResetSelectedRows: false,
       dbData,
       updateEditedEntryIds,
+      updateSelectedEntries,
       updateTableData,
     },
     useFilters,
@@ -58,7 +59,11 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
         ...columns
       ])
     }
-  )
+  );
+
+  React.useEffect(() => {
+    updateSelectedEntries(selectedFlatRows)
+  }, [selectedFlatRows])
 
   return (
     <>
@@ -98,8 +103,8 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
 }
 
 export default function LogTable(props) {
-  let userId = props.userId
-  let date = props.date
+  let userId = props.userId;
+  let date = props.date;
   
   const columns = React.useMemo(
     () => [
@@ -187,28 +192,39 @@ export default function LogTable(props) {
       },
     ],
     []
-  )
+  );
 
-  const [entries, setEntries] = React.useState([])
-  const [data, setData] = React.useState([])
+  const [entries, setEntries] = React.useState([]);
+  const [data, setData] = React.useState([]);
   const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
+  const [selectedEntries, setSelectedEntries] = React.useState([]);
 
   const fetchEntries = () => {
     const formattedDate = getFormattedDate(date, 'url');
     const url = `/api/${userId}/logs?date=${formattedDate}`;
 
     getEntries(url)
-      .then(entries => {
-        setEntries(entries)
-        const preparedEntries = prepareForLogTable(entries)
-        setData(preparedEntries)
-        setDbData(preparedEntries)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return {entries: []};
+        }
+      })
+      .then((body) => {
+        const entries = body.entries;
+        const preparedEntries = prepareForLogTable(entries);
+        setData(preparedEntries);
+        setDbData(preparedEntries);
+      })
+      .catch(err => {
+        console.log('log table error: ', err)
       })
   }
 
   React.useEffect(() => {
-    fetchEntries()
+    fetchEntries();
   }, [date])
 
   const updateTableData = (rowIndex, columnId, value) => {
@@ -228,36 +244,67 @@ export default function LogTable(props) {
   const updateEditedEntryIds = (entryId, action) => {
     // Track which existing entries have been edited by the user
     if (action === 'add') {
-      setEditedEntryIds(old => [...old, entryId])
+      setEditedEntryIds(old => [...old, entryId]);
     } else {
-      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)))
+      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)));
     }
   }
 
   const submitChanges = () => {
-
     const editedEntries = [];
 
     for (let editedEntryId of editedEntryIds) {
       for (let entry of data) {
         if (entry.id === editedEntryId) {
-          editedEntries.push(entry)
+          editedEntries.push(entry);
         }
       }
     }
 
-    let formattedDate = getFormattedDate(date, 'url')
+    if (editedEntries.length) {
+      let formattedDate = getFormattedDate(date, 'url');
 
-    let url = `api/${userId}/logs?date=${formattedDate}`;
-    updateEntries(url, editedEntries)
-      .then(response => {
-        fetchEntries();
-      }).catch(e => console.log('error in updateDb: \n', e))
+      let url = `api/${userId}/logs?date=${formattedDate}`;
+      updateEntries(url, editedEntries)
+        .then(response => {
+          if (response.ok) {
+            console.log('update successful')
+          }
+          fetchEntries();
+        })
+        .catch(e => console.log('error in updateDb: \n', e))
+    }
+  }
+
+  const deleteRows = () => {
+    const ids = [];
+
+    for (let entry of selectedEntries) {
+      ids.push(entry.original.id);
+    }
+
+    if (ids.length) {
+      let formattedDate = getFormattedDate(date, 'url');
+      let url = `api/${userId}/logs?date=${formattedDate}`;
+  
+      deleteEntries(url, ids)
+        .then((response) => {
+          console.log(response);
+          fetchEntries();
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+  }
+
+  const updateSelectedEntries = (flatRows) => {
+    setSelectedEntries(flatRows);
   }
 
   const resetData = () => {
-    setData(dbData)
-    setEditedEntryIds([])
+    setData(dbData);
+    setEditedEntryIds([]);
   }
   
   return (
@@ -268,11 +315,13 @@ export default function LogTable(props) {
           data={data}
           dbData={dbData}
           updateEditedEntryIds={updateEditedEntryIds}
+          updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <LogButtons
+          onDeleteRows={deleteRows}
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
           onSubmit={submitChanges}

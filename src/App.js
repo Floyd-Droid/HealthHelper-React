@@ -25,7 +25,7 @@ class App extends React.Component {
   
   render() {
     return (
-      <div className='app-container vw-100 vh-100 p-3 bg-app' >
+      <div className='app-container vw-100 vh-100 p-3' >
         {this.state.status === 'logs' &&
           <LogTable
             userId={this.state.userId}

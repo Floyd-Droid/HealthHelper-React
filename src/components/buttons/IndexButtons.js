@@ -18,7 +18,7 @@ export default class IndexButtons extends React.Component {
 
   handleDeleteEntries(e) {
     e.preventDefault();
-    console.log('this will delete the selected entries');
+    this.props.onDeleteRows();
   }
 
   handleNav(e) {

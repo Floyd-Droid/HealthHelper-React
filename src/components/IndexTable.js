@@ -2,12 +2,12 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
-import { createOrUpdateEntries, getEntries } from '../services/EntryService';
+import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { prepareForIndexTable } from '../services/TableData';
 import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
   TextFilter, NumberRangeFilter} from './SharedTableComponents';
 
-function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData }) {
+function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -36,6 +36,7 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
       autoResetSelectedRows: false,
       dbData,
       updateEditedEntryIds,
+      updateSelectedEntries,
       updateTableData,
     },
     useFilters,
@@ -50,7 +51,7 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
               <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
             </div>
           ),
-          Cell: ({ row }) => (
+          Cell: ({row}) => (
             <div>
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
@@ -60,6 +61,10 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateTableData })
       ])
     }
   )
+
+  React.useEffect(() => {
+    updateSelectedEntries(selectedFlatRows)
+  }, [selectedFlatRows])
 
   return (
     <>
@@ -218,21 +223,31 @@ export default function IndexTable(props) {
   const [data, setData] = React.useState([])
   const [dbData, setDbData] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
-  const [newRowIndices, setNewRowIndices] = React.useState([]);
+  const [selectedEntries, setSelectedEntries] = React.useState([])
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
 
     getEntries(url)
-      .then(dbEntries => {
-        setEntries(dbEntries)
-        const preparedEntries = prepareForIndexTable(dbEntries)
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          return {entries: []}
+        }
+      })
+      .then((body) => {
+        const entries = body.entries;
+        setEntries(entries)
+        const preparedEntries = prepareForIndexTable(entries)
         setData(preparedEntries)
         setDbData(preparedEntries)
       })
+      .catch((err) => {
+        console.log(err)
+      })
   }
 
-  // Fetch the entries and set to state
   React.useEffect(() => {
     fetchEntries()
     }, []
@@ -256,32 +271,20 @@ export default function IndexTable(props) {
     // Track which existing entries have been edited by the user
     if (action === 'add') {
       setEditedEntryIds(old => [...old, entryId])
-    } else {
-      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)))
+    } else if (action === 'remove') {
+      setEditedEntryIds(editedEntryIds.filter((id) => String(id) != String(entryId)))
     }
   }
 
   function validateServingSize() {
-    // Ensure that at least one serving size section is filled out
-    // Run this when submitting to the DB
-
-    // TODO - learn to use React refs to access DOM nodes instead
-    let table = document.getElementsByTagName('table')[0]
-
-    for (let row of table.rows) {
-      // Skip over the header row:
-      if (row.className === 'header-row') {
-        continue
-      }
-
-      const servWeight = row.getElementsByClassName('serving_by_weight')[0].value
-      const weightUnit = row.getElementsByClassName('weight_unit')[0].value
-      const servVolume = row.getElementsByClassName('serving_by_volume')[0].value
-      const volumeUnit = row.getElementsByClassName('volume_unit')[0].value
-      const servItem = row.getElementsByClassName('serving_by_item')[0].value
+    for (let entry of data) {
+      const servWeight = entry.serving_by_weight
+      const weightUnit = entry.weight_unit
+      const servVolume = entry.serving_by_volume
+      const volumeUnit = entry.volume_unit
+      const servItem = entry.serving_by_item
 
       if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
-        // TODO - provide better message display
         alert(
           `Please fill in at least one of the serving size field sets for each entry:\n
           \u2022 Weight quantity and weight unit
@@ -293,7 +296,7 @@ export default function IndexTable(props) {
   }
 
   const submitChanges = () => {
-    //validateServingSize()
+    validateServingSize();
 
     const editedEntries = [];
     const newEntries = [];
@@ -316,12 +319,16 @@ export default function IndexTable(props) {
       }
     }
 
-    let url = `api/${userId}/index`;
+    if (editedEntries.length || newEntries.length) {
+      let url = `api/${userId}/index`;
 
-    createOrUpdateEntries(url, newEntries, editedEntries)
-      .then(response => {
-        fetchEntries();
-      }).catch(err => console.log('error in updateDb: \n', err))
+      createOrUpdateEntries(url, newEntries, editedEntries)
+        .then(messages => {
+          console.log(messages)
+          fetchEntries();
+        })
+        .catch(err => console.log(err))
+    }
   }
 
   const addNewRow = () => {
@@ -353,7 +360,32 @@ export default function IndexTable(props) {
       cost_per_serving: '',
     }
     setData(old => [...old, newRow]);
-  }  
+  }
+
+  const deleteRows = () => {
+    const ids = [];
+
+    for (let entry of selectedEntries) {
+      ids.push(entry.original.id)
+    }
+
+    if (ids.length) {
+      const url = `/api/${userId}/index`;
+
+      deleteEntries(url, ids)
+        .then((response) => {
+          console.log(response);
+          fetchEntries();
+        })
+        .catch((err) => {
+          console.log(err)
+        })
+    }
+  }
+
+  const updateSelectedEntries = (flatRows) => {
+    setSelectedEntries(flatRows)
+  }
   
   const resetData = () => {
     setData(dbData)
@@ -368,12 +400,14 @@ export default function IndexTable(props) {
           data={data}
           dbData={dbData}
           updateEditedEntryIds={updateEditedEntryIds}
+          updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <IndexButtons
           onAddNewRow={addNewRow}
+          onDeleteRows={deleteRows}
           onNavSubmit={props.onNavSubmit}
           onResetData={resetData}
           onSubmit={submitChanges}

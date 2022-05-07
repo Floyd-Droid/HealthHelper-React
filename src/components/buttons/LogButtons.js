@@ -12,7 +12,7 @@ export default class LogButtons extends React.Component {
 
   handleDeleteEntries(e) {
     e.preventDefault();
-    console.log('This will delete the selected entries')
+    this.props.onDeleteRows();
   }
 
   handleNav(e) {
