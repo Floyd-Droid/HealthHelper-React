@@ -1,7 +1,7 @@
 // Functions and variables to display entries in a table
 
 export const weightUnits = ['g', 'mg', 'kg', 'lbs', 'oz'];
-export const volumeUnits = ['tbsp', 'tsp', 'cup(s)', 'gal', 'pt', 'qt', 'L', 'mL'];
+export const volumeUnits = ['tbsp', 'tsp', 'cups', 'gal', 'pt', 'qt', 'L', 'mL'];
 
 export function round(num, precision) {
   let round = Math.round(num + "e+" + precision) + ("e-" + precision);
@@ -16,13 +16,13 @@ export function prepareForLogTable(entries) {
   
   for (let entry of entries) {
 
-    // Calculate the number of servings. 
-    // Divide the amount by its corresponding serving size (match the units)
-    if (entry.amount_unit === entry.weight_unit) {
+    if (entry.amount_unit === 'servings') {
+      servings = entry.amount;
+    } else if (entry.amount_unit === entry.weight_unit) {
       servings = entry.amount / entry.serving_by_weight;
     } else if (entry.amount_unit === entry.volume_unit) {
       servings = entry.amount / entry.serving_by_volume;
-    } else if (entry.amount_unit === 'item(s)') {
+    } else if (entry.amount_unit === 'items') {
       servings = entry.amount / entry.serving_by_item;
     }
 
@@ -52,7 +52,6 @@ export function prepareForLogTable(entries) {
 }
 
 export function prepareForIndexTable(entries) {
-
   let preparedEntries = [];
 
   for (let entry of entries) {
@@ -62,8 +61,37 @@ export function prepareForIndexTable(entries) {
       }
     })
 
-    let cost_per_serving = entry.cost_per_container / entry.servings_per_container;
-    entry.cost_per_serving = round(cost_per_serving, 2);
+    let costPerServing = entry.cost_per_container && entry.servings_per_container
+    ? entry.cost_per_container / entry.servings_per_container
+    : null;
+
+    entry.cost_per_serving = round(costPerServing, 2);
+
+    preparedEntries.push(entry);
+  };
+
+  return preparedEntries;
+}
+
+export function prepareForAddLogTable(entries) {
+  // necessary? Could add flag for the others, conditionally modify
+  let preparedEntries = [];
+
+  for (let entry of entries) {
+    Object.keys(entry).forEach((key) => {
+      if (key !== 'id') {
+        entry[key] = entry[key] === null ? '' : entry[key];
+      }
+    })
+
+    entry.amount = '';
+    entry.amount_unit = 'servings';
+
+    let costPerServing = entry.cost_per_container && entry.servings_per_container
+    ? entry.cost_per_container / entry.servings_per_container
+    : '';
+
+    entry.cost_per_serving = round(costPerServing, 2);
 
     preparedEntries.push(entry);
   };
@@ -72,8 +100,6 @@ export function prepareForIndexTable(entries) {
 }
 
 export function getFormattedDate(date, context) {
-  // date is a Date() obj to be converted to a formatted string depending on context
-  // context is a string that determines if the date will be formatted for url or human readability
   if (context === 'table') {
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   } else if (context === 'url') {

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import {weightUnits, volumeUnits} from '../services/TableData';
+import { round } from '../services/TableData';
 
 export const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
@@ -86,8 +87,123 @@ export function NumberRangeFilter({
   )
 }
 
+export const AddLogCell = ({
+  row: { original },
+  column: { id },
+  dbData
+}) => {
+
+  let init, dbEntry, servings;
+  for (let entry of dbData) {
+    if (entry.id == original.id) {
+      init = entry[id];
+      dbEntry = entry
+      break;
+    }
+  }
+
+  const [initialValue, setInitialValue] = React.useState(init);
+  const [value, setValue] = React.useState(initialValue);
+
+  let amount = original.amount;
+  let unit = original.amount_unit;
+
+  React.useEffect(() => {
+    if (amount) {
+      if (unit === 'servings') {
+        servings = amount;
+      } else if (unit === dbEntry.weight_unit) {
+        servings = amount / dbEntry.serving_by_weight;
+      } else if (unit === dbEntry.volume_unit) { 
+        servings = amount / dbEntry.serving_by_volume;
+      } else if (unit === 'items') {
+        servings = amount / dbEntry.serving_by_item;
+      }
+
+      let precision = id === 'cost_per_serving' ? 2 : 1;
+      let result = round((servings * init), precision)
+      setValue(result)
+
+    } else {
+      setValue('')
+    }
+  }, [amount, unit])
+
+  return (
+    <div>
+      {value}
+    </div>
+  );
+}
+
+export const AddLogAmountInput = ({
+  row: { index },
+  column: { id },
+  updateTableData,
+}) => {
+
+  const [value, setValue] = React.useState('');
+
+  const onChange = e => {
+    let newVal = e.target.value;
+    setValue(newVal);
+    updateTableData(index, id, newVal);
+  }
+
+  const inputClassName = `amount text-center p-0 m-0 border-0`;
+
+  const input = (<input className={inputClassName}
+    style={{width: '40px'}}
+    value={value} onChange={onChange} />
+  )
+
+  return (
+    <div className=''>
+      {input}
+    </div>
+  )
+}
+
+export const AddLogSelect = ({
+  row: { index, original },
+  column: { id },
+  updateTableData,
+}) => {
+
+  const [value, setValue] = React.useState('servings');
+
+  const units = [
+    'servings',
+    ...(original.weight_unit ? [original.weight_unit] : []),
+    ...(original.volume_unit ? [original.volume_unit] : []),
+    ...(original.serving_by_item ? ['items'] : []),
+  ]
+
+  const onChange = e => {
+    let newVal = e.target.value
+    setValue(newVal);
+    updateTableData(index, id, newVal);
+  }
+
+  let unitSelect = (
+    <select className='amount-unit' value={value} onChange={onChange}
+      style={{width: '95px'}}>
+      {units.map((unit, i) => {
+        return <option key={i} value={unit}>{unit}</option>
+      })}
+    </select>
+  )
+
+  const selectDiv = (
+    <div className='p-2 m-0'>
+      {unitSelect}
+    </div>
+  )
+
+  return selectDiv;
+}
+
 function validateInput(key, value) {
-  // 'name' field is required. All else must be numbers
   let message = '';
   if (key === 'name') {
     message = value === '' ? 'Name is required': '';
@@ -98,7 +214,7 @@ function validateInput(key, value) {
   return message;
 }
 
-export const EditableInputCell = ({
+export const Input = ({
   value: initialCellValue,
   row: { index, original },
   column: { id },
@@ -107,38 +223,29 @@ export const EditableInputCell = ({
   updateTableData,
 }) => {
 
-  // var: original - the entry data currently held in the react-table
-  // var: initialCellValue - the initial value of the cell based on data passed to react-table
-  // var: dbData - the entry data from the last database fetch
-
-  // Find the corresponding value from the last fetch (the true initial value)
   let init;
   for (let entry of dbData) {
     if (entry.id == original.id) {
-      init = entry[id]
+      init = entry[id];
       break;
     }
   }
-
-  // var: initialValue - the initial value from the last database fetch
-  const [initialValue, setInitialValue] = React.useState('')
-
+  const [initialValue, setInitialValue] = React.useState('');
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
 
   const onChange = e => {
-    let newVal = e.target.value
+    let newVal = e.target.value;
     setValue(newVal);
 
-    // Track the edited entries by id. Ignore new entries
     if (!original.isNew) {
       if ((String(newVal) !== String(initialValue)) && !isEdited) {
-        updateEditedEntryIds(original.id, 'add')
-        setIsEdited(true)
+        updateEditedEntryIds(original.id, 'add');
+        setIsEdited(true);
       } else if ((String(newVal) === String(initialValue)) && isEdited) {
-        updateEditedEntryIds(original.id, 'remove')
-        setIsEdited(false)
+        updateEditedEntryIds(original.id, 'remove');
+        setIsEdited(false);
       }
     }
 
@@ -163,7 +270,7 @@ export const EditableInputCell = ({
   }, [initialCellValue, init]);
 
   let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
-  inputClassName += ' p-0 m-0 border-0'
+  inputClassName += ' p-0 m-0 border-0';
 
   let divClassName = '';
 
@@ -200,7 +307,7 @@ function validateSelect(key, value, amountUnits) {
   return message;
 }
 
-export const EditableSelectCell = ({
+export const Select = ({
   value: initialCellValue,
   row: { index, original },
   column: { id },
@@ -209,7 +316,6 @@ export const EditableSelectCell = ({
   updateTableData,
 }) => {
 
-  // Find the original value from the last fetch
   let init;
   for (let entry of dbData) {
     if (entry.id == original.id) {
@@ -224,16 +330,16 @@ export const EditableSelectCell = ({
   const [errorMessage, setErrorMessage] = React.useState('')
 
   const amountUnits = [
+    'servings',
     ...(original.weight_unit ? [original.weight_unit] : []),
     ...(original.volume_unit ? [original.volume_unit] : []),
-    ...(original.serving_by_item ? ['item(s)'] : []),
+    ...(original.serving_by_item ? ['items'] : []),
   ]
 
   const onChange = e => {
     let newVal = e.target.value
     setValue(newVal);
 
-    // Track the edited entries by id. Ignore new entries
     if (!original.isNew) {
       if (String(newVal) !== String(initialValue)) {
         updateEditedEntryIds(original.id, 'add')

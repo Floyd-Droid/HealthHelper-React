@@ -72,6 +72,7 @@ app.get('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
+    console.log('db result: ', dbResult)
     const code = dbResult.error ? 500 : 200;
     res.status(code).json(dbResult); 
   } catch (err) {

@@ -1,8 +1,9 @@
 import React from 'react';
 import './index.css'
 
-import LogTable from './components/LogTable';
+import AddLogTable from './components/AddLogTable';
 import IndexTable from './components/IndexTable';
+import LogTable from './components/LogTable';
 
 
 class App extends React.Component {
@@ -36,6 +37,13 @@ class App extends React.Component {
         {this.state.status === 'index' &&
           <IndexTable
             userId={this.state.userId}
+            onNavSubmit={this.updateStatus}
+          />
+        }
+        {this.state.status === 'addLog' &&
+          <AddLogTable
+            userId={this.state.userId}
+            date={this.state.date}
             onNavSubmit={this.updateStatus}
           />
         }

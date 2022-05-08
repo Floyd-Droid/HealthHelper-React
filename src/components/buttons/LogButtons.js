@@ -16,7 +16,6 @@ export default class LogButtons extends React.Component {
   }
 
   handleNav(e) {
-    // Navigate to selected page by updating the App's status
     e.preventDefault();
     this.props.onNavSubmit(e.target.value);
   }
@@ -27,7 +26,6 @@ export default class LogButtons extends React.Component {
   }
 
   handleSubmit(e) {
-    // Update the DB
     e.preventDefault();
     this.props.onSubmit();
   }

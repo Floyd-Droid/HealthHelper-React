@@ -4,14 +4,14 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import IndexButtons from './buttons/IndexButtons';
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { prepareForIndexTable } from '../services/TableData';
-import { EditableInputCell, EditableSelectCell, IndeterminateCheckbox, 
-  TextFilter, NumberRangeFilter} from './SharedTableComponents';
+import { IndeterminateCheckbox, Input, NumberRangeFilter, Select,
+  TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
-      Cell: EditableInputCell,
+      Cell: Input,
       Filter: NumberRangeFilter,
       filter: 'between'
     }),
@@ -123,7 +123,7 @@ export default function IndexTable(props) {
       {
         Header: 'Weight Unit',
         accessor: 'weight_unit',
-        Cell: EditableSelectCell,
+        Cell: Select,
         disableFilters: true
       },
       {
@@ -134,7 +134,7 @@ export default function IndexTable(props) {
       {
         Header: 'Volume Unit',
         accessor: 'volume_unit',
-        Cell: EditableSelectCell,
+        Cell: Select,
         disableFilters: true
       },
       {
