@@ -30,7 +30,6 @@ async function getIndexEntries(userId) {
 }
 
 async function createIndexEntries(body, userId) {
-
   const client = await pool.connect();
 
   const preparedEntries = prepareForUpdate(body);
@@ -64,7 +63,7 @@ async function createIndexEntries(body, userId) {
         entry.insol_fiber,entry.total_sugars, entry.added_sugars,
         entry.protein, entry.cost_per_container, entry.servings_per_container];
       
-      await pool.query(createEntryQuery, values);
+      await client.query(createEntryQuery, values);
     } catch (err) {
       console.log(err);
     }
@@ -164,7 +163,6 @@ async function deleteIndexEntries(body, userId) {
     try {
       let values = [id, userId]
       const dbResult = await client.query(deleteQuery, values);
-      console.log(dbResult)
     } catch(err) {
       console.log(err);
     }

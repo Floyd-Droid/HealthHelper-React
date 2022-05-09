@@ -26,8 +26,6 @@ export function prepareForLogTable(entries) {
       servings = entry.amount / entry.serving_by_item;
     }
 
-    // Calculate the cost of the entry
-    // Set the cost per serving to be null if we have incomplete info
     let costPerServing = entry.cost_per_container && entry.servings_per_container
       ? entry.cost_per_container / entry.servings_per_container
       : null;
@@ -73,9 +71,31 @@ export function prepareForIndexTable(entries) {
   return preparedEntries;
 }
 
-export function prepareForAddLogTable(entries) {
-  // necessary? Could add flag for the others, conditionally modify
-  let preparedEntries = [];
+export function prepareCreateLogInitialCellData(entries) {
+  let initialEntries = [];
+
+  for (let entry of entries) {
+    const skipKeys = ['id', 'name', 'serving_by_weight', 'weight_unit', 'serving_by_volume', 'volume_unit', 'serving_by_item']
+    Object.keys(entry).forEach((key) => {
+      if (skipKeys.includes(key)) {
+        entry[key] = entry[key] === null ? '' : entry[key];
+      } else {
+        entry[key] = '';
+      }
+    })
+
+    entry.amount = '';
+    entry.amount_unit = 'servings';
+    entry.cost_per_serving = '';
+
+    initialEntries.push(entry);
+  }
+
+  return initialEntries;
+}
+
+export function prepareCreateLogBaseData(entries) {
+  let baseEntries = [];
 
   for (let entry of entries) {
     Object.keys(entry).forEach((key) => {
@@ -93,10 +113,10 @@ export function prepareForAddLogTable(entries) {
 
     entry.cost_per_serving = round(costPerServing, 2);
 
-    preparedEntries.push(entry);
+    baseEntries.push(entry);
   };
-
-  return preparedEntries;
+  
+  return baseEntries;
 }
 
 export function getFormattedDate(date, context) {

@@ -23,8 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 
 // Log endpoints
-app.get("/api/:userId/logs", async (req, res) => {
-  // Retrieve log data by date
+app.get('/api/:userId/logs', async (req, res) => {
   let userId = req.params.userId;
   let date = req.query.date;
 
@@ -37,6 +36,19 @@ app.get("/api/:userId/logs", async (req, res) => {
     res.status(500).send();
   }
 });
+
+app.post('/api/:userId/logs', async (req, res) => {
+  let userId = req.params.userId;
+  let date = req.query.date;
+
+  try {
+    const dbResult = await logModel.createLogEntries(req.body, userId, date);
+    res.status(200).json(dbResult);
+  } catch(err) {
+    console.log(err)
+    res.status(500).send();
+  }
+})
 
 app.put('/api/:userId/logs', async (req, res) => {
   const userId = req.params.userId;
@@ -72,7 +84,6 @@ app.get('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
-    console.log('db result: ', dbResult)
     const code = dbResult.error ? 500 : 200;
     res.status(code).json(dbResult); 
   } catch (err) {

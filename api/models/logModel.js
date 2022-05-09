@@ -31,6 +31,28 @@ async function getLogEntries(userId, date) {
     }
 }
 
+async function createLogEntries(entries, userId, date) {
+  const client = await pool.connect();
+
+  const createLogsQuery = `
+  INSERT INTO logs (id, user_id, timestamp_added, amount, amount_unit)
+  VALUES ($1, $2, date ($3), $4, $5);
+  `
+
+  for (let entry of entries) {
+    try {
+      let values = [entry.id, userId, date, entry.amount, entry.amount_unit];
+      const dbResult = await client.query(createLogsQuery, values);
+      console.log('create: ', dbResult)
+    } catch(err) {
+      console.log(err)
+    }
+  }
+  client.release();
+
+  return {message: 'Entries successfully created'}
+}
+
 async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
@@ -87,6 +109,7 @@ async function deleteLogEntries(ids, userId, date) {
 }
 
 module.exports = {
+  createLogEntries,
   deleteLogEntries,
   getLogEntries,
   updateLogEntries,

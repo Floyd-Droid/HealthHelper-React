@@ -374,7 +374,6 @@ export default function IndexTable(props) {
 
       deleteEntries(url, ids)
         .then((response) => {
-          console.log(response);
           fetchEntries();
         })
         .catch((err) => {

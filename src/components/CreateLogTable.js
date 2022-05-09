@@ -1,17 +1,17 @@
 import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import AddLogButtons from './buttons/AddLogButtons';
+import CreateLogButtons from './buttons/CreateLogButtons';
 import { getEntries, createEntries } from '../services/EntryService';
-import { getFormattedDate, prepareForAddLogTable } from '../services/TableData';
-import { IndeterminateCheckbox, AddLogCell, AddLogAmountInput, NumberRangeFilter, AddLogSelect,
+import { getFormattedDate, prepareCreateLogBaseData, prepareCreateLogInitialCellData } from '../services/TableData';
+import { IndeterminateCheckbox, CreateLogCell, CreateLogAmountInput, NumberRangeFilter, CreateLogSelect,
   TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, dbData, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
-      Cell: AddLogCell,
+      Cell: CreateLogCell,
       disableFilters: true
     }),
     []
@@ -102,9 +102,10 @@ function Table({ columns, data, dbData, updateSelectedEntries, updateTableData }
   )
 }
 
-export default function AddLogTable(props) {
+export default function CreateLogTable(props) {
   let userId = props.userId;
   let date = props.date;
+  let formattedDate = getFormattedDate(date, 'url')
   
   const columns = React.useMemo(
     () => [
@@ -118,12 +119,12 @@ export default function AddLogTable(props) {
       {
         Header: 'Amount',
         accessor: 'amount',
-        Cell: AddLogAmountInput
+        Cell: CreateLogAmountInput
       },
       {
         Header: 'Unit',
         accessor: 'amount_unit',
-        Cell: AddLogSelect
+        Cell: CreateLogSelect
       },
        {
         Header: 'Calories',
@@ -209,11 +210,14 @@ export default function AddLogTable(props) {
         }
       })
       .then((body) => {
-        const entries = body.entries;
-        const preparedEntries = prepareForAddLogTable(entries);
-        console.log(preparedEntries)
-        setData(preparedEntries);
-        setDbData(preparedEntries);
+        const entries1 = body.entries;
+        const entries2 = JSON.parse(JSON.stringify(entries1))
+
+        const initialCellData = prepareCreateLogInitialCellData(entries1)
+        setData(initialCellData);
+
+        const preparedBaseEntries = prepareCreateLogBaseData(entries2);
+        setDbData(preparedBaseEntries);
       })
       .catch(err => {
         console.log('log table error: ', err)
@@ -239,7 +243,26 @@ export default function AddLogTable(props) {
   }
 
   const submitChanges = () => {
-    console.log('submitted')
+    const entriesToCreate = [];
+
+    for (let entry of selectedEntries) {
+      entriesToCreate.push({
+        id: Number(entry.id), 
+        amount: Number(entry.values.amount), 
+        amount_unit: String(entry.values.amount_unit)
+      })
+    }
+
+    if (entriesToCreate.length) {
+      let url = `/api/${userId}/logs?date=${formattedDate}`;
+      createEntries(url, entriesToCreate)
+        .then(response => {
+          //console.log(response)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+    }
   }
 
   const updateSelectedEntries = (flatRows) => {
@@ -262,7 +285,7 @@ export default function AddLogTable(props) {
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-        <AddLogButtons
+        <CreateLogButtons
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
           onSubmit={submitChanges}

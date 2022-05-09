@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default class AddLogButtons extends React.Component {
+export default class CreateLogButtons extends React.Component {
   constructor(props) {
     super(props);
 

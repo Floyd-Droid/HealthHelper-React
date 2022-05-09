@@ -87,10 +87,11 @@ export function NumberRangeFilter({
   )
 }
 
-export const AddLogCell = ({
-  row: { original },
+export const CreateLogCell = ({
+  row: { index, original },
   column: { id },
-  dbData
+  dbData,
+  updateTableData
 }) => {
 
   let init, dbEntry, servings;
@@ -103,10 +104,11 @@ export const AddLogCell = ({
   }
 
   const [initialValue, setInitialValue] = React.useState(init);
-  const [value, setValue] = React.useState(initialValue);
+  const [value, setValue] = React.useState('');
 
   let amount = original.amount;
   let unit = original.amount_unit;
+  let result = '';
 
   React.useEffect(() => {
     if (amount) {
@@ -121,12 +123,11 @@ export const AddLogCell = ({
       }
 
       let precision = id === 'cost_per_serving' ? 2 : 1;
-      let result = round((servings * init), precision)
-      setValue(result)
-
-    } else {
-      setValue('')
+      result = round(Number(servings) * Number(init), precision);
     }
+
+    setValue(result)
+    updateTableData(index, id, result)
   }, [amount, unit])
 
   return (
@@ -136,7 +137,7 @@ export const AddLogCell = ({
   );
 }
 
-export const AddLogAmountInput = ({
+export const CreateLogAmountInput = ({
   row: { index },
   column: { id },
   updateTableData,
@@ -164,7 +165,7 @@ export const AddLogAmountInput = ({
   )
 }
 
-export const AddLogSelect = ({
+export const CreateLogSelect = ({
   row: { index, original },
   column: { id },
   updateTableData,

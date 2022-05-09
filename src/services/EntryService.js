@@ -95,6 +95,7 @@ function prepareForUpdate(entries) {
 }
 
 module.exports = {
+  createEntries,
   createOrUpdateEntries,
   deleteEntries,
   getEntries,
