@@ -2,15 +2,16 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
-import { getFormattedDate, prepareForLogTable } from '../services/TableData';
-import { IndeterminateCheckbox, Input, NumberRangeFilter, Select,
+import { deleteEntries, getLogAndIndexEntries, updateEntries } from '../services/EntryService';
+import { getFormattedDate, prepareCreateLogIndexEntries, prepareForLogTable } from '../services/TableData';
+import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, indexEntries, logEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
+      Cell: CalculatedCell,
       Filter: NumberRangeFilter,
       filter: 'between'
     }),
@@ -21,6 +22,7 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntr
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    footerGroups,
     prepareRow,
     rows,
     selectedFlatRows,
@@ -33,7 +35,9 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntr
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
-      dbData,
+      indexEntries,
+      logEntries,
+      status,
       updateEditedEntryIds,
       updateSelectedEntries,
       updateTableData,
@@ -97,12 +101,22 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntr
             )
           })}
         </tbody>
+        <tfoot>
+        {footerGroups.map(group => (
+          <tr {...group.getFooterGroupProps()}>
+            {group.headers.map(column => (
+              <td {...column.getFooterProps()}>{column.render('Footer')}</td>
+            ))}
+          </tr>
+        ))}
+      </tfoot>
       </table>
     </>
   )
 }
 
 export default function LogTable(props) {
+  let status = props.status;
   let userId = props.userId;
   let date = props.date;
   let formattedDate = getFormattedDate(date, 'url');
@@ -113,7 +127,8 @@ export default function LogTable(props) {
         Header: 'Name',
         accessor: 'name',
         Filter: TextFilter,
-        filter: 'basic'
+        filter: 'basic',
+        Cell: ({value}) => value
       },
       {
         Header: 'Amount',
@@ -129,7 +144,8 @@ export default function LogTable(props) {
       },
       {
         Header: 'Calories',
-        accessor: 'calories'
+        accessor: 'calories',
+        //Footer: SumFooter
       },
       {
         Header: 'Total Fat',
@@ -195,32 +211,33 @@ export default function LogTable(props) {
     []
   );
 
-  const [entries, setEntries] = React.useState([]);
   const [data, setData] = React.useState([]);
-  const [dbData, setDbData] = React.useState([]);
+  const [logEntries, setLogEntries] = React.useState([]);  
+  const [indexEntries, setIndexEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
 
-  const fetchEntries = () => {
-    const url = `/api/${userId}/logs?date=${formattedDate}`;
 
-    getEntries(url)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
-        } else {
-          return {entries: []};
-        }
-      })
-      .then((body) => {
-        const entries = body.entries;
-        const preparedEntries = prepareForLogTable(entries);
-        setData(preparedEntries);
-        setDbData(preparedEntries);
-      })
-      .catch(err => {
-        console.log('log table error: ', err)
-      })
+  const fetchEntries = () => {
+
+    const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
+    const indexUrl = `/api/${userId}/index`;
+
+    getLogAndIndexEntries(logUrl, indexUrl)
+    .then((response) => {
+      let logEntries = response.logEntries;
+      let indexEntries = response.indexEntries;
+
+      let preparedLogEntries = prepareForLogTable(logEntries);
+      setData(preparedLogEntries);
+      setLogEntries(preparedLogEntries);
+
+      let preparedIndexEntries = prepareCreateLogIndexEntries(indexEntries);
+      setIndexEntries(preparedIndexEntries);
+    })
+    .catch((err) => {
+      console.log(err)
+    })
   }
 
   React.useEffect(() => {
@@ -238,7 +255,7 @@ export default function LogTable(props) {
         }
         return row;
       })
-    )
+    ) 
   }
 
   const updateEditedEntryIds = (entryId, action) => {
@@ -268,8 +285,8 @@ export default function LogTable(props) {
         .then(response => {
           if (response.ok) {
             console.log('update successful')
+            fetchEntries();
           }
-          fetchEntries();
         })
         .catch(e => console.log('error in updateDb: \n', e))
     }
@@ -277,18 +294,23 @@ export default function LogTable(props) {
 
   const deleteRows = () => {
     const ids = [];
+    const dataCopy = [...data]
 
-    for (let entry of selectedEntries) {
+    for (let entry of selectedEntries.reverse()) {
       ids.push(entry.original.id);
+      dataCopy.splice(entry.index, 1)
     }
+
+    setData(dataCopy)
 
     if (ids.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
   
       deleteEntries(url, ids)
         .then((response) => {
-          console.log(response);
-          fetchEntries();
+          if (!response.ok) {
+            console.log('Something went wrong when deleting log entries.')
+          }
         })
         .catch((err) => {
           console.log(err)
@@ -301,7 +323,7 @@ export default function LogTable(props) {
   }
 
   const resetData = () => {
-    setData(dbData);
+    setData(logEntries);
     setEditedEntryIds([]);
   }
   
@@ -311,7 +333,9 @@ export default function LogTable(props) {
         <Table
           columns={columns}
           data={data}
-          dbData={dbData}
+          indexEntries={indexEntries}
+          logEntries={logEntries}
+          status={status}
           updateEditedEntryIds={updateEditedEntryIds}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}

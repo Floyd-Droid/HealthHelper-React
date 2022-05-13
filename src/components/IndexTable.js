@@ -7,7 +7,7 @@ import { prepareForIndexTable } from '../services/TableData';
 import { IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, indexEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -34,7 +34,8 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntr
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
-      dbData,
+      indexEntries,
+      status, 
       updateEditedEntryIds,
       updateSelectedEntries,
       updateTableData,
@@ -104,6 +105,7 @@ function Table({ columns, data, dbData, updateEditedEntryIds, updateSelectedEntr
 }
 
 export default function IndexTable(props) {
+  let status = props.status;
   let userId = props.userId
   let date = props.date
 
@@ -219,9 +221,8 @@ export default function IndexTable(props) {
     []
   )
 
-  const [entries, setEntries] = React.useState([])
   const [data, setData] = React.useState([])
-  const [dbData, setDbData] = React.useState([]);
+  const [indexEntries, setIndexEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([])
 
@@ -238,10 +239,9 @@ export default function IndexTable(props) {
       })
       .then((body) => {
         const entries = body.entries;
-        setEntries(entries)
         const preparedEntries = prepareForIndexTable(entries)
         setData(preparedEntries)
-        setDbData(preparedEntries)
+        setIndexEntries(preparedEntries)
       })
       .catch((err) => {
         console.log(err)
@@ -278,11 +278,11 @@ export default function IndexTable(props) {
 
   function validateServingSize() {
     for (let entry of data) {
-      const servWeight = entry.serving_by_weight
-      const weightUnit = entry.weight_unit
-      const servVolume = entry.serving_by_volume
-      const volumeUnit = entry.volume_unit
-      const servItem = entry.serving_by_item
+      const servWeight = entry.serving_by_weight;
+      const weightUnit = entry.weight_unit;
+      const servVolume = entry.serving_by_volume;
+      const volumeUnit = entry.volume_unit;
+      const servItem = entry.serving_by_item;
 
       if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
         alert(
@@ -290,7 +290,7 @@ export default function IndexTable(props) {
           \u2022 Weight quantity and weight unit
           \u2022 Volume quantity and volume unit
           \u2022 Item quantity
-          `)
+          `);
       }
     }
   }
@@ -305,15 +305,15 @@ export default function IndexTable(props) {
     for (let id of editedEntryIds) {
       for (let entry of data) {
         if (entry.id === id) {
-          editedEntries.push(entry)
+          editedEntries.push(entry);
         }
       }
     }
 
     // Gather new entries
     for (let newEntry of data.reverse()) {
-      if (newEntry.isNew) {
-        newEntries.push(newEntry)
+      if (newEntry.id === undefined) {
+        newEntries.push(newEntry);
       } else {
         break;
       }
@@ -324,16 +324,15 @@ export default function IndexTable(props) {
 
       createOrUpdateEntries(url, newEntries, editedEntries)
         .then(messages => {
-          console.log(messages)
-          fetchEntries();
+          console.log(messages);
+          setIndexEntries(data);
         })
-        .catch(err => console.log(err))
+        .catch(err => console.log(err));
     }
   }
 
   const addNewRow = () => {
     const newRow = {
-      isNew: true,
       name: '',
       serving_by_weight: '',
       weight_unit: '',
@@ -358,37 +357,45 @@ export default function IndexTable(props) {
       cost_per_container: '',
       servings_per_container: '',
       cost_per_serving: '',
-    }
+    };
     setData(old => [...old, newRow]);
   }
 
   const deleteRows = () => {
-    const ids = [];
+    const existingEntryIds = [];
+    let dataCopy = [...data];
 
-    for (let entry of selectedEntries) {
-      ids.push(entry.original.id)
+    for (let entry of selectedEntries.reverse()) {
+      if (entry.original.id !== undefined) {
+        existingEntryIds.push(entry.original.id)
+      }
+      dataCopy.splice(entry.index, 1)
     }
 
-    if (ids.length) {
+    setData(dataCopy);
+
+    if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
 
-      deleteEntries(url, ids)
+      deleteEntries(url, existingEntryIds)
         .then((response) => {
-          fetchEntries();
+          if (!response.ok) {
+            console.log('Something went wrong when deleting index entries.');
+          }
         })
         .catch((err) => {
-          console.log(err)
+          console.log(err);
         })
     }
   }
 
   const updateSelectedEntries = (flatRows) => {
-    setSelectedEntries(flatRows)
+    setSelectedEntries(flatRows);
   }
   
   const resetData = () => {
-    setData(dbData)
-    setEditedEntryIds([])
+    setData(indexEntries);
+    setEditedEntryIds([]);
   }
 
   return (
@@ -397,7 +404,8 @@ export default function IndexTable(props) {
         <Table
           columns={columns}
           data={data}
-          dbData={dbData}
+          indexEntries={indexEntries}
+          status={status}
           updateEditedEntryIds={updateEditedEntryIds}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}

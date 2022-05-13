@@ -87,123 +87,6 @@ export function NumberRangeFilter({
   )
 }
 
-export const CreateLogCell = ({
-  row: { index, original },
-  column: { id },
-  dbData,
-  updateTableData
-}) => {
-
-  let init, dbEntry, servings;
-  for (let entry of dbData) {
-    if (entry.id == original.id) {
-      init = entry[id];
-      dbEntry = entry
-      break;
-    }
-  }
-
-  const [initialValue, setInitialValue] = React.useState(init);
-  const [value, setValue] = React.useState('');
-
-  let amount = original.amount;
-  let unit = original.amount_unit;
-  let result = '';
-
-  React.useEffect(() => {
-    if (amount) {
-      if (unit === 'servings') {
-        servings = amount;
-      } else if (unit === dbEntry.weight_unit) {
-        servings = amount / dbEntry.serving_by_weight;
-      } else if (unit === dbEntry.volume_unit) { 
-        servings = amount / dbEntry.serving_by_volume;
-      } else if (unit === 'items') {
-        servings = amount / dbEntry.serving_by_item;
-      }
-
-      let precision = id === 'cost_per_serving' ? 2 : 1;
-      result = round(Number(servings) * Number(init), precision);
-    }
-
-    setValue(result)
-    updateTableData(index, id, result)
-  }, [amount, unit])
-
-  return (
-    <div>
-      {value}
-    </div>
-  );
-}
-
-export const CreateLogAmountInput = ({
-  row: { index },
-  column: { id },
-  updateTableData,
-}) => {
-
-  const [value, setValue] = React.useState('');
-
-  const onChange = e => {
-    let newVal = e.target.value;
-    setValue(newVal);
-    updateTableData(index, id, newVal);
-  }
-
-  const inputClassName = `amount text-center p-0 m-0 border-0`;
-
-  const input = (<input className={inputClassName}
-    style={{width: '40px'}}
-    value={value} onChange={onChange} />
-  )
-
-  return (
-    <div className=''>
-      {input}
-    </div>
-  )
-}
-
-export const CreateLogSelect = ({
-  row: { index, original },
-  column: { id },
-  updateTableData,
-}) => {
-
-  const [value, setValue] = React.useState('servings');
-
-  const units = [
-    'servings',
-    ...(original.weight_unit ? [original.weight_unit] : []),
-    ...(original.volume_unit ? [original.volume_unit] : []),
-    ...(original.serving_by_item ? ['items'] : []),
-  ]
-
-  const onChange = e => {
-    let newVal = e.target.value
-    setValue(newVal);
-    updateTableData(index, id, newVal);
-  }
-
-  let unitSelect = (
-    <select className='amount-unit' value={value} onChange={onChange}
-      style={{width: '95px'}}>
-      {units.map((unit, i) => {
-        return <option key={i} value={unit}>{unit}</option>
-      })}
-    </select>
-  )
-
-  const selectDiv = (
-    <div className='p-2 m-0'>
-      {unitSelect}
-    </div>
-  )
-
-  return selectDiv;
-}
-
 function validateInput(key, value) {
   let message = '';
   if (key === 'name') {
@@ -213,87 +96,6 @@ function validateInput(key, value) {
     message = 'Must be a number';
   }
   return message;
-}
-
-export const Input = ({
-  value: initialCellValue,
-  row: { index, original },
-  column: { id },
-  dbData,
-  updateEditedEntryIds,
-  updateTableData,
-}) => {
-
-  let init;
-  for (let entry of dbData) {
-    if (entry.id == original.id) {
-      init = entry[id];
-      break;
-    }
-  }
-  const [initialValue, setInitialValue] = React.useState('');
-  const [value, setValue] = React.useState(initialCellValue);
-  const [isEdited, setIsEdited] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
-
-  const onChange = e => {
-    let newVal = e.target.value;
-    setValue(newVal);
-
-    if (!original.isNew) {
-      if ((String(newVal) !== String(initialValue)) && !isEdited) {
-        updateEditedEntryIds(original.id, 'add');
-        setIsEdited(true);
-      } else if ((String(newVal) === String(initialValue)) && isEdited) {
-        updateEditedEntryIds(original.id, 'remove');
-        setIsEdited(false);
-      }
-    }
-
-    const validationMessage = validateInput(id, newVal);
-    if (validationMessage) {
-      setErrorMessage(validationMessage);
-    } else {
-      setErrorMessage('');
-    }
-
-    updateTableData(index, id, newVal);
-  }
-
-  React.useEffect(() => {
-    setInitialValue(init)
-    setValue(initialCellValue);
-
-    if (String(initialCellValue) === String(init)) {
-      setIsEdited(false)
-      setErrorMessage('')
-    }
-  }, [initialCellValue, init]);
-
-  let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
-  inputClassName += ' p-0 m-0 border-0';
-
-  let divClassName = '';
-
-  if (isEdited && errorMessage) {
-    divClassName += ' bg-cell-error';
-  } else if (isEdited) {
-    divClassName += ' bg-cell-edit';
-  }
-
-  const autoFocus = id === 'name' && original.isNew;
-
-  const input = (<input className={inputClassName}
-      {...(autoFocus ? {autoFocus} : {})}
-      style={(id==='name' ? {} : {width: '40px'})}
-      value={value} onChange={onChange} />
-    )
-
-  return (
-    <div className={divClassName}>
-      {input}
-    </div>
-  )
 }
 
 function validateSelect(key, value, amountUnits) {
@@ -308,27 +110,197 @@ function validateSelect(key, value, amountUnits) {
   return message;
 }
 
-export const Select = ({
-  value: initialCellValue,
+export const CalculatedCell = ({
   row: { index, original },
   column: { id },
-  dbData,
-  updateEditedEntryIds,
-  updateTableData,
+  indexEntries,
+  status,
+  updateTableData
 }) => {
 
-  let init;
-  for (let entry of dbData) {
-    if (entry.id == original.id) {
-      init = entry[id]
+  let indexValue, indexEntry, servings;
+  for (let entry of indexEntries) {
+    if (entry.id === original.id) {
+      indexValue = entry[id];
+      indexEntry = entry;
       break;
     }
   }
 
-  const [initialValue, setInitialValue] = React.useState('')
-  const [value, setValue] = React.useState(initialCellValue);
+  let amount = original.amount;
+  let unit = original.amount_unit;
+  let result = '';
+
+  const [indexCellValue, setIndexCellValue] = React.useState(indexValue);
+  const [value, setValue] = React.useState();
+
+  React.useEffect(() => {
+    if (amount && indexEntry) {
+      if (unit === 'servings') {
+        servings = amount;
+      } else if (unit === indexEntry.weight_unit) {
+        servings = amount / indexEntry.serving_by_weight;
+      } else if (unit === indexEntry.volume_unit) { 
+        servings = amount / indexEntry.serving_by_volume;
+      } else if (unit === 'items') {
+        servings = amount / indexEntry.serving_by_item;
+      }
+
+      let precision = id === 'cost_per_serving' ? 2 : 1;
+      result = round(Number(servings) * Number(indexValue), precision);
+    }
+
+    setValue(result)
+    updateTableData(index, id, result)
+  }, [amount, unit, indexEntries])
+
+  return (
+    <div>
+      {value}
+    </div>
+  );
+}
+
+export const Input = ({
+  value: initialCellValue,
+  row: { index, original },
+  column: { id },
+  indexEntries,
+  status,
+  logEntries,
+  updateEditedEntryIds,
+  updateTableData,
+}) => {
+
+  let init = '';
+  let entries = [];
+
+  const [initialEntryValue, setInitialEntryValue] = React.useState(init);
+
+
+  React.useEffect(() => {
+    if (status === 'index' && indexEntries.length) {
+      entries = indexEntries;
+    } else if (status === 'logs' && logEntries.length) {
+      entries = logEntries;
+    }
+
+    if (status !== 'addLog') {
+      for (let entry of entries) {
+        if (entry.id === original.id) {
+          init = entry[id];
+          break;
+        }
+      }
+    }
+
+    setInitialEntryValue(init)
+    setIsEdited(false)
+  }, [logEntries, indexEntries])
+
+  const [value, setValue] = React.useState(init);
   const [isEdited, setIsEdited] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('')
+  const [errorMessage, setErrorMessage] = React.useState('');
+
+  const onChange = e => {
+    let newValue = e.target.value;
+    setValue(newValue);
+
+    if ((String(newValue) !== String(initialEntryValue)) && !isEdited) {
+      if (status !== 'addLog') {
+        updateEditedEntryIds(original.id, 'add');
+      }
+      setIsEdited(true);
+    } else if ((String(newValue) === String(initialEntryValue)) && isEdited) {
+      if (status !== 'addLog') {
+        updateEditedEntryIds(original.id, 'remove');
+      }
+      setIsEdited(false);
+    }
+
+    const validationMessage = validateInput(id, newValue);
+    if (validationMessage) {
+      setErrorMessage(validationMessage);
+    } else {
+      setErrorMessage('');
+    }
+
+    updateTableData(index, id, newValue);
+  }
+
+  React.useEffect(() => {
+    setValue(initialCellValue);
+
+    if (String(initialCellValue) === String(initialEntryValue)) {
+      setIsEdited(false)
+      setErrorMessage('')
+    }
+  }, [initialCellValue]);
+
+  let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
+  inputClassName += 'p-0 m-0 border-0';
+
+
+  let divClassName = '';
+
+  if (isEdited) {
+    if (errorMessage) {
+      divClassName += ' bg-cell-error';
+    } else {
+      divClassName += ' bg-cell-edit';
+    }
+  }
+
+  const input = (
+    <input className={inputClassName} 
+      style={id==='name' ? {} : {width: '40px'}}
+      value={value} onChange={onChange} />
+  )
+
+  return (
+    <div className={divClassName}>
+      {input}
+    </div>
+  )
+}
+
+export const Select = ({
+  value: initialCellValue,
+  row: { index, original },
+  column: { id },
+  indexEntries,
+  status,
+  logEntries,
+  updateEditedEntryIds,
+  updateTableData,
+}) => {
+
+  let init = 'servings';
+  let entries = [];
+
+  React.useEffect(() => {
+    if (status === 'index' && indexEntries.length) {
+      entries = indexEntries;
+    } else if (status === 'logs' && logEntries.length) {
+      entries = logEntries;
+    }
+
+    if (status !== 'addLog') {
+      for (let entry of entries) {
+        if (entry.id === original.id) {
+          init = entry[id];
+          break;
+        }
+      }
+    }
+    setInitialEntryValue(init)
+    setIsEdited(false)
+  }, [logEntries, indexEntries])
+
+  const [initialEntryValue, setInitialEntryValue] = React.useState(init)
+  const [value, setValue] = React.useState(init);
+  const [isEdited, setIsEdited] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
 
   const amountUnits = [
     'servings',
@@ -337,18 +309,35 @@ export const Select = ({
     ...(original.serving_by_item ? ['items'] : []),
   ]
 
+  React.useEffect(() => {
+    setValue(initialCellValue)
+
+    if (String(initialCellValue) === String(initialEntryValue)) {
+      setIsEdited(false)
+      setErrorMessage('')
+    }
+  }, [initialCellValue])
+
+  let units = (id === 'amount_unit')
+  ? amountUnits 
+  : id === 'weight_unit' 
+    ? weightUnits
+    : volumeUnits;
+
   const onChange = e => {
     let newVal = e.target.value
     setValue(newVal);
 
-    if (!original.isNew) {
-      if (String(newVal) !== String(initialValue)) {
-        updateEditedEntryIds(original.id, 'add')
-        setIsEdited(true)
-      } else if (String(newVal) === String(initialValue)) {
-        updateEditedEntryIds(original.id, 'remove')
-        setIsEdited(false)
+    if ((String(newVal) !== String(initialEntryValue)) && !isEdited) {
+      if (status === 'logs') {
+        updateEditedEntryIds(original.id, 'add');
       }
+      setIsEdited(true);
+    } else if ((String(newVal) === String(initialEntryValue)) && isEdited) {
+      if (status === 'logs') {
+        updateEditedEntryIds(original.id, 'remove');
+      }
+      setIsEdited(false);
     }
 
     const validationMessage = validateSelect(id, newVal, amountUnits);
@@ -361,45 +350,28 @@ export const Select = ({
     updateTableData(index, id, newVal);
   }
 
-  React.useEffect(() => {
-    setValue(initialCellValue);
-    setInitialValue(init)
-
-    if (String(initialCellValue) === String(init)) {
-      setIsEdited(false)
-      setErrorMessage('')
-    }
-  }, [initialCellValue, init]);
-
-  let units = (id === 'amount_unit')
-    ? amountUnits 
-    : id === 'weight_unit' 
-      ? weightUnits
-      : volumeUnits;
-  
-  let unitSelect = (
-    <select className={ `${id}` } value={value} onChange={onChange}
-      style={(id === 'amount_unit' ? {width: '85px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
-      {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
-      {units.map((unit, i) => {
-        return <option key={i} value={unit}>{unit}</option>
-      })}
-    </select>
-  )
-
   let divClassName = 'p-2 m-0';
 
-  if (isEdited && errorMessage) {
-    divClassName += ' bg-cell-error';
-  } else if (isEdited) {
-    divClassName += ' bg-cell-edit';
+  if (isEdited) {
+    if (errorMessage) {
+      divClassName += ' bg-cell-error';
+    } else {
+      divClassName += ' bg-cell-edit';
+    }
   }
 
-  const selectDiv = (
+  let unitSelect = (
     <div className={divClassName}>
-      {unitSelect}
+      <select className={ `${id}` } value={value} onChange={onChange}
+        style={(id === 'amount_unit' ? {width: '95px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
+        {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
+        {units.map((unit, i) => {
+          return <option key={i} value={unit}>{unit}</option>
+        })}
+      </select>
     </div>
+
   )
 
-  return selectDiv;
+  return unitSelect;
 }

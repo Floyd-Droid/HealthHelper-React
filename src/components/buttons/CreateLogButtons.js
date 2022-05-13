@@ -4,15 +4,9 @@ export default class CreateLogButtons extends React.Component {
   constructor(props) {
     super(props);
 
-    this.handleDeleteEntries = this.handleDeleteEntries.bind(this);
     this.handleNav = this.handleNav.bind(this);
     this.handleResetData = this.handleResetData.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleDeleteEntries(e) {
-    e.preventDefault();
-    this.props.onDeleteRows();
   }
 
   handleNav(e) {
@@ -35,9 +29,8 @@ export default class CreateLogButtons extends React.Component {
       <form>
         <div className='d-flex justify-content-start'>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleNav} value='logs'>Back to logs</button>
-          <button type='button' className='btn bg-btn mx-3' onClick={this.handleDeleteEntries}>Delete selected entries</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleResetData}>Reset</button>
-          <button type='button' className='btn bg-btn mx-3' onClick={this.handleSubmit}>Submit changes</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleSubmit}>Submit entries</button>
         </div>
       </form>
     );

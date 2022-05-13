@@ -29,6 +29,7 @@ class App extends React.Component {
       <div className='app-container vw-100 vh-100 p-3' >
         {this.state.status === 'logs' &&
           <LogTable
+            status={this.state.status}
             userId={this.state.userId}
             date={this.state.date} 
             onNavSubmit={this.updateStatus}
@@ -36,12 +37,14 @@ class App extends React.Component {
         }
         {this.state.status === 'index' &&
           <IndexTable
+            status={this.state.status}
             userId={this.state.userId}
             onNavSubmit={this.updateStatus}
           />
         }
         {this.state.status === 'addLog' &&
           <CreateLogTable
+            status={this.state.status}
             userId={this.state.userId}
             date={this.state.date}
             onNavSubmit={this.updateStatus}

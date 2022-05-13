@@ -3,15 +3,15 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import CreateLogButtons from './buttons/CreateLogButtons';
 import { getEntries, createEntries } from '../services/EntryService';
-import { getFormattedDate, prepareCreateLogBaseData, prepareCreateLogInitialCellData } from '../services/TableData';
-import { IndeterminateCheckbox, CreateLogCell, CreateLogAmountInput, NumberRangeFilter, CreateLogSelect,
+import { getFormattedDate, prepareCreateLogIndexEntries, prepareCreateLogInitialCellData } from '../services/TableData';
+import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, dbData, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, indexEntries, status, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
-      Cell: CreateLogCell,
+      Cell: CalculatedCell,
       disableFilters: true
     }),
     []
@@ -33,7 +33,8 @@ function Table({ columns, data, dbData, updateSelectedEntries, updateTableData }
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: false,
-      dbData,
+      indexEntries,
+      status,
       updateSelectedEntries,
       updateTableData,
     },
@@ -103,6 +104,7 @@ function Table({ columns, data, dbData, updateSelectedEntries, updateTableData }
 }
 
 export default function CreateLogTable(props) {
+  let status = props.status;
   let userId = props.userId;
   let date = props.date;
   let formattedDate = getFormattedDate(date, 'url')
@@ -119,12 +121,12 @@ export default function CreateLogTable(props) {
       {
         Header: 'Amount',
         accessor: 'amount',
-        Cell: CreateLogAmountInput
+        Cell: Input
       },
       {
         Header: 'Unit',
         accessor: 'amount_unit',
-        Cell: CreateLogSelect
+        Cell: Select
       },
        {
         Header: 'Calories',
@@ -195,7 +197,7 @@ export default function CreateLogTable(props) {
   );
 
   const [data, setData] = React.useState([]);
-  const [dbData, setDbData] = React.useState([]);
+  const [indexEntries, setIndexEntries] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
 
   const fetchEntries = () => {
@@ -216,8 +218,8 @@ export default function CreateLogTable(props) {
         const initialCellData = prepareCreateLogInitialCellData(entries1)
         setData(initialCellData);
 
-        const preparedBaseEntries = prepareCreateLogBaseData(entries2);
-        setDbData(preparedBaseEntries);
+        const preparedIndexEntries = prepareCreateLogIndexEntries(entries2);
+        setIndexEntries(preparedIndexEntries);
       })
       .catch(err => {
         console.log('log table error: ', err)
@@ -246,18 +248,21 @@ export default function CreateLogTable(props) {
     const entriesToCreate = [];
 
     for (let entry of selectedEntries) {
-      entriesToCreate.push({
-        id: Number(entry.id), 
+      let newEntry = {
+        id: Number(entry.original.id), 
         amount: Number(entry.values.amount), 
         amount_unit: String(entry.values.amount_unit)
-      })
+      }
+      entriesToCreate.push(newEntry)
     }
 
     if (entriesToCreate.length) {
       let url = `/api/${userId}/logs?date=${formattedDate}`;
       createEntries(url, entriesToCreate)
         .then(response => {
-          //console.log(response)
+          if (response.ok) {
+            resetData();
+          }
         })
         .catch(err => {
           console.log(err)
@@ -270,7 +275,7 @@ export default function CreateLogTable(props) {
   }
 
   const resetData = () => {
-    setData(dbData);
+    setData(indexEntries);
   }
   
   return (
@@ -279,7 +284,8 @@ export default function CreateLogTable(props) {
         <Table
           columns={columns}
           data={data}
-          dbData={dbData}
+          status={status}
+          indexEntries={indexEntries}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />

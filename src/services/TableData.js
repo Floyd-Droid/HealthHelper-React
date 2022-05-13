@@ -8,23 +8,10 @@ export function round(num, precision) {
   return Number(round);
 }
 
-
 export function prepareForLogTable(entries) {
-
-  let servings;
   let preparedEntries = [];
   
   for (let entry of entries) {
-
-    if (entry.amount_unit === 'servings') {
-      servings = entry.amount;
-    } else if (entry.amount_unit === entry.weight_unit) {
-      servings = entry.amount / entry.serving_by_weight;
-    } else if (entry.amount_unit === entry.volume_unit) {
-      servings = entry.amount / entry.serving_by_volume;
-    } else if (entry.amount_unit === 'items') {
-      servings = entry.amount / entry.serving_by_item;
-    }
 
     let costPerServing = entry.cost_per_container && entry.servings_per_container
       ? entry.cost_per_container / entry.servings_per_container
@@ -33,13 +20,8 @@ export function prepareForLogTable(entries) {
     entry.cost = costPerServing ? round(costPerServing, 2) : '';
 
     Object.keys(entry).forEach((key) => {
-
-      if (typeof entry[key] === 'number' && key !== 'amount' && key !== 'id') {
-        let result = entry[key] * servings;
-        let precision = key === 'cost' ? 2 : 1;
-        entry[key] = round(result, precision);
-      } else if (entry[key] === null) {
-        entry[key] = '';
+      if (key !== 'id') {
+        entry[key] = entry[key] === null ? '' : entry[key];
       }
     })
 
@@ -94,7 +76,7 @@ export function prepareCreateLogInitialCellData(entries) {
   return initialEntries;
 }
 
-export function prepareCreateLogBaseData(entries) {
+export function prepareCreateLogIndexEntries(entries) {
   let baseEntries = [];
 
   for (let entry of entries) {
