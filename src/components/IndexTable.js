@@ -4,7 +4,7 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import IndexButtons from './buttons/IndexButtons';
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { prepareEntries } from '../services/TableData';
-import { IndeterminateCheckbox, Input, NumberRangeFilter, Select,
+import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, indexEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
@@ -214,7 +214,8 @@ export default function IndexTable(props) {
       },
       {
         Header: 'Cost per Serving',
-        accessor: 'cost_per_serving'
+        accessor: 'cost_per_serving',
+        Cell: IndexCostCell
       },
     ],
     []

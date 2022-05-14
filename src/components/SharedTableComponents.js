@@ -376,6 +376,33 @@ export const Select = ({
   return unitSelect;
 }
 
+export const IndexCostCell = ({
+  row: { index, original },
+  column: { id },
+  updateTableData
+}) => {
+
+  const [value, setValue] = React.useState('')
+
+  let servingsPerContainer = original.servings_per_container
+  let costPerContainer = original.cost_per_container
+
+  React.useEffect(() => {
+    let result = ''
+    if (costPerContainer && servingsPerContainer) {
+      result = round((costPerContainer / servingsPerContainer), 2)
+    }
+    setValue(result)
+    updateTableData(index, id, result)
+  }, [servingsPerContainer, costPerContainer])
+
+  return (
+    <div>
+      {value}
+    </div>
+  )
+}
+
 export const SumFooter = ({
   rows,
   selectedFlatRows,
