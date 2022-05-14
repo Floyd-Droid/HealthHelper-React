@@ -8,6 +8,33 @@ export function round(num, precision) {
   return Number(round);
 }
 
+export function prepareEntries(entries, status) {
+  let preparedEntries = [];
+
+  for (let entry of entries) {
+    Object.keys(entry).forEach((key) => {
+      if (key !== 'id') {
+        entry[key] = entry[key] === null ? '' : entry[key];
+      }
+    })
+
+    let costPerServing = entry.cost_per_container && entry.servings_per_container
+    ? entry.cost_per_container / entry.servings_per_container
+    : '';
+
+    entry.cost_per_serving = costPerServing;
+
+    if (status === 'addLog') {
+      entry.amount = '';
+      entry.amount_unit = 'servings';
+    }
+
+    preparedEntries.push(entry);
+  }
+
+  return preparedEntries;
+} 
+
 export function prepareForLogTable(entries) {
   let preparedEntries = [];
   

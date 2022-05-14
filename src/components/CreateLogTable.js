@@ -3,7 +3,7 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import CreateLogButtons from './buttons/CreateLogButtons';
 import { getEntries, createEntries } from '../services/EntryService';
-import { getFormattedDate, prepareCreateLogIndexEntries, prepareCreateLogInitialCellData } from '../services/TableData';
+import { getFormattedDate, prepareEntries } from '../services/TableData';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
@@ -224,13 +224,9 @@ export default function CreateLogTable(props) {
         }
       })
       .then((body) => {
-        const entries1 = body.entries;
-        const entries2 = JSON.parse(JSON.stringify(entries1))
-
-        const initialCellData = prepareCreateLogInitialCellData(entries1)
-        setData(initialCellData);
-
-        const preparedIndexEntries = prepareCreateLogIndexEntries(entries2);
+        const entries = body.entries;
+        const preparedIndexEntries = prepareEntries(entries, status)
+        setData(preparedIndexEntries)
         setIndexEntries(preparedIndexEntries);
       })
       .catch(err => {

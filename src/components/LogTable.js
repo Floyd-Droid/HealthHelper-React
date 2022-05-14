@@ -3,8 +3,8 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
 import { deleteEntries, getLogAndIndexEntries, updateEntries } from '../services/EntryService';
-import { getFormattedDate, prepareCreateLogIndexEntries, prepareForLogTable } from '../services/TableData';
-import { CalculatedCell, IndeterminateCheckbox, Input, NameFooter, NumberRangeFilter, Select,
+import { getFormattedDate, prepareEntries } from '../services/TableData';
+import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, indexEntries, logEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
@@ -229,11 +229,11 @@ export default function LogTable(props) {
       let logEntries = response.logEntries;
       let indexEntries = response.indexEntries;
 
-      let preparedLogEntries = prepareForLogTable(logEntries);
+      let preparedLogEntries = prepareEntries(logEntries, status);
       setData(preparedLogEntries);
       setLogEntries(preparedLogEntries);
 
-      let preparedIndexEntries = prepareCreateLogIndexEntries(indexEntries);
+      let preparedIndexEntries = prepareEntries(indexEntries, status);
       setIndexEntries(preparedIndexEntries);
     })
     .catch((err) => {
@@ -284,7 +284,7 @@ export default function LogTable(props) {
       updateEntries(url, editedEntries)
         .then(response => {
           if (response.ok) {
-            console.log('update successful')
+            console.log('update successful');
             fetchEntries();
           }
         })

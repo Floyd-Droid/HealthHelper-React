@@ -3,7 +3,7 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import IndexButtons from './buttons/IndexButtons';
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
-import { prepareForIndexTable } from '../services/TableData';
+import { prepareEntries } from '../services/TableData';
 import { IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
@@ -214,8 +214,7 @@ export default function IndexTable(props) {
       },
       {
         Header: 'Cost per Serving',
-        accessor: 'cost_per_serving',
-        Cell: ({ value }) => value
+        accessor: 'cost_per_serving'
       },
     ],
     []
@@ -239,9 +238,9 @@ export default function IndexTable(props) {
       })
       .then((body) => {
         const entries = body.entries;
-        const preparedEntries = prepareForIndexTable(entries)
-        setData(preparedEntries)
-        setIndexEntries(preparedEntries)
+        const preparedIndexEntries = prepareEntries(entries, status)
+        setData(preparedIndexEntries)
+        setIndexEntries(preparedIndexEntries)
       })
       .catch((err) => {
         console.log(err)

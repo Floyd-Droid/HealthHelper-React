@@ -113,7 +113,6 @@ export const CalculatedCell = ({
   row: { index, original },
   column: { id },
   indexEntries,
-  status,
   updateTableData
 }) => {
 
@@ -134,7 +133,7 @@ export const CalculatedCell = ({
   const [value, setValue] = React.useState();
 
   React.useEffect(() => {
-    if (indexValue === '') {
+    if (indexCellValue === '') {
       result = '';
     } else if (amount && indexEntry) {
       if (unit === 'servings') {
@@ -239,7 +238,7 @@ export const Input = ({
   }, [initialCellValue]);
 
   let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
-  inputClassName += 'p-0 m-0 border-0';
+  inputClassName += ' p-0 m-0 border-0';
 
 
   let divClassName = '';
