@@ -91,7 +91,6 @@ function validateInput(key, value) {
   let message = '';
   if (key === 'name') {
     message = value === '' ? 'Name is required': '';
-    // handle duplicate names eventually
   } else if (isNaN(Number(value))){
     message = 'Must be a number';
   }
@@ -135,7 +134,9 @@ export const CalculatedCell = ({
   const [value, setValue] = React.useState();
 
   React.useEffect(() => {
-    if (amount && indexEntry) {
+    if (indexValue === '') {
+      result = '';
+    } else if (amount && indexEntry) {
       if (unit === 'servings') {
         servings = amount;
       } else if (unit === indexEntry.weight_unit) {
@@ -374,4 +375,45 @@ export const Select = ({
   )
 
   return unitSelect;
+}
+
+export const SumFooter = ({
+  rows,
+  selectedFlatRows,
+  status,
+  column: { id }
+}) => {
+
+  const total = React.useMemo(
+    () =>
+      rows.reduce((sum, row) => Number(row.values[id]) + sum, 0),
+      [rows]
+  )
+  const selectedTotal = React.useMemo(
+    () => 
+      selectedFlatRows.reduce((sum, row) => Number(row.values[id]) + sum, 0),
+      [selectedFlatRows]
+  )
+
+  let selectedTotalDivClassName = 'text-center py-2';
+  let totalDivClassName = 'text-center py-2';
+
+  if (status === 'logs') {
+    selectedTotalDivClassName += ' border-bottom'
+  }
+
+  const emptyFooterIds = ['amount', 'amount_unit', 'name']
+  let showTotal = !emptyFooterIds.includes(id)
+
+  return (
+    <>
+      <div className={selectedTotalDivClassName}>
+        {(showTotal && String(round(selectedTotal, 1))) || (id==='name' && 'Selected Total') || '---'}
+      </div>
+      {status === 'logs' && 
+        <div className={totalDivClassName}>
+          {(showTotal && String(round(total, 1))) || (id==='name' && 'Total') || '---'}
+        </div>}
+    </>
+  )
 }

@@ -4,7 +4,7 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import CreateLogButtons from './buttons/CreateLogButtons';
 import { getEntries, createEntries } from '../services/EntryService';
 import { getFormattedDate, prepareCreateLogIndexEntries, prepareCreateLogInitialCellData } from '../services/TableData';
-import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
+import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, indexEntries, status, updateSelectedEntries, updateTableData }) {
@@ -12,7 +12,8 @@ function Table({ columns, data, indexEntries, status, updateSelectedEntries, upd
   const defaultColumn = React.useMemo(
     () => ({
       Cell: CalculatedCell,
-      disableFilters: true
+      disableFilters: true,
+      Footer: SumFooter
     }),
     []
   );
@@ -21,6 +22,7 @@ function Table({ columns, data, indexEntries, status, updateSelectedEntries, upd
     getTableProps,
     getTableBodyProps,
     headerGroups,
+    footerGroups,
     prepareRow,
     rows,
     selectedFlatRows,
@@ -55,6 +57,7 @@ function Table({ columns, data, indexEntries, status, updateSelectedEntries, upd
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
           ),
+          Footer: () => null
         },
         ...columns
       ])
@@ -98,6 +101,15 @@ function Table({ columns, data, indexEntries, status, updateSelectedEntries, upd
             )
           })}
         </tbody>
+        <tfoot>
+          {footerGroups.map(group => (
+            <tr {...group.getFooterGroupProps()}>
+              {group.headers.map(column => (
+                <td className='bg-white border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
+              ))}
+            </tr>
+          ))}
+        </tfoot>
       </table>
     </>
   )
@@ -116,7 +128,7 @@ export default function CreateLogTable(props) {
         accessor: 'name',
         Filter: TextFilter,
         filter: 'basic',
-        Cell: ({value}) => value
+        Cell: ({value}) => value,
       },
       {
         Header: 'Amount',

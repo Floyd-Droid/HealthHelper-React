@@ -4,8 +4,8 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import LogButtons from './buttons/LogButtons';
 import { deleteEntries, getLogAndIndexEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, prepareCreateLogIndexEntries, prepareForLogTable } from '../services/TableData';
-import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
-  TextFilter } from './SharedTableComponents';
+import { CalculatedCell, IndeterminateCheckbox, Input, NameFooter, NumberRangeFilter, Select,
+  SumFooter, TextFilter } from './SharedTableComponents';
 
 function Table({ columns, data, indexEntries, logEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
@@ -13,7 +13,8 @@ function Table({ columns, data, indexEntries, logEntries, status, updateEditedEn
     () => ({
       Cell: CalculatedCell,
       Filter: NumberRangeFilter,
-      filter: 'between'
+      filter: 'between',
+      Footer: SumFooter
     }),
     []
   );
@@ -59,6 +60,7 @@ function Table({ columns, data, indexEntries, logEntries, status, updateEditedEn
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
           ),
+          Footer: () => null
         },
         ...columns
       ])
@@ -105,7 +107,7 @@ function Table({ columns, data, indexEntries, logEntries, status, updateEditedEn
         {footerGroups.map(group => (
           <tr {...group.getFooterGroupProps()}>
             {group.headers.map(column => (
-              <td {...column.getFooterProps()}>{column.render('Footer')}</td>
+              <td className='bg-white border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
             ))}
           </tr>
         ))}
@@ -134,18 +136,17 @@ export default function LogTable(props) {
         Header: 'Amount',
         accessor: 'amount',
         Cell: Input,
-        disableFilters: true
+        disableFilters: true,
       },
       {
         Header: 'Unit',
         accessor: 'amount_unit',
         Cell: Select,
-        disableFilters: true
+        disableFilters: true,
       },
       {
         Header: 'Calories',
-        accessor: 'calories',
-        //Footer: SumFooter
+        accessor: 'calories'
       },
       {
         Header: 'Total Fat',
@@ -205,7 +206,7 @@ export default function LogTable(props) {
       },
       {
         Header: 'Cost',
-        accessor: 'cost'
+        accessor: 'cost_per_serving'
       },
     ],
     []
@@ -259,7 +260,6 @@ export default function LogTable(props) {
   }
 
   const updateEditedEntryIds = (entryId, action) => {
-    // Track which existing entries have been edited by the user
     if (action === 'add') {
       setEditedEntryIds(old => [...old, entryId]);
     } else {

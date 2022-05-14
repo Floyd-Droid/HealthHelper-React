@@ -90,10 +90,10 @@ export function prepareCreateLogIndexEntries(entries) {
     entry.amount_unit = 'servings';
 
     let costPerServing = entry.cost_per_container && entry.servings_per_container
-    ? entry.cost_per_container / entry.servings_per_container
+    ? round((entry.cost_per_container / entry.servings_per_container), 2)
     : '';
 
-    entry.cost_per_serving = round(costPerServing, 2);
+    entry.cost_per_serving = costPerServing;
 
     baseEntries.push(entry);
   };

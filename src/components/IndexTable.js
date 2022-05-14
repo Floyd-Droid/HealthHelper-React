@@ -268,7 +268,6 @@ export default function IndexTable(props) {
   }
 
   const updateEditedEntryIds = (entryId, action) => {
-    // Track which existing entries have been edited by the user
     if (action === 'add') {
       setEditedEntryIds(old => [...old, entryId])
     } else if (action === 'remove') {
@@ -325,7 +324,7 @@ export default function IndexTable(props) {
       createOrUpdateEntries(url, newEntries, editedEntries)
         .then(messages => {
           console.log(messages);
-          setIndexEntries(data);
+          fetchEntries();
         })
         .catch(err => console.log(err));
     }
