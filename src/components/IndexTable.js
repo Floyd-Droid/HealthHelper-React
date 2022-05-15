@@ -7,7 +7,8 @@ import { prepareEntries } from '../services/TableData';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, indexEntries, status, updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, indexEntries, skipSelectedRowsReset, status, 
+  updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -33,7 +34,7 @@ function Table({ columns, data, indexEntries, status, updateEditedEntryIds, upda
       defaultColumn,
       autoResetFilters: false,
       autoResetSortBy: false,
-      autoResetSelectedRows: false,
+      autoResetSelectedRows: !skipSelectedRowsReset,
       indexEntries,
       status, 
       updateEditedEntryIds,
@@ -225,6 +226,7 @@ export default function IndexTable(props) {
   const [indexEntries, setIndexEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([])
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -371,8 +373,9 @@ export default function IndexTable(props) {
       dataCopy.splice(entry.index, 1)
     }
 
+    setSkipSelectedRowsReset(false);
     setData(dataCopy);
-
+    
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
 
@@ -397,6 +400,10 @@ export default function IndexTable(props) {
     setEditedEntryIds([]);
   }
 
+  React.useEffect(() => {
+    setSkipSelectedRowsReset(true)
+  }, [data])
+
   return (
     <>
       <div className='container-fluid p-3'>
@@ -404,6 +411,7 @@ export default function IndexTable(props) {
           columns={columns}
           data={data}
           indexEntries={indexEntries}
+          skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           updateEditedEntryIds={updateEditedEntryIds}
           updateSelectedEntries={updateSelectedEntries}

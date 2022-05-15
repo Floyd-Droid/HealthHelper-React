@@ -93,6 +93,8 @@ function validateInput(key, value) {
     message = value === '' ? 'Name is required': '';
   } else if (isNaN(Number(value))){
     message = 'Must be a number';
+  } else if (Number(value) < 0) {
+    message = 'Number must be positive'
   }
   return message;
 }
@@ -113,29 +115,34 @@ export const CalculatedCell = ({
   row: { index, original },
   column: { id },
   indexEntries,
+  logEntries,
   updateTableData
 }) => {
 
-  let indexValue, indexEntry, servings;
-  for (let entry of indexEntries) {
-    if (entry.id === original.id) {
-      indexValue = entry[id];
-      indexEntry = entry;
-      break;
+  let servings = 0;
+
+  const [indexCellValue, setIndexCellValue] = React.useState();
+  const [indexEntry, setIndexEntry] = React.useState();
+  const [value, setValue] = React.useState();
+
+  React.useEffect(() => {
+    for (let entry of indexEntries) {
+      if (entry.id === original.id) {
+        setIndexCellValue(entry[id]);
+        setIndexEntry(entry);
+        break;
+      }
     }
-  }
+  }, [indexEntries, logEntries])
 
   let amount = original.amount;
   let unit = original.amount_unit;
   let result = '';
 
-  const [indexCellValue, setIndexCellValue] = React.useState(indexValue);
-  const [value, setValue] = React.useState();
-
   React.useEffect(() => {
-    if (indexCellValue === '') {
+    if (['', undefined].includes(indexCellValue) || Number(amount) < 0) {
       result = '';
-    } else if (amount && indexEntry) {
+    } else if (amount && !isNaN(Number(amount)) && indexEntry) {
       if (unit === 'servings') {
         servings = amount;
       } else if (unit === indexEntry.weight_unit) {
@@ -147,12 +154,12 @@ export const CalculatedCell = ({
       }
 
       let precision = id === 'cost_per_serving' ? 2 : 1;
-      result = round(Number(servings) * Number(indexValue), precision);
+      result = round(Number(servings) * Number(indexCellValue), precision);
     }
 
     setValue(result)
     updateTableData(index, id, result)
-  }, [amount, unit, indexEntries])
+  }, [amount, unit, indexEntry, indexCellValue])
 
   return (
     <div>
@@ -174,9 +181,7 @@ export const Input = ({
 
   let init = '';
   let entries = [];
-
   const [initialEntryValue, setInitialEntryValue] = React.useState(init);
-
 
   React.useEffect(() => {
     if (status === 'index' && indexEntries.length) {

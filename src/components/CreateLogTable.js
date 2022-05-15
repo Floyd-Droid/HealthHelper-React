@@ -7,7 +7,8 @@ import { getFormattedDate, prepareEntries } from '../services/TableData';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, indexEntries, status, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, indexEntries, skipSelectedRowsReset, status, 
+  updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -34,7 +35,7 @@ function Table({ columns, data, indexEntries, status, updateSelectedEntries, upd
       defaultColumn,
       autoResetFilters: false,
       autoResetSortBy: false,
-      autoResetSelectedRows: false,
+      autoResetSelectedRows: !skipSelectedRowsReset,
       indexEntries,
       status,
       updateSelectedEntries,
@@ -211,6 +212,7 @@ export default function CreateLogTable(props) {
   const [data, setData] = React.useState([]);
   const [indexEntries, setIndexEntries] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -239,6 +241,7 @@ export default function CreateLogTable(props) {
   }, [])
 
   const updateTableData = (rowIndex, columnId, value) => {
+    // setSkipSelectedRowsReset(true)
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -269,6 +272,7 @@ export default function CreateLogTable(props) {
       createEntries(url, entriesToCreate)
         .then(response => {
           if (response.ok) {
+            setSkipSelectedRowsReset(false);
             resetData();
           }
         })
@@ -285,6 +289,10 @@ export default function CreateLogTable(props) {
   const resetData = () => {
     setData(indexEntries);
   }
+
+  React.useEffect(() => {
+    setSkipSelectedRowsReset(true)
+  }, [data])
   
   return (
     <>
@@ -294,6 +302,7 @@ export default function CreateLogTable(props) {
           data={data}
           status={status}
           indexEntries={indexEntries}
+          skipSelectedRowsReset={skipSelectedRowsReset}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />
