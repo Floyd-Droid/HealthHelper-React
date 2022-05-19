@@ -35,7 +35,7 @@ export default class LogButtons extends React.Component {
       <form>
         <div className='d-flex justify-content-start'>
           <button type='button' className='btn bg-btn mr-3' onClick={this.handleNav} value='index'>Go to index</button>
-          <button type='button' className='btn bg-btn mx-3' onClick={this.handleNav} value='addLog'>Create entries</button>
+          <button type='button' className='btn bg-btn mx-3' onClick={this.handleNav} value='createLog'>Create entries</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleDeleteEntries}>Delete selected entries</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleResetData}>Undo changes</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleSubmit}>Submit changes</button>

@@ -42,7 +42,7 @@ class App extends React.Component {
             onNavSubmit={this.updateStatus}
           />
         }
-        {this.state.status === 'addLog' &&
+        {this.state.status === 'createLog' &&
           <CreateLogTable
             status={this.state.status}
             userId={this.state.userId}

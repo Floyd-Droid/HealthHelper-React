@@ -211,7 +211,7 @@ export const Input = ({
     let newValue = e.target.value;
     setValue(newValue);
 
-    if (status !== 'addLog') {
+    if (status !== 'createLog') {
       if ((String(newValue) !== String(originalValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
         setIsEdited(true);
@@ -306,7 +306,7 @@ export const Select = ({
     let newVal = e.target.value
     setValue(newVal);
 
-    if (status !== 'addLog') {
+    if (status !== 'createLog') {
       if ((String(newVal) !== String(originalValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
         setIsEdited(true);

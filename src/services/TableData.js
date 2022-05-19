@@ -24,7 +24,7 @@ export function prepareEntries(entries, status) {
 
     entry.cost_per_serving = costPerServing;
 
-    if (status === 'addLog') {
+    if (status === 'createLog') {
       entry.amount = '';
       entry.amount_unit = 'servings';
     }
