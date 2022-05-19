@@ -333,6 +333,10 @@ export default function LogTable(props) {
   React.useEffect(() => {
     setSkipSelectedRowsReset(true)
   }, [data])
+
+  // React.useEffect(() => {
+  //   console.log('render')
+  // })
   
   return (
     <>

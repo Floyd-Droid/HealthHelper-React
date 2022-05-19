@@ -241,7 +241,6 @@ export default function CreateLogTable(props) {
   }, [])
 
   const updateTableData = (rowIndex, columnId, value) => {
-    // setSkipSelectedRowsReset(true)
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {

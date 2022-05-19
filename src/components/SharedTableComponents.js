@@ -111,36 +111,113 @@ function validateSelect(key, value, amountUnits) {
   return message;
 }
 
-export const CalculatedCell = ({
-  row: { index, original },
-  column: { id },
-  indexEntries,
-  logEntries,
-  updateTableData
-}) => {
+// export const CalculatedCell = ({
+//   row: { index, original },
+//   column: { id },
+//   indexEntries,
+//   logEntries,
+//   updateTableData
+// }) => {
 
-  let servings = 0;
+//   let servings = 0;
 
-  const [indexCellValue, setIndexCellValue] = React.useState();
-  const [indexEntry, setIndexEntry] = React.useState();
-  const [value, setValue] = React.useState();
+//   const [indexCellValue, setIndexCellValue] = React.useState();
+//   const [indexEntry, setIndexEntry] = React.useState();
+//   const [value, setValue] = React.useState();
 
-  React.useEffect(() => {
-    for (let entry of indexEntries) {
-      if (entry.id === original.id) {
-        setIndexCellValue(entry[id]);
-        setIndexEntry(entry);
+//   React.useEffect(() => {
+//     for (let entry of indexEntries) {
+//       if (entry.id === original.id) {
+//         setIndexCellValue(entry[id]);
+//         setIndexEntry(entry);
+//         break;
+//       }
+//     }
+//   }, [indexEntries, logEntries])
+
+//   let amount = original.amount;
+//   let unit = original.amount_unit;
+//   let result = '';
+
+//   React.useEffect(() => {
+//     if (['', undefined].includes(indexCellValue) || Number(amount) < 0) {
+//       result = '';
+//     } else if (amount && !isNaN(Number(amount)) && indexEntry) {
+//       if (unit === 'servings') {
+//         servings = amount;
+//       } else if (unit === indexEntry.weight_unit) {
+//         servings = amount / indexEntry.serving_by_weight;
+//       } else if (unit === indexEntry.volume_unit) { 
+//         servings = amount / indexEntry.serving_by_volume;
+//       } else if (unit === 'items') {
+//         servings = amount / indexEntry.serving_by_item;
+//       }
+
+//       let precision = id === 'cost_per_serving' ? 2 : 1;
+//       result = round(Number(servings) * Number(indexCellValue), precision);
+//     }
+
+//     setValue(result)
+//     updateTableData(index, id, result)
+//   }, [amount, unit, indexEntry, indexCellValue])
+
+//   return (
+//     <div>
+//       {value}
+//     </div>
+//   );
+// }
+
+const getOriginalEntry = (status, indexEntries, logEntries, originalId) => {
+  let result = '';
+    
+  if (status !== 'addLog') {
+    let entries = [];
+    if (status === 'index' && indexEntries.length) {
+      entries = indexEntries;
+    } else if (status === 'logs' && logEntries.length) {
+      entries = logEntries;
+    }
+
+    for (let entry of entries) {
+      if (entry.id === originalId) {
+        result = entry;
         break;
       }
     }
-  }, [indexEntries, logEntries])
+  }
 
+  return result;
+}
+
+export const CalculatedCell = ({
+  column: { colId },
+  row: { original },
+  indexEntries,
+  logEntries
+}) => {
   let amount = original.amount;
   let unit = original.amount_unit;
-  let result = '';
 
-  React.useEffect(() => {
-    if (['', undefined].includes(indexCellValue) || Number(amount) < 0) {
+  const indexEntry = React.useMemo(() => {
+    let result = {};
+    if (indexEntries.length) {
+      for (let entry of indexEntries) {
+        if (entry.id === original.id) {
+          result = entry;
+        }
+      }
+    }
+    return result;
+  }, [indexEntries, logEntries])
+
+  let originalIndexValue = indexEntry[colId];
+
+  const value = React.useMemo(() => {
+    let result = '';
+    let servings = 0;
+
+    if (['', undefined].includes(originalIndexValue) || Number(amount) < 0) {
       result = '';
     } else if (amount && !isNaN(Number(amount)) && indexEntry) {
       if (unit === 'servings') {
@@ -153,13 +230,12 @@ export const CalculatedCell = ({
         servings = amount / indexEntry.serving_by_item;
       }
 
-      let precision = id === 'cost_per_serving' ? 2 : 1;
-      result = round(Number(servings) * Number(indexCellValue), precision);
+      let precision = colId === 'cost_per_serving' ? 2 : 1;
+      result = round(Number(servings) * Number(originalIndexValue), precision);
     }
 
-    setValue(result)
-    updateTableData(index, id, result)
-  }, [amount, unit, indexEntry, indexCellValue])
+    return result;
+  }, [amount, unit, indexEntry, originalIndexValue])
 
   return (
     <div>
@@ -170,8 +246,8 @@ export const CalculatedCell = ({
 
 export const Input = ({
   value: initialCellValue,
+  column: { colId },
   row: { index, original },
-  column: { id },
   indexEntries,
   status,
   logEntries,
@@ -179,70 +255,74 @@ export const Input = ({
   updateTableData,
 }) => {
 
-  let init = '';
-  let entries = [];
-  const [initialEntryValue, setInitialEntryValue] = React.useState(init);
-
-  React.useEffect(() => {
-    if (status === 'index' && indexEntries.length) {
-      entries = indexEntries;
-    } else if (status === 'logs' && logEntries.length) {
-      entries = logEntries;
-    }
-
-    if (status !== 'addLog') {
-      for (let entry of entries) {
-        if (entry.id === original.id) {
-          init = entry[id];
-          break;
-        }
-      }
-    }
-
-    setInitialEntryValue(init)
-    setIsEdited(false)
-  }, [logEntries, indexEntries])
-
-  const [value, setValue] = React.useState(init);
+  const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
+
+  // const initialEntryValue = React.useMemo(() => {
+  //   let result = '';
+    
+  //   if (status !== 'addLog') {
+  //     let entries = [];
+  //     if (status === 'index' && indexEntries.length) {
+  //       entries = indexEntries;
+  //     } else if (status === 'logs' && logEntries.length) {
+  //       entries = logEntries;
+  //     }
+
+  //     for (let entry of entries) {
+  //       if (entry.id === original.id) {
+  //         result = entry[id];
+  //         break;
+  //       }
+  //     }
+  //   }
+
+  //   return result;
+  // }, [logEntries, indexEntries])
+
+  const originalEntry = React.useMemo(
+    () => 
+      getOriginalEntry(status, indexEntries, logEntries, original.id), 
+      [logEntries, indexEntries]
+  )
+
+  let originalEntryValue = originalEntry[colId];
+
+  React.useEffect(() => {
+    setValue(initialCellValue);
+
+    if (String(initialCellValue) === String(originalEntryValue)) {
+      setIsEdited(false)
+      setErrorMessage('')
+    }
+  }, [initialCellValue, indexEntries, logEntries]);
 
   const onChange = e => {
     let newValue = e.target.value;
     setValue(newValue);
 
-    if ((String(newValue) !== String(initialEntryValue)) && !isEdited) {
-      if (status !== 'addLog') {
+    if (status !== 'addLog') {
+      if ((String(newValue) !== String(originalEntryValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
-      }
-      setIsEdited(true);
-    } else if ((String(newValue) === String(initialEntryValue)) && isEdited) {
-      if (status !== 'addLog') {
+        setIsEdited(true);
+      } else if ((String(newValue) === String(originalEntryValue)) && isEdited) {
         updateEditedEntryIds(original.id, 'remove');
+        setIsEdited(false);
       }
-      setIsEdited(false);
     }
 
-    const validationMessage = validateInput(id, newValue);
+    const validationMessage = validateInput(colId, newValue);
     if (validationMessage) {
       setErrorMessage(validationMessage);
     } else {
       setErrorMessage('');
     }
 
-    updateTableData(index, id, newValue);
+    updateTableData(index, colId, newValue);
   }
 
-  React.useEffect(() => {
-    setValue(initialCellValue);
-
-    if (String(initialCellValue) === String(initialEntryValue)) {
-      setIsEdited(false)
-      setErrorMessage('')
-    }
-  }, [initialCellValue]);
-
-  let inputClassName = id === 'name' ? `${id} text-left` : `${id} text-center`;
+  let inputClassName = colId === 'name' ? `${colId} text-left` : `${colId} text-center`;
   inputClassName += ' p-0 m-0 border-0';
 
 
@@ -258,7 +338,7 @@ export const Input = ({
 
   const input = (
     <input className={inputClassName} 
-      style={id==='name' ? {} : {width: '40px'}}
+      style={colId==='name' ? {} : {width: '40px'}}
       value={value} onChange={onChange} />
   )
 
@@ -272,7 +352,7 @@ export const Input = ({
 export const Select = ({
   value: initialCellValue,
   row: { index, original },
-  column: { id },
+  column: { colId },
   indexEntries,
   status,
   logEntries,
@@ -280,32 +360,18 @@ export const Select = ({
   updateTableData,
 }) => {
 
-  let init = 'servings';
-  let entries = [];
-
-  React.useEffect(() => {
-    if (status === 'index' && indexEntries.length) {
-      entries = indexEntries;
-    } else if (status === 'logs' && logEntries.length) {
-      entries = logEntries;
-    }
-
-    if (status !== 'addLog') {
-      for (let entry of entries) {
-        if (entry.id === original.id) {
-          init = entry[id];
-          break;
-        }
-      }
-    }
-    setInitialEntryValue(init)
-    setIsEdited(false)
-  }, [logEntries, indexEntries])
-
-  const [initialEntryValue, setInitialEntryValue] = React.useState(init)
-  const [value, setValue] = React.useState(init);
+  const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
+
+  const originalEntry = React.useMemo(
+    () => 
+      getOriginalEntry(status, indexEntries, logEntries, original.id), 
+      [logEntries, indexEntries]
+    )
+  
+  let originalEntryValue = originalEntry ? originalEntry[colId] : '';
+  console.log('originla: ', originalEntry)
 
   const amountUnits = [
     'servings',
@@ -317,15 +383,15 @@ export const Select = ({
   React.useEffect(() => {
     setValue(initialCellValue)
 
-    if (String(initialCellValue) === String(initialEntryValue)) {
+    if (String(initialCellValue) === String(originalEntryValue)) {
       setIsEdited(false)
       setErrorMessage('')
     }
-  }, [initialCellValue])
+  }, [initialCellValue, indexEntries, logEntries])
 
-  let units = (id === 'amount_unit')
+  let units = (colId === 'amount_unit')
   ? amountUnits 
-  : id === 'weight_unit' 
+  : colId === 'weight_unit' 
     ? weightUnits
     : volumeUnits;
 
@@ -333,26 +399,24 @@ export const Select = ({
     let newVal = e.target.value
     setValue(newVal);
 
-    if ((String(newVal) !== String(initialEntryValue)) && !isEdited) {
-      if (status === 'logs') {
+    if (status !== 'addLog') {
+      if ((String(newVal) !== String(originalEntryValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
-      }
-      setIsEdited(true);
-    } else if ((String(newVal) === String(initialEntryValue)) && isEdited) {
-      if (status === 'logs') {
+        setIsEdited(true);
+      } else if ((String(newVal) === String(originalEntryValue)) && isEdited) {
         updateEditedEntryIds(original.id, 'remove');
+        setIsEdited(false);
       }
-      setIsEdited(false);
     }
 
-    const validationMessage = validateSelect(id, newVal, amountUnits);
+    const validationMessage = validateSelect(colId, newVal, amountUnits);
     if (validationMessage) {
       setErrorMessage(validationMessage);
     } else {
       setErrorMessage('');
     }
 
-    updateTableData(index, id, newVal);
+    updateTableData(index, colId, newVal);
   }
 
   let divClassName = 'p-2 m-0';
@@ -367,38 +431,33 @@ export const Select = ({
 
   let unitSelect = (
     <div className={divClassName}>
-      <select className={ `${id}` } value={value} onChange={onChange}
-        style={(id === 'amount_unit' ? {width: '95px'} : {...(id==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
-        {id!=='amount_unit' ? <option key='0' value=''>---</option> : null}
+      <select className={ `${colId}` } value={value} onChange={onChange}
+        style={(colId === 'amount_unit' ? {width: '95px'} : {...(colId==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
+        {colId!=='amount_unit' ? <option key='0' value=''>---</option> : null}
         {units.map((unit, i) => {
           return <option key={i} value={unit}>{unit}</option>
         })}
       </select>
     </div>
-
   )
 
   return unitSelect;
 }
 
 export const IndexCostCell = ({
-  row: { index, original },
-  column: { id },
-  updateTableData
+  row: { original }
 }) => {
-
-  const [value, setValue] = React.useState('')
 
   let servingsPerContainer = original.servings_per_container
   let costPerContainer = original.cost_per_container
 
-  React.useEffect(() => {
-    let result = ''
+  const value = React.useMemo(() => {
+    let result = '';
     if (costPerContainer && servingsPerContainer) {
       result = round((costPerContainer / servingsPerContainer), 2)
     }
-    setValue(result)
-    updateTableData(index, id, result)
+
+    return result;
   }, [servingsPerContainer, costPerContainer])
 
   return (
@@ -412,17 +471,17 @@ export const SumFooter = ({
   rows,
   selectedFlatRows,
   status,
-  column: { id }
+  column: { colId }
 }) => {
 
   const total = React.useMemo(
     () =>
-      rows.reduce((sum, row) => Number(row.values[id]) + sum, 0),
+      rows.reduce((sum, row) => Number(row.values[colId]) + sum, 0),
       [rows]
   )
   const selectedTotal = React.useMemo(
     () => 
-      selectedFlatRows.reduce((sum, row) => Number(row.values[id]) + sum, 0),
+      selectedFlatRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0),
       [selectedFlatRows]
   )
 
@@ -434,16 +493,16 @@ export const SumFooter = ({
   }
 
   const emptyFooterIds = ['amount', 'amount_unit', 'name']
-  let showTotal = !emptyFooterIds.includes(id)
+  let showTotal = !emptyFooterIds.includes(colId)
 
   return (
     <>
       <div className={selectedTotalDivClassName}>
-        {(showTotal && String(round(selectedTotal, 1))) || (id==='name' && 'Selected Total') || '---'}
+        {(showTotal && String(round(selectedTotal, 1))) || (colId==='name' && 'Selected Total') || '---'}
       </div>
       {status === 'logs' && 
         <div className={totalDivClassName}>
-          {(showTotal && String(round(total, 1))) || (id==='name' && 'Total') || '---'}
+          {(showTotal && String(round(total, 1))) || (colId==='name' && 'Total') || '---'}
         </div>}
     </>
   )
