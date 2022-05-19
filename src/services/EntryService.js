@@ -62,35 +62,7 @@ async function createOrUpdateEntries(url, newEntries, editedEntries) {
   }
 }
 
-async function getLogAndIndexEntries(logUrl, indexUrl) {
-  let result = {logEntries: [], indexEntries: [], messages: [], errors: []};
-
-  try {
-
-    const logRes = await getEntries(logUrl);
-    if (logRes.ok) {
-      let body = await logRes.json();
-      result.logEntries = body.entries;
-    } else {
-      result.errors.push('Could not get log entries');
-    }
-
-    const indexRes = await getEntries(indexUrl);
-    if (indexRes.ok) {
-      let body = await indexRes.json();
-      result.indexEntries = body.entries;
-    } else {
-      result.errors.push('Could not get index entries');
-    }
-
-    return result;
-  } catch(err) {
-    console.log(err);
-  }
-}
-
 async function deleteEntries(url, entryIds) {
-
   try {
     const res = await fetch(url, {
       method: 'DELETE',
@@ -105,8 +77,6 @@ async function deleteEntries(url, entryIds) {
 }
 
 function prepareForUpdate(entries) {
-  // Convert entry values to datatbase-appropriate values
-
   const stringKeys = ['name', 'weight_unit', 'volume_unit', 'amount_unit'];
   for (let entry of entries) {
 
@@ -126,7 +96,6 @@ module.exports = {
   createOrUpdateEntries,
   deleteEntries,
   getEntries,
-  getLogAndIndexEntries,
   updateEntries,
   prepareForUpdate
 }

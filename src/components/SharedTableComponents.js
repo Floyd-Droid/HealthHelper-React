@@ -111,79 +111,13 @@ function validateSelect(key, value, amountUnits) {
   return message;
 }
 
-// export const CalculatedCell = ({
-//   row: { index, original },
-//   column: { id },
-//   indexEntries,
-//   logEntries,
-//   updateTableData
-// }) => {
+const getOriginalEntry = (entries, originalId) => {
+  let result = {};
 
-//   let servings = 0;
-
-//   const [indexCellValue, setIndexCellValue] = React.useState();
-//   const [indexEntry, setIndexEntry] = React.useState();
-//   const [value, setValue] = React.useState();
-
-//   React.useEffect(() => {
-//     for (let entry of indexEntries) {
-//       if (entry.id === original.id) {
-//         setIndexCellValue(entry[id]);
-//         setIndexEntry(entry);
-//         break;
-//       }
-//     }
-//   }, [indexEntries, logEntries])
-
-//   let amount = original.amount;
-//   let unit = original.amount_unit;
-//   let result = '';
-
-//   React.useEffect(() => {
-//     if (['', undefined].includes(indexCellValue) || Number(amount) < 0) {
-//       result = '';
-//     } else if (amount && !isNaN(Number(amount)) && indexEntry) {
-//       if (unit === 'servings') {
-//         servings = amount;
-//       } else if (unit === indexEntry.weight_unit) {
-//         servings = amount / indexEntry.serving_by_weight;
-//       } else if (unit === indexEntry.volume_unit) { 
-//         servings = amount / indexEntry.serving_by_volume;
-//       } else if (unit === 'items') {
-//         servings = amount / indexEntry.serving_by_item;
-//       }
-
-//       let precision = id === 'cost_per_serving' ? 2 : 1;
-//       result = round(Number(servings) * Number(indexCellValue), precision);
-//     }
-
-//     setValue(result)
-//     updateTableData(index, id, result)
-//   }, [amount, unit, indexEntry, indexCellValue])
-
-//   return (
-//     <div>
-//       {value}
-//     </div>
-//   );
-// }
-
-const getOriginalEntry = (status, indexEntries, logEntries, originalId) => {
-  let result = '';
-    
-  if (status !== 'addLog') {
-    let entries = [];
-    if (status === 'index' && indexEntries.length) {
-      entries = indexEntries;
-    } else if (status === 'logs' && logEntries.length) {
-      entries = logEntries;
-    }
-
-    for (let entry of entries) {
-      if (entry.id === originalId) {
-        result = entry;
-        break;
-      }
+  for (let entry of entries) {
+    if (entry.id === originalId) {
+      result = entry;
+      break;
     }
   }
 
@@ -191,51 +125,49 @@ const getOriginalEntry = (status, indexEntries, logEntries, originalId) => {
 }
 
 export const CalculatedCell = ({
-  column: { colId },
-  row: { original },
-  indexEntries,
-  logEntries
+  column: { id: colId },
+  row: { index, original },
+  entries,
+  updateTableData
 }) => {
   let amount = original.amount;
   let unit = original.amount_unit;
 
-  const indexEntry = React.useMemo(() => {
-    let result = {};
-    if (indexEntries.length) {
-      for (let entry of indexEntries) {
-        if (entry.id === original.id) {
-          result = entry;
-        }
-      }
-    }
-    return result;
-  }, [indexEntries, logEntries])
+  const originalEntry = React.useMemo(
+    () => 
+      getOriginalEntry(entries, original.id), 
+      [entries]
+  )
 
-  let originalIndexValue = indexEntry[colId];
+  let originalValue = originalEntry[colId];
 
   const value = React.useMemo(() => {
     let result = '';
     let servings = 0;
 
-    if (['', undefined].includes(originalIndexValue) || Number(amount) < 0) {
+    if (['', undefined].includes(originalValue) || Number(amount) < 0) {
       result = '';
-    } else if (amount && !isNaN(Number(amount)) && indexEntry) {
+    } else if (amount && !isNaN(Number(amount)) && originalEntry) {
       if (unit === 'servings') {
         servings = amount;
-      } else if (unit === indexEntry.weight_unit) {
-        servings = amount / indexEntry.serving_by_weight;
-      } else if (unit === indexEntry.volume_unit) { 
-        servings = amount / indexEntry.serving_by_volume;
+      } else if (unit === originalEntry.weight_unit) {
+        servings = amount / originalEntry.serving_by_weight;
+      } else if (unit === originalEntry.volume_unit) { 
+        servings = amount / originalEntry.serving_by_volume;
       } else if (unit === 'items') {
-        servings = amount / indexEntry.serving_by_item;
+        servings = amount / originalEntry.serving_by_item;
       }
 
       let precision = colId === 'cost_per_serving' ? 2 : 1;
-      result = round(Number(servings) * Number(originalIndexValue), precision);
+      result = round(Number(servings) * Number(originalValue), precision);
     }
-
+    
     return result;
-  }, [amount, unit, indexEntry, originalIndexValue])
+  }, [amount, unit, originalEntry, originalValue])
+
+  React.useEffect(() => {
+    updateTableData(index, colId, value)
+  }, [value])
 
   return (
     <div>
@@ -246,11 +178,10 @@ export const CalculatedCell = ({
 
 export const Input = ({
   value: initialCellValue,
-  column: { colId },
+  column: { id: colId },
   row: { index, original },
-  indexEntries,
+  entries,
   status,
-  logEntries,
   updateEditedEntryIds,
   updateTableData,
 }) => {
@@ -259,54 +190,32 @@ export const Input = ({
   const [isEdited, setIsEdited] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState('');
 
-  // const initialEntryValue = React.useMemo(() => {
-  //   let result = '';
-    
-  //   if (status !== 'addLog') {
-  //     let entries = [];
-  //     if (status === 'index' && indexEntries.length) {
-  //       entries = indexEntries;
-  //     } else if (status === 'logs' && logEntries.length) {
-  //       entries = logEntries;
-  //     }
-
-  //     for (let entry of entries) {
-  //       if (entry.id === original.id) {
-  //         result = entry[id];
-  //         break;
-  //       }
-  //     }
-  //   }
-
-  //   return result;
-  // }, [logEntries, indexEntries])
-
   const originalEntry = React.useMemo(
     () => 
-      getOriginalEntry(status, indexEntries, logEntries, original.id), 
-      [logEntries, indexEntries]
+      getOriginalEntry(entries, original.id), 
+      [entries]
   )
 
-  let originalEntryValue = originalEntry[colId];
+  let originalValue = originalEntry[colId];
 
   React.useEffect(() => {
     setValue(initialCellValue);
 
-    if (String(initialCellValue) === String(originalEntryValue)) {
+    if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false)
       setErrorMessage('')
     }
-  }, [initialCellValue, indexEntries, logEntries]);
+  }, [initialCellValue, entries]);
 
   const onChange = e => {
     let newValue = e.target.value;
     setValue(newValue);
 
     if (status !== 'addLog') {
-      if ((String(newValue) !== String(originalEntryValue)) && !isEdited) {
+      if ((String(newValue) !== String(originalValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
         setIsEdited(true);
-      } else if ((String(newValue) === String(originalEntryValue)) && isEdited) {
+      } else if ((String(newValue) === String(originalValue)) && isEdited) {
         updateEditedEntryIds(original.id, 'remove');
         setIsEdited(false);
       }
@@ -352,10 +261,9 @@ export const Input = ({
 export const Select = ({
   value: initialCellValue,
   row: { index, original },
-  column: { colId },
-  indexEntries,
+  column: { id: colId },
+  entries,
   status,
-  logEntries,
   updateEditedEntryIds,
   updateTableData,
 }) => {
@@ -366,12 +274,11 @@ export const Select = ({
 
   const originalEntry = React.useMemo(
     () => 
-      getOriginalEntry(status, indexEntries, logEntries, original.id), 
-      [logEntries, indexEntries]
+      getOriginalEntry(entries, original.id), 
+      [entries]
     )
   
-  let originalEntryValue = originalEntry ? originalEntry[colId] : '';
-  console.log('originla: ', originalEntry)
+  let originalValue = originalEntry ? originalEntry[colId] : '';
 
   const amountUnits = [
     'servings',
@@ -383,11 +290,11 @@ export const Select = ({
   React.useEffect(() => {
     setValue(initialCellValue)
 
-    if (String(initialCellValue) === String(originalEntryValue)) {
+    if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false)
       setErrorMessage('')
     }
-  }, [initialCellValue, indexEntries, logEntries])
+  }, [initialCellValue, entries])
 
   let units = (colId === 'amount_unit')
   ? amountUnits 
@@ -400,10 +307,10 @@ export const Select = ({
     setValue(newVal);
 
     if (status !== 'addLog') {
-      if ((String(newVal) !== String(originalEntryValue)) && !isEdited) {
+      if ((String(newVal) !== String(originalValue)) && !isEdited) {
         updateEditedEntryIds(original.id, 'add');
         setIsEdited(true);
-      } else if ((String(newVal) === String(originalEntryValue)) && isEdited) {
+      } else if ((String(newVal) === String(originalValue)) && isEdited) {
         updateEditedEntryIds(original.id, 'remove');
         setIsEdited(false);
       }
@@ -471,7 +378,7 @@ export const SumFooter = ({
   rows,
   selectedFlatRows,
   status,
-  column: { colId }
+  column: { id: colId }
 }) => {
 
   const total = React.useMemo(

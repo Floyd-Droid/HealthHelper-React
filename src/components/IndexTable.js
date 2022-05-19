@@ -7,7 +7,7 @@ import { prepareEntries } from '../services/TableData';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, indexEntries, skipSelectedRowsReset, status, 
+function Table({ columns, data, entries, skipSelectedRowsReset, status, 
   updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -35,7 +35,7 @@ function Table({ columns, data, indexEntries, skipSelectedRowsReset, status,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
-      indexEntries,
+      entries,
       status, 
       updateEditedEntryIds,
       updateSelectedEntries,
@@ -223,7 +223,7 @@ export default function IndexTable(props) {
   )
 
   const [data, setData] = React.useState([])
-  const [indexEntries, setIndexEntries] = React.useState([]);
+  const [entries, setEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([])
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
@@ -240,10 +240,10 @@ export default function IndexTable(props) {
         }
       })
       .then((body) => {
-        const entries = body.entries;
-        const preparedIndexEntries = prepareEntries(entries, status)
-        setData(preparedIndexEntries)
-        setIndexEntries(preparedIndexEntries)
+        const indexEntries = body.entries;
+        const preparedEntries = prepareEntries(indexEntries, status)
+        setData(preparedEntries)
+        setEntries(preparedEntries)
       })
       .catch((err) => {
         console.log(err)
@@ -302,7 +302,6 @@ export default function IndexTable(props) {
     const editedEntries = [];
     const newEntries = [];
 
-    // Gather edited entries
     for (let id of editedEntryIds) {
       for (let entry of data) {
         if (entry.id === id) {
@@ -311,7 +310,6 @@ export default function IndexTable(props) {
       }
     }
 
-    // Gather new entries
     for (let newEntry of data.reverse()) {
       if (newEntry.id === undefined) {
         newEntries.push(newEntry);
@@ -396,7 +394,7 @@ export default function IndexTable(props) {
   }
   
   const resetData = () => {
-    setData(indexEntries);
+    setData(entries);
     setEditedEntryIds([]);
   }
 
@@ -410,7 +408,7 @@ export default function IndexTable(props) {
         <Table
           columns={columns}
           data={data}
-          indexEntries={indexEntries}
+          entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           updateEditedEntryIds={updateEditedEntryIds}

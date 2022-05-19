@@ -2,12 +2,12 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import LogButtons from './buttons/LogButtons';
-import { deleteEntries, getLogAndIndexEntries, updateEntries } from '../services/EntryService';
+import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, prepareEntries } from '../services/TableData';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, indexEntries, logEntries, skipSelectedRowsReset, status, 
+function Table({ columns, data, entries, skipSelectedRowsReset, status, 
   updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -37,8 +37,7 @@ function Table({ columns, data, indexEntries, logEntries, skipSelectedRowsReset,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
-      indexEntries,
-      logEntries,
+      entries,
       status,
       updateEditedEntryIds,
       updateSelectedEntries,
@@ -214,27 +213,27 @@ export default function LogTable(props) {
   );
 
   const [data, setData] = React.useState([]);
-  const [logEntries, setLogEntries] = React.useState([]);  
-  const [indexEntries, setIndexEntries] = React.useState([]);
+  const [entries, setEntries] = React.useState([]);  
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
   const fetchEntries = () => {
     const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
-    const indexUrl = `/api/${userId}/index`;
 
-    getLogAndIndexEntries(logUrl, indexUrl)
+    getEntries(logUrl)
     .then((response) => {
-      let logEntries = response.logEntries;
-      let indexEntries = response.indexEntries;
-
-      let preparedLogEntries = prepareEntries(logEntries, status);
-      setData(preparedLogEntries);
-      setLogEntries(preparedLogEntries);
-
-      let preparedIndexEntries = prepareEntries(indexEntries, status);
-      setIndexEntries(preparedIndexEntries);
+      if (response.ok) {
+        return response.json();
+      } else {
+        return {entries: []}
+      }
+    })
+    .then((body) => {
+      let logEntries = body.entries;
+      let preparedEntries = prepareEntries(logEntries, status);
+      setData(preparedEntries);
+      setEntries(preparedEntries);
     })
     .catch((err) => {
       console.log(err)
@@ -304,7 +303,7 @@ export default function LogTable(props) {
 
     setSkipSelectedRowsReset(false);
     setData(dataCopy)
-    setLogEntries(dataCopy)
+    setEntries(dataCopy)
 
     if (ids.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
@@ -326,17 +325,13 @@ export default function LogTable(props) {
   }
 
   const resetData = () => {
-    setData(logEntries);
+    setData(entries);
     setEditedEntryIds([]);
   }
 
   React.useEffect(() => {
     setSkipSelectedRowsReset(true)
   }, [data])
-
-  // React.useEffect(() => {
-  //   console.log('render')
-  // })
   
   return (
     <>
@@ -344,8 +339,7 @@ export default function LogTable(props) {
         <Table
           columns={columns}
           data={data}
-          indexEntries={indexEntries}
-          logEntries={logEntries}
+          entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           updateEditedEntryIds={updateEditedEntryIds}

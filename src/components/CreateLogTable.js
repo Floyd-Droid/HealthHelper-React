@@ -7,7 +7,7 @@ import { getFormattedDate, prepareEntries } from '../services/TableData';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, indexEntries, skipSelectedRowsReset, status, 
+function Table({ columns, data, entries, skipSelectedRowsReset, status, 
   updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -36,7 +36,7 @@ function Table({ columns, data, indexEntries, skipSelectedRowsReset, status,
       autoResetFilters: false,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
-      indexEntries,
+      entries,
       status,
       updateSelectedEntries,
       updateTableData,
@@ -210,7 +210,7 @@ export default function CreateLogTable(props) {
   );
 
   const [data, setData] = React.useState([]);
-  const [indexEntries, setIndexEntries] = React.useState([]);
+  const [entries, setEntries] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState([]);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
@@ -226,10 +226,10 @@ export default function CreateLogTable(props) {
         }
       })
       .then((body) => {
-        const entries = body.entries;
-        const preparedIndexEntries = prepareEntries(entries, status)
-        setData(preparedIndexEntries)
-        setIndexEntries(preparedIndexEntries);
+        const indexEntries = body.entries;
+        const preparedEntries = prepareEntries(indexEntries, status)
+        setData(preparedEntries)
+        setEntries(preparedEntries);
       })
       .catch(err => {
         console.log('log table error: ', err)
@@ -286,7 +286,7 @@ export default function CreateLogTable(props) {
   }
 
   const resetData = () => {
-    setData(indexEntries);
+    setData(entries);
   }
 
   React.useEffect(() => {
@@ -300,7 +300,7 @@ export default function CreateLogTable(props) {
           columns={columns}
           data={data}
           status={status}
-          indexEntries={indexEntries}
+          entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
