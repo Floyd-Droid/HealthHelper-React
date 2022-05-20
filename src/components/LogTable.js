@@ -28,6 +28,7 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
     prepareRow,
     rows,
     selectedFlatRows,
+    selectedRows,
     state: {selectedRowIds }
   } = useTable(
     {
@@ -284,7 +285,6 @@ export default function LogTable(props) {
       updateEntries(url, editedEntries)
         .then(response => {
           if (response.ok) {
-            console.log('update successful');
             fetchEntries();
           }
         })

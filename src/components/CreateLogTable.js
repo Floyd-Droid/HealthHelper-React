@@ -13,7 +13,8 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
   const defaultColumn = React.useMemo(
     () => ({
       Cell: CalculatedCell,
-      disableFilters: true,
+      Filter: NumberRangeFilter,
+      filter: 'between',
       Footer: SumFooter
     }),
     []
@@ -134,12 +135,14 @@ export default function CreateLogTable(props) {
       {
         Header: 'Amount',
         accessor: 'amount',
-        Cell: Input
+        Cell: Input,
+        disableFilters: true
       },
       {
         Header: 'Unit',
         accessor: 'amount_unit',
-        Cell: Select
+        Cell: Select,
+        disableFilters: true
       },
        {
         Header: 'Calories',

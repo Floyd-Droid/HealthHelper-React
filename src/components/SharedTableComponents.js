@@ -379,21 +379,24 @@ export const IndexCostCell = ({
 }
 
 export const SumFooter = ({
-  rows,
-  selectedFlatRows,
+  state: { selectedRowIds },
+  preFilteredFlatRows,
+  data,
   status,
   column: { id: colId }
 }) => {
 
   const total = React.useMemo(
     () =>
-      rows.reduce((sum, row) => Number(row.values[colId]) + sum, 0),
-      [rows]
+      data.reduce((sum, row) => Number(row[colId]) + sum, 0),
+      [data]
   )
   const selectedTotal = React.useMemo(
-    () => 
-      selectedFlatRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0),
-      [selectedFlatRows]
+    () => {
+      let selectedRows = preFilteredFlatRows.filter((row) => Object.keys(selectedRowIds).includes(row.id));
+      let selectedTotal = selectedRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0);
+      return selectedTotal;
+    },[selectedRowIds]
   )
 
   let selectedTotalDivClassName = 'text-center py-2';
