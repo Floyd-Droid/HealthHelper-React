@@ -294,16 +294,18 @@ export default function LogTable(props) {
 
   const deleteRows = () => {
     const ids = [];
-    const dataCopy = [...data]
+    const dataCopy = [...data];
+    const entriesCopy = [...entries];
 
     for (let entry of selectedEntries.reverse()) {
       ids.push(entry.original.id);
-      dataCopy.splice(entry.index, 1)
+      dataCopy.splice(entry.index, 1);
+      entriesCopy.splice(entry.index, 1);
     }
 
     setSkipSelectedRowsReset(false);
-    setData(dataCopy)
-    setEntries(dataCopy)
+    setData(dataCopy);
+    setEntries(entriesCopy);
 
     if (ids.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
@@ -330,7 +332,7 @@ export default function LogTable(props) {
   }
 
   React.useEffect(() => {
-    setSkipSelectedRowsReset(true)
+    setSkipSelectedRowsReset(true);
   }, [data])
   
   return (

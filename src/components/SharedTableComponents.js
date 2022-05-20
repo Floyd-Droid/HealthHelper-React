@@ -204,6 +204,8 @@ export const Input = ({
     if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false)
       setErrorMessage('')
+    } else {
+      setIsEdited(true)
     }
   }, [initialCellValue, entries]);
 
@@ -288,11 +290,13 @@ export const Select = ({
   ]
 
   React.useEffect(() => {
-    setValue(initialCellValue)
+    setValue(initialCellValue);
 
     if (String(initialCellValue) === String(originalValue)) {
-      setIsEdited(false)
-      setErrorMessage('')
+      setIsEdited(false);
+      setErrorMessage('');
+    } else {
+      setIsEdited(true);
     }
   }, [initialCellValue, entries])
 

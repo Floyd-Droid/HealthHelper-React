@@ -362,17 +362,20 @@ export default function IndexTable(props) {
 
   const deleteRows = () => {
     const existingEntryIds = [];
-    let dataCopy = [...data];
+    const dataCopy = [...data];
+    const entriesCopy = [...entries];
 
     for (let entry of selectedEntries.reverse()) {
       if (entry.original.id !== undefined) {
-        existingEntryIds.push(entry.original.id)
+        existingEntryIds.push(entry.original.id);
       }
-      dataCopy.splice(entry.index, 1)
+      dataCopy.splice(entry.index, 1);
+      entriesCopy.splice(entry.index, 1);
     }
 
     setSkipSelectedRowsReset(false);
     setData(dataCopy);
+    setEntries(entriesCopy)
     
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
