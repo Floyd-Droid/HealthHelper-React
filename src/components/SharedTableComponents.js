@@ -348,7 +348,7 @@ export const SumFooter = ({
       let selectedRows = preFilteredFlatRows.filter((row) => Object.keys(selectedRowIds).includes(row.id));
       let selectedTotal = selectedRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0);
       return selectedTotal;
-    },[selectedRowIds]
+    }, [selectedRowIds, data]
   )
 
   let selectedTotalDivClassName = 'text-center py-2';

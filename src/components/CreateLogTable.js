@@ -27,7 +27,6 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
     footerGroups,
     prepareRow,
     rows,
-    selectedFlatRows,
     state: {selectedRowIds }
   } = useTable(
     {
@@ -67,8 +66,8 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
   );
 
   React.useEffect(() => {
-    updateSelectedEntries(selectedFlatRows)
-  }, [selectedFlatRows])
+    updateSelectedEntries(selectedRowIds)
+  }, [selectedRowIds])
 
   return (
     <>
@@ -260,11 +259,12 @@ export default function CreateLogTable(props) {
   const submitChanges = () => {
     const entriesToCreate = [];
 
-    for (let entry of selectedEntries) {
+    for (let rowId of Object.keys(selectedEntries)) {
+      let entry = data[rowId];
       let newEntry = {
-        id: Number(entry.original.id), 
-        amount: Number(entry.values.amount), 
-        amount_unit: String(entry.values.amount_unit)
+        id: Number(entry.id), 
+        amount: Number(entry.amount), 
+        amount_unit: String(entry.amount_unit)
       }
       entriesToCreate.push(newEntry)
     }
@@ -284,8 +284,8 @@ export default function CreateLogTable(props) {
     }
   }
 
-  const updateSelectedEntries = (flatRows) => {
-    setSelectedEntries(flatRows);
+  const updateSelectedEntries = (selectedRowIds) => {
+    setSelectedEntries(selectedRowIds);
   }
 
   const resetData = () => {

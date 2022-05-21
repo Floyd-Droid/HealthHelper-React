@@ -25,7 +25,6 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
     headerGroups,
     prepareRow,
     rows,
-    selectedFlatRows,
     state: { selectedRowIds }
   } = useTable(
     {
@@ -65,8 +64,8 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
   )
 
   React.useEffect(() => {
-    updateSelectedEntries(selectedFlatRows)
-  }, [selectedFlatRows])
+    updateSelectedEntries(selectedRowIds)
+  }, [selectedRowIds])
 
   return (
     <>
@@ -365,12 +364,12 @@ export default function IndexTable(props) {
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
-    for (let entry of selectedEntries.reverse()) {
-      if (entry.original.id !== undefined) {
-        existingEntryIds.push(entry.original.id);
+    for (let rowId of Object.keys(selectedEntries).reverse()) {
+      if (data[rowId].id !== undefined) {
+        existingEntryIds.push(data[rowId].id);
       }
-      dataCopy.splice(entry.index, 1);
-      entriesCopy.splice(entry.index, 1);
+      dataCopy.splice(rowId, 1);
+      entriesCopy.splice(rowId, 1);
     }
 
     setSkipSelectedRowsReset(false);
@@ -392,8 +391,8 @@ export default function IndexTable(props) {
     }
   }
 
-  const updateSelectedEntries = (flatRows) => {
-    setSelectedEntries(flatRows);
+  const updateSelectedEntries = (selectedRowIds) => {
+    setSelectedEntries(selectedRowIds);
   }
   
   const resetData = () => {

@@ -27,8 +27,6 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
     footerGroups,
     prepareRow,
     rows,
-    selectedFlatRows,
-    selectedRows,
     state: {selectedRowIds }
   } = useTable(
     {
@@ -69,8 +67,8 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
   );
 
   React.useEffect(() => {
-    updateSelectedEntries(selectedFlatRows)
-  }, [selectedFlatRows])
+    updateSelectedEntries(selectedRowIds)
+  }, [selectedRowIds])
 
   return (
     <>
@@ -293,24 +291,24 @@ export default function LogTable(props) {
   }
 
   const deleteRows = () => {
-    const ids = [];
+    const entryIds = [];
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
-    for (let entry of selectedEntries.reverse()) {
-      ids.push(entry.original.id);
-      dataCopy.splice(entry.index, 1);
-      entriesCopy.splice(entry.index, 1);
+    for (let rowId of Object.keys(selectedEntries).reverse()) {
+      entryIds.push(data[rowId].id);
+      dataCopy.splice(rowId, 1);
+      entriesCopy.splice(rowId, 1);
     }
 
     setSkipSelectedRowsReset(false);
     setData(dataCopy);
     setEntries(entriesCopy);
 
-    if (ids.length) {
+    if (entryIds.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
   
-      deleteEntries(url, ids)
+      deleteEntries(url, entryIds)
         .then((response) => {
           if (!response.ok) {
             console.log('Something went wrong when deleting log entries.')
@@ -322,8 +320,8 @@ export default function LogTable(props) {
     }
   }
 
-  const updateSelectedEntries = (selectedRows) => {
-    setSelectedEntries(selectedRows);
+  const updateSelectedEntries = (selectedRowIds) => {
+    setSelectedEntries(selectedRowIds);
   }
 
   const resetData = () => {
