@@ -1,22 +1,22 @@
 import React from 'react';
 
-import {weightUnits, volumeUnits} from '../services/TableData';
-import { round } from '../services/TableData';
+import { weightUnits, volumeUnits, round } from '../services/TableData';
+import { validateInput, validateSelect } from '../services/Validation';
 
 export const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef()
-    const resolvedRef = ref || defaultRef
+    const defaultRef = React.useRef();
+    const resolvedRef = ref || defaultRef;
 
     React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate
+      resolvedRef.current.indeterminate = indeterminate;
     }, [resolvedRef, indeterminate])
 
     return (
       <>
         <input type="checkbox" ref={resolvedRef} {...rest} />
       </>
-    )
+    );
   }
 )
 
@@ -37,78 +37,63 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter }
         placeholder={'Search...'}
       />
     </div>
-  )
+  );
 }
 
 export function NumberRangeFilter({
-  column: { filterValue = [], preFilteredRows, setFilter, id },
+  column: { filterValue = [], preFilteredRows, setFilter, id: colId },
 }) {
   const [min, max] = React.useMemo(() => {
-    let min = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
-    let max = preFilteredRows.length ? preFilteredRows[0].values[id] : 0
+    let min = preFilteredRows.length ? preFilteredRows[0].values[colId] : 0
+    let max = preFilteredRows.length ? preFilteredRows[0].values[colId] : 0
     preFilteredRows.forEach(row => {
-      min = Math.min(row.values[id], min)
-      max = Math.max(row.values[id], max)
+      min = Math.min(row.values[colId], min);
+      max = Math.max(row.values[colId], max);
     })
     return [min, max];
-  }, [id, preFilteredRows])
+  }, [colId, preFilteredRows])
+
+  const [minValue, setMinValue] = React.useState('');
+  const [maxValue, setMaxValue] = React.useState('');
 
   return (
     <>
-      <div className="range-filter">
+      <div>
         <input
-          className="header-filter range-filter bg-white" 
+          className="bg-white" 
           style={{width: '60px'}}
-          value={filterValue[0] || ''}
-          type="number"
+          value={minValue}
           onChange={e => {
             const val = e.target.value
-            setFilter((old = []) => [val ? parseInt(val, 10) : undefined, old[1]])
+            const validated = validateInput(val, colId)
+            if (validated) {
+              setMinValue(val)
+              setFilter((old = []) => [val ? parseFloat(val, 10) : undefined, old[1]])
+            }
           }}
           onClick={e => e.stopPropagation()}
-          placeholder={`Min (${min})`}
+          placeholder={'Min'}
         />
       </div>
-      <div className="range-filter">
+      <div>
         <input
-          className="header-filter range-filter bg-white"
+          className="bg-white"
           style={{width: '60px'}}
-          value={filterValue[1] || ''}
-          type="number"
+          value={maxValue}
           onChange={e => {
             const val = e.target.value
-            setFilter((old = []) => [old[0], val ? parseInt(val, 10) : undefined])
+            const validated = validateInput(val, colId)
+            if (validated) {
+              setMaxValue(val)
+              setFilter((old = []) => [old[0], val ? parseFloat(val, 10) : undefined])
+            }
           }}
           onClick={e => e.stopPropagation()}
-          placeholder={`Max (${max})`}
+          placeholder={'Max'}
         />
       </div>
     </>
-  )
-}
-
-function validateInput(key, value) {
-  let message = '';
-  if (key === 'name') {
-    message = value === '' ? 'Name is required': '';
-  } else if (isNaN(Number(value))){
-    message = 'Must be a number';
-  } else if (Number(value) < 0) {
-    message = 'Number must be positive'
-  }
-  return message;
-}
-
-function validateSelect(key, value, amountUnits) {
-  let message;
-  if (key === 'amount_unit') {
-    message = amountUnits.includes(value) ? '' : 'Select a valid unit';
-  } else {
-    let tmpUnits = key === 'weight_unit' ? [...weightUnits] : [...volumeUnits];
-    tmpUnits.push('')
-    message = tmpUnits.includes(value) ? '' : 'Select a valid unit';
-  }
-  return message;
+  );
 }
 
 const getOriginalEntry = (entries, originalId) => {
@@ -145,28 +130,28 @@ export const CalculatedCell = ({
     let result = '';
     let servings = 0;
 
-    if (['', undefined].includes(originalValue) || Number(amount) < 0) {
-      result = '';
-    } else if (amount && !isNaN(Number(amount)) && originalEntry) {
-      if (unit === 'servings') {
-        servings = amount;
-      } else if (unit === originalEntry.weight_unit) {
-        servings = amount / originalEntry.serving_by_weight;
-      } else if (unit === originalEntry.volume_unit) { 
-        servings = amount / originalEntry.serving_by_volume;
-      } else if (unit === 'items') {
-        servings = amount / originalEntry.serving_by_item;
-      }
+    if (!['', undefined].includes(originalValue)) {
+      if (amount && originalEntry) {
+        if (unit === 'servings') {
+          servings = amount;
+        } else if (unit === originalEntry.weight_unit) {
+          servings = amount / originalEntry.serving_by_weight;
+        } else if (unit === originalEntry.volume_unit) { 
+          servings = amount / originalEntry.serving_by_volume;
+        } else if (unit === 'items') {
+          servings = amount / originalEntry.serving_by_item;
+        }
 
       let precision = colId === 'cost_per_serving' ? 2 : 1;
       result = round(Number(servings) * Number(originalValue), precision);
+      }
     }
     
     return result;
   }, [amount, unit, originalEntry, originalValue])
 
   React.useEffect(() => {
-    updateTableData(index, colId, value)
+    updateTableData(index, colId, value);
   }, [value])
 
   return (
@@ -188,7 +173,6 @@ export const Input = ({
 
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
 
   const originalEntry = React.useMemo(
     () => 
@@ -202,62 +186,44 @@ export const Input = ({
     setValue(initialCellValue);
 
     if (String(initialCellValue) === String(originalValue)) {
-      setIsEdited(false)
-      setErrorMessage('')
+      setIsEdited(false);
     } else {
-      setIsEdited(true)
+      setIsEdited(true);
     }
   }, [initialCellValue, entries]);
 
   const onChange = e => {
     let newValue = e.target.value;
-    setValue(newValue);
+    let validated = validateInput(newValue, colId);
 
-    if (status !== 'createLog') {
-      if ((String(newValue) !== String(originalValue)) && !isEdited) {
-        updateEditedEntryIds(original.id, 'add');
-        setIsEdited(true);
-      } else if ((String(newValue) === String(originalValue)) && isEdited) {
-        updateEditedEntryIds(original.id, 'remove');
-        setIsEdited(false);
+    if (validated) {
+      setValue(newValue);
+
+      if (status !== 'createLog') {
+        if ((String(newValue) !== String(originalValue)) && !isEdited) {
+          updateEditedEntryIds(original.id, 'add');
+          setIsEdited(true);
+        } else if ((String(newValue) === String(originalValue)) && isEdited) {
+          updateEditedEntryIds(original.id, 'remove');
+          setIsEdited(false);
+        }
       }
+  
+      updateTableData(index, colId, newValue);
     }
-
-    const validationMessage = validateInput(colId, newValue);
-    if (validationMessage) {
-      setErrorMessage(validationMessage);
-    } else {
-      setErrorMessage('');
-    }
-
-    updateTableData(index, colId, newValue);
   }
 
+  let divClassName = isEdited ? 'bg-cell-edit' : '';
   let inputClassName = colId === 'name' ? `${colId} text-left` : `${colId} text-center`;
   inputClassName += ' p-0 m-0 border-0';
 
-
-  let divClassName = '';
-
-  if (isEdited) {
-    if (errorMessage) {
-      divClassName += ' bg-cell-error';
-    } else {
-      divClassName += ' bg-cell-edit';
-    }
-  }
-
-  const input = (
-    <input className={inputClassName} 
-      style={colId==='name' ? {} : {width: '40px'}}
-      value={value} onChange={onChange} />
-  )
-
   return (
     <div className={divClassName}>
-      {input}
+      <input className={inputClassName} 
+        style={colId==='name' ? {} : {width: '40px'}}
+        value={value} onChange={onChange} />
     </div>
-  )
+  );
 }
 
 export const Select = ({
@@ -272,7 +238,6 @@ export const Select = ({
 
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState('');
 
   const originalEntry = React.useMemo(
     () => 
@@ -294,7 +259,6 @@ export const Select = ({
 
     if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false);
-      setErrorMessage('');
     } else {
       setIsEdited(true);
     }
@@ -307,40 +271,30 @@ export const Select = ({
     : volumeUnits;
 
   const onChange = e => {
-    let newVal = e.target.value
-    setValue(newVal);
+    let newVal = e.target.value;
+    let validated = validateSelect(newVal, colId, amountUnits);
 
-    if (status !== 'createLog') {
-      if ((String(newVal) !== String(originalValue)) && !isEdited) {
-        updateEditedEntryIds(original.id, 'add');
-        setIsEdited(true);
-      } else if ((String(newVal) === String(originalValue)) && isEdited) {
-        updateEditedEntryIds(original.id, 'remove');
-        setIsEdited(false);
+    if (validated) {
+      setValue(newVal);
+
+      if (status !== 'createLog') {
+        if ((String(newVal) !== String(originalValue)) && !isEdited) {
+          updateEditedEntryIds(original.id, 'add');
+          setIsEdited(true);
+        } else if ((String(newVal) === String(originalValue)) && isEdited) {
+          updateEditedEntryIds(original.id, 'remove');
+          setIsEdited(false);
+        }
       }
-    }
-
-    const validationMessage = validateSelect(colId, newVal, amountUnits);
-    if (validationMessage) {
-      setErrorMessage(validationMessage);
-    } else {
-      setErrorMessage('');
-    }
-
-    updateTableData(index, colId, newVal);
-  }
-
-  let divClassName = 'p-2 m-0';
-
-  if (isEdited) {
-    if (errorMessage) {
-      divClassName += ' bg-cell-error';
-    } else {
-      divClassName += ' bg-cell-edit';
+  
+      updateTableData(index, colId, newVal);
     }
   }
 
-  let unitSelect = (
+  let divClassName = isEdited ? 'bg-cell-edit' : ''
+  divClassName += ' p-2 m-0';
+
+  return (
     <div className={divClassName}>
       <select className={ `${colId}` } value={value} onChange={onChange}
         style={(colId === 'amount_unit' ? {width: '95px'} : {...(colId==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
@@ -350,9 +304,7 @@ export const Select = ({
         })}
       </select>
     </div>
-  )
-
-  return unitSelect;
+  );
 }
 
 export const IndexCostCell = ({
