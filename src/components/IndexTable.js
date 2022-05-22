@@ -6,6 +6,7 @@ import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/En
 import { prepareEntries } from '../services/TableData';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
+import { validateRequiredServingSize, validateUniqueNames } from '../services/Validation.js';
 
 function Table({ columns, data, entries, skipSelectedRowsReset, status, 
   updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
@@ -276,27 +277,8 @@ export default function IndexTable(props) {
     }
   }
 
-  function validateServingSize() {
-    for (let entry of data) {
-      const servWeight = entry.serving_by_weight;
-      const weightUnit = entry.weight_unit;
-      const servVolume = entry.serving_by_volume;
-      const volumeUnit = entry.volume_unit;
-      const servItem = entry.serving_by_item;
-
-      if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
-        alert(
-          `Please fill in at least one of the serving size field sets for each entry:\n
-          \u2022 Weight quantity and weight unit
-          \u2022 Volume quantity and volume unit
-          \u2022 Item quantity
-          `);
-      }
-    }
-  }
-
   const submitChanges = () => {
-    validateServingSize();
+    if (!validateRequiredServingSize(data)) return false;
 
     const editedEntries = [];
     const newEntries = [];
@@ -316,6 +298,8 @@ export default function IndexTable(props) {
         break;
       }
     }
+
+    if (!validateUniqueNames(data)) return false;
 
     if (editedEntries.length || newEntries.length) {
       let url = `api/${userId}/index`;

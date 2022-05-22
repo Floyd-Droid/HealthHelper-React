@@ -43,3 +43,40 @@ export const validateSelect = (value, colId, amountUnits) => {
 
   return true;
 }
+
+export const validateRequiredServingSize = (entries) => {
+  for (let entry of entries) {
+    const servWeight = entry.serving_by_weight;
+    const weightUnit = entry.weight_unit;
+    const servVolume = entry.serving_by_volume;
+    const volumeUnit = entry.volume_unit;
+    const servItem = entry.serving_by_item;
+
+    if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
+      alert(
+        `Please fill in at least one of the serving size field sets for each entry:\n
+        \u2022 Weight quantity and weight unit
+        \u2022 Volume quantity and volume unit
+        \u2022 Item quantity
+        `);
+      return false;
+    }
+    return true;
+  }
+}
+
+export const validateUniqueNames = (entries) => {
+  let names = [];
+  for (let entry of entries) {
+    if (names.includes(entry.name)) {
+      alert(
+        `Please give unique names for each entry. The following is a duplicate:\n
+        \u2022 ${entry.name}
+      `)
+      return false;
+    }
+    names.push(entry.name)
+  }
+
+  return true;
+}
