@@ -20,7 +20,7 @@ export const IndeterminateCheckbox = React.forwardRef(
   }
 )
 
-export function TextFilter({ column: { filterValue, preFilteredRows, setFilter } }) {
+export function TextFilter({ column: { filterValue, preFilteredRows, setFilter, id: colId } }) {
   const count = preFilteredRows.length;
 
   return (
@@ -29,7 +29,12 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter }
         className="header-filter text-filter bg-white"
         value={filterValue || ''}
         onChange={e => {
-          setFilter(e.target.value || undefined)
+          const val = e.target.value;
+          const validated = validateInput(val, colId);
+          if (validated) {
+            setFilter(val || undefined)
+          }
+          
         }}
         onClick={e => {
           e.stopPropagation()
@@ -182,10 +187,13 @@ export const Input = ({
 
   let originalValue = originalEntry[colId];
 
+  
+
   React.useEffect(() => {
     setValue(initialCellValue);
 
-    if (String(initialCellValue) === String(originalValue)) {
+    if (String(initialCellValue) === String(originalValue) || typeof originalValue === 'undefined') {
+
       setIsEdited(false);
     } else {
       setIsEdited(true);
@@ -257,7 +265,7 @@ export const Select = ({
   React.useEffect(() => {
     setValue(initialCellValue);
 
-    if (String(initialCellValue) === String(originalValue)) {
+    if (String(initialCellValue) === String(originalValue) || typeof originalValue === 'undefined') {
       setIsEdited(false);
     } else {
       setIsEdited(true);
@@ -271,23 +279,23 @@ export const Select = ({
     : volumeUnits;
 
   const onChange = e => {
-    let newVal = e.target.value;
-    let validated = validateSelect(newVal, colId, amountUnits);
+    let newValue = e.target.value;
+    let validated = validateSelect(newValue, colId, amountUnits);
 
     if (validated) {
-      setValue(newVal);
+      setValue(newValue);
 
       if (status !== 'createLog') {
-        if ((String(newVal) !== String(originalValue)) && !isEdited) {
+        if ((String(newValue) !== String(originalValue)) && !isEdited) {
           updateEditedEntryIds(original.id, 'add');
           setIsEdited(true);
-        } else if ((String(newVal) === String(originalValue)) && isEdited) {
+        } else if ((String(newValue) === String(originalValue)) && isEdited) {
           updateEditedEntryIds(original.id, 'remove');
           setIsEdited(false);
         }
       }
   
-      updateTableData(index, colId, newVal);
+      updateTableData(index, colId, newValue);
     }
   }
 

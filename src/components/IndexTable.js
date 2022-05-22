@@ -224,7 +224,7 @@ export default function IndexTable(props) {
   const [data, setData] = React.useState([])
   const [entries, setEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState([])
+  const [selectedEntries, setSelectedEntries] = React.useState({})
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
   const fetchEntries = () => {
@@ -310,7 +310,7 @@ export default function IndexTable(props) {
     }
 
     for (let newEntry of data.reverse()) {
-      if (newEntry.id === undefined) {
+      if (typeof newEntry.id === 'undefined') {
         newEntries.push(newEntry);
       } else {
         break;
@@ -365,7 +365,7 @@ export default function IndexTable(props) {
     const entriesCopy = [...entries];
 
     for (let rowId of Object.keys(selectedEntries).reverse()) {
-      if (data[rowId].id !== undefined) {
+      if (typeof data[rowId].id !== 'undefined') {
         existingEntryIds.push(data[rowId].id);
       }
       dataCopy.splice(rowId, 1);

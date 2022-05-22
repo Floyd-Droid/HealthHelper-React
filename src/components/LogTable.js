@@ -214,7 +214,7 @@ export default function LogTable(props) {
   const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);  
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState([]);
+  const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
   const fetchEntries = () => {
