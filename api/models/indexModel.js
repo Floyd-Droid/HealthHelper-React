@@ -1,5 +1,5 @@
 const { pool } = require("../db.js");
-const { prepareForUpdate } = require("../../src/services/EntryService.js");
+const { convertEmptyStringToNull } = require("./dbData.js");
 
 async function getIndexEntries(userId) {
 
@@ -29,10 +29,10 @@ async function getIndexEntries(userId) {
   }
 }
 
-async function createIndexEntries(body, userId) {
+async function createIndexEntries(entries, userId) {
   const client = await pool.connect();
 
-  const preparedEntries = prepareForUpdate(body);
+  const preparedEntries = convertEmptyStringToNull(entries);
 
   for (let entry of preparedEntries) {
     try {
@@ -73,10 +73,10 @@ async function createIndexEntries(body, userId) {
   return {message: 'Entries successfully created'};
 }
 
-async function updateIndexEntries(body, userId) {
+async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
 
-  const preparedEntries = prepareForUpdate(body);
+  const preparedEntries = convertEmptyStringToNull(entries);
   
   for (let entry of preparedEntries) {
     try {
@@ -123,7 +123,7 @@ async function updateIndexEntries(body, userId) {
       let foodIndexMacroValues = [entry.calories, entry.total_fat, entry.sat_fat,
       entry.trans_fat, entry.poly_fat, entry.mono_fat,
       entry.cholesterol, entry.sodium, entry.total_carbs,
-      entry.total_fiber, entry.sol_fiber, body.insol_fiber,
+      entry.total_fiber, entry.sol_fiber, entry.insol_fiber,
       entry.total_sugars, entry.added_sugars, entry.protein, entry.id];
 
       await client.query(foodIndexMacroQuery, foodIndexMacroValues);
@@ -150,7 +150,7 @@ async function updateIndexEntries(body, userId) {
   return {message: 'Entries successfully updated'};
 }
 
-async function deleteIndexEntries(body, userId) {
+async function deleteIndexEntries(ids, userId) {
   const client = await pool.connect();
 
   const deleteQuery = `
@@ -159,7 +159,7 @@ async function deleteIndexEntries(body, userId) {
     AND user_id = $2;
   `;
 
-  for (let id of body) {
+  for (let id of ids) {
     try {
       let values = [id, userId]
       const dbResult = await client.query(deleteQuery, values);

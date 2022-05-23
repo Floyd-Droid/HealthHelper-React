@@ -239,10 +239,6 @@ export default function LogTable(props) {
     })
   }
 
-  React.useEffect(() => {
-    fetchEntries();
-  }, [date])
-
   const updateTableData = (rowIndex, columnId, value) => {
     setSkipSelectedRowsReset(true)
     setData(old =>
@@ -283,6 +279,7 @@ export default function LogTable(props) {
       updateEntries(url, editedEntries)
         .then(response => {
           if (response.ok) {
+            setEditedEntryIds([]);
             fetchEntries();
           }
         })
@@ -332,6 +329,10 @@ export default function LogTable(props) {
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
   }, [data])
+
+  React.useEffect(() => {
+    fetchEntries();
+  }, [date])
   
   return (
     <>

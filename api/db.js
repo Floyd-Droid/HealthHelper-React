@@ -2,6 +2,7 @@ require("dotenv").config();
 
 // Create a pool object using np. This will allow us to query the specified DB.
 const { Pool } = require("pg")
+
 const pool = new Pool({
   user: process.env.DATABASE_USER,
   host: process.env.DATABASE_HOST,

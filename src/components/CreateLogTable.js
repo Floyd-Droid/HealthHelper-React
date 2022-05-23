@@ -238,10 +238,6 @@ export default function CreateLogTable(props) {
       })
   }
 
-  React.useEffect(() => {
-    fetchEntries();
-  }, [])
-
   const updateTableData = (rowIndex, columnId, value) => {
     setData(old =>
       old.map((row, index) => {
@@ -295,6 +291,10 @@ export default function CreateLogTable(props) {
   React.useEffect(() => {
     setSkipSelectedRowsReset(true)
   }, [data])
+
+  React.useEffect(() => {
+    fetchEntries();
+  }, [])
   
   return (
     <>

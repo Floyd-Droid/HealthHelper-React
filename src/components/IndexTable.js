@@ -250,11 +250,6 @@ export default function IndexTable(props) {
       })
   }
 
-  React.useEffect(() => {
-    fetchEntries()
-    }, []
-  )
-
   const updateTableData = (rowIndex, columnId, value) => {
     setData(old =>
       old.map((row, index) => {
@@ -305,8 +300,10 @@ export default function IndexTable(props) {
       let url = `api/${userId}/index`;
 
       createOrUpdateEntries(url, newEntries, editedEntries)
+      
         .then(messages => {
           console.log(messages);
+          setEditedEntryIds([])
           fetchEntries();
         })
         .catch(err => console.log(err));
@@ -387,6 +384,10 @@ export default function IndexTable(props) {
   React.useEffect(() => {
     setSkipSelectedRowsReset(true)
   }, [data])
+
+  React.useEffect(() => {
+    fetchEntries()
+  }, [])
 
   return (
     <>

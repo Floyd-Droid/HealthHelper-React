@@ -1,4 +1,4 @@
-async function getEntries(url) {
+export async function getEntries(url) {
   try {
     const res = await fetch(url);
     return res;
@@ -7,7 +7,7 @@ async function getEntries(url) {
   }
 }
 
-async function updateEntries(url, entries) {
+export async function updateEntries(url, entries) {
   try {
     const res = await fetch(url, {
       method: 'PUT',
@@ -22,7 +22,7 @@ async function updateEntries(url, entries) {
 } 
 
 
-async function createEntries(url, entries) {
+export async function createEntries(url, entries) {
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -35,7 +35,7 @@ async function createEntries(url, entries) {
   }
 }
 
-async function createOrUpdateEntries(url, newEntries, editedEntries) {
+export async function createOrUpdateEntries(url, newEntries, editedEntries) {
   let result = {messages: [], errors: []};
 
   try {
@@ -62,7 +62,7 @@ async function createOrUpdateEntries(url, newEntries, editedEntries) {
   }
 }
 
-async function deleteEntries(url, entryIds) {
+export async function deleteEntries(url, entryIds) {
   try {
     const res = await fetch(url, {
       method: 'DELETE',
@@ -74,28 +74,4 @@ async function deleteEntries(url, entryIds) {
   } catch(err) {
     console.log(err);
   }
-}
-
-function prepareForUpdate(entries) {
-  const stringKeys = ['name', 'weight_unit', 'volume_unit', 'amount_unit'];
-  for (let entry of entries) {
-
-    Object.keys(entry).forEach((key) => {
-      if (stringKeys.includes(key)) {
-        entry[key] = entry[key] === '' ? null : String(entry[key]);
-      } else {
-        entry[key] = entry[key] === '' ? null : Number(entry[key]);
-      }
-    })
-  }
-  return entries;
-}
-
-module.exports = {
-  createEntries,
-  createOrUpdateEntries,
-  deleteEntries,
-  getEntries,
-  updateEntries,
-  prepareForUpdate
 }

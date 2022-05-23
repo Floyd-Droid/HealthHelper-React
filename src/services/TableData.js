@@ -11,7 +11,7 @@ export function round(num, precision) {
   return result;
 }
 
-export function prepareEntries(entries, status) {
+export const prepareEntries = (entries, status) => {
   let preparedEntries = [];
 
   for (let entry of entries) {
@@ -42,7 +42,7 @@ export function prepareEntries(entries, status) {
   return preparedEntries;
 } 
 
-export function getFormattedDate(date, context) {
+export const getFormattedDate = (date, context) => {
   if (context === 'table') {
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   } else if (context === 'url') {

@@ -1,5 +1,5 @@
 const { pool } = require("../db.js");
-const { prepareForUpdate } = require("../../src/services/EntryService.js");
+const { convertEmptyStringToNull } = require("./dbData.js");
 
 async function getLogEntries(userId, date) {
 
@@ -14,9 +14,9 @@ async function getLogEntries(userId, date) {
       food_index_macro.total_sugars, food_index_macro.added_sugars, food_index_macro.protein,
       cost.cost_per_container, cost.servings_per_container
     FROM logs
-    LEFT JOIN food_index ON logs.id = food_index.id
+    LEFT JOIN food_index ON logs.index_id = food_index.id
     LEFT JOIN food_index_macro ON food_index.id = food_index_macro.id
-    LEFT JOIN cost ON logs.id = cost.id
+    LEFT JOIN cost ON logs.index_id = cost.id
     WHERE logs.user_id = $1
     AND logs.timestamp_added::date = date ($2)
     ORDER BY logs.timestamp_added ASC;
@@ -34,12 +34,14 @@ async function getLogEntries(userId, date) {
 async function createLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
+  const preparedEntries = convertEmptyStringToNull(entries);
+
   const createLogsQuery = `
-  INSERT INTO logs (id, user_id, timestamp_added, amount, amount_unit)
+  INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
   VALUES ($1, $2, date ($3), $4, $5);
   `
 
-  for (let entry of entries) {
+  for (let entry of preparedEntries) {
     try {
       let values = [entry.id, userId, date, entry.amount, entry.amount_unit];
       const dbResult = await client.query(createLogsQuery, values);
@@ -56,7 +58,7 @@ async function createLogEntries(entries, userId, date) {
 async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
-  const preparedEntries = prepareForUpdate(entries);
+  const preparedEntries = convertEmptyStringToNull(entries);
 
   for (let entry of preparedEntries) {
     try {
