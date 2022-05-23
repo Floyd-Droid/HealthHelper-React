@@ -268,7 +268,9 @@ export default function IndexTable(props) {
     if (action === 'add') {
       setEditedEntryIds(old => [...old, entryId])
     } else if (action === 'remove') {
-      setEditedEntryIds(editedEntryIds.filter((id) => String(id) != String(entryId)))
+      const idsCopy = [...editedEntryIds];
+      idsCopy.splice(idsCopy.indexOf(entryId), 1)
+      setEditedEntryIds(idsCopy);
     }
   }
 
@@ -278,9 +280,12 @@ export default function IndexTable(props) {
     const editedEntries = [];
     const newEntries = [];
 
-    for (let id of editedEntryIds) {
+    // remove duplicate ids in the case of multiple edits per entry
+    const dedupedIds = [...new Set(editedEntryIds)]
+
+    for (let editedEntryId of dedupedIds) {
       for (let entry of data) {
-        if (entry.id === id) {
+        if (entry.id === editedEntryId) {
           editedEntries.push(entry);
         }
       }
@@ -300,7 +305,6 @@ export default function IndexTable(props) {
       let url = `api/${userId}/index`;
 
       createOrUpdateEntries(url, newEntries, editedEntries)
-      
         .then(messages => {
           console.log(messages);
           setEditedEntryIds([])
@@ -388,6 +392,10 @@ export default function IndexTable(props) {
   React.useEffect(() => {
     fetchEntries()
   }, [])
+
+  React.useEffect(() => {
+    console.log(editedEntryIds)
+  }, [editedEntryIds])
 
   return (
     <>

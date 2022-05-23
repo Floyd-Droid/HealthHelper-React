@@ -258,14 +258,19 @@ export default function LogTable(props) {
     if (action === 'add') {
       setEditedEntryIds(old => [...old, entryId]);
     } else {
-      setEditedEntryIds(editedEntryIds.filter((item) => String(item) != String(entryId)));
+      const idsCopy = [...editedEntryIds];
+      idsCopy.splice(idsCopy.indexOf(entryId), 1)
+      setEditedEntryIds(idsCopy);
     }
   }
 
   const submitChanges = () => {
     const editedEntries = [];
 
-    for (let editedEntryId of editedEntryIds) {
+    // remove duplicate ids in the case of multiple edits per entry
+    const dedupedIds = [...new Set(editedEntryIds)]
+
+    for (let editedEntryId of dedupedIds) {
       for (let entry of data) {
         if (entry.id === editedEntryId) {
           editedEntries.push(entry);
