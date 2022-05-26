@@ -172,7 +172,7 @@ export const Input = ({
   row: { index, original },
   entries,
   status,
-  updateEditedEntryIds,
+  updateEditedRowIndices,
   updateTableData,
 }) => {
 
@@ -198,7 +198,7 @@ export const Input = ({
   React.useEffect(() => {
     // In the case of user removal of corresponding index unit
     if (colId === 'amount' && original.amount_unit === '---') {
-      updateEditedEntryIds(original.id, 'add');
+      updateEditedRowIndices(index, 'add');
       updateTableData(index, colId, '')
     }
   }, [original.amount_unit])
@@ -212,10 +212,10 @@ export const Input = ({
 
       if (status !== 'createLog' && typeof original.id !== 'undefined') {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
-          updateEditedEntryIds(original.id, 'add');
+          updateEditedRowIndices(index, 'add');  // original.id
           setIsEdited(true);
         } else if ((String(newValue) === String(originalValue)) && isEdited) {
-          updateEditedEntryIds(original.id, 'remove');
+          updateEditedRowIndices(index, 'remove');
           setIsEdited(false);
         }
       }
@@ -243,7 +243,7 @@ export const Select = ({
   column: { id: colId },
   entries,
   status,
-  updateEditedEntryIds,
+  updateEditedRowIndices,
   updateTableData,
 }) => {
 
@@ -265,7 +265,7 @@ export const Select = ({
   
   React.useEffect(() => {
     if (colId === 'amount_unit' && ![...amountUnits, '---'].includes(initialCellValue)) {
-      updateEditedEntryIds(original.id, 'add');
+      updateEditedRowIndices(index, 'add');
       setValue("---")
       updateTableData(index, colId, "---");
     } else {
@@ -294,10 +294,10 @@ export const Select = ({
 
       if (status !== 'createLog' && typeof original.id !== 'undefined') {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
-          updateEditedEntryIds(original.id, 'add');
+          updateEditedRowIndices(index, 'add');
           setIsEdited(true);
         } else if ((String(newValue) === String(originalValue)) && isEdited) {
-          updateEditedEntryIds(original.id, 'remove');
+          updateEditedRowIndices(index, 'remove');
           setIsEdited(false);
         }
       }

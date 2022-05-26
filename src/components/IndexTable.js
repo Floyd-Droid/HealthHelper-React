@@ -9,7 +9,7 @@ import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
 import { validateRequiredServingSize, validateUniqueNames } from '../services/Validation.js';
 
 function Table({ columns, data, entries, skipSelectedRowsReset, status, 
-  updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
+  updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -37,7 +37,7 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
       autoResetSelectedRows: !skipSelectedRowsReset,
       entries,
       status, 
-      updateEditedEntryIds,
+      updateEditedRowIndices,
       updateSelectedEntries,
       updateTableData,
     },
@@ -224,7 +224,7 @@ export default function IndexTable(props) {
 
   const [data, setData] = React.useState([])
   const [entries, setEntries] = React.useState([]);
-  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
+  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({})
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
@@ -264,49 +264,43 @@ export default function IndexTable(props) {
     )
   }
 
-  const updateEditedEntryIds = (entryId, action) => {
+  const updateEditedRowIndices = (rowId, action) => {
     if (action === 'add') {
-      setEditedEntryIds(old => [...old, entryId])
+      setEditedRowIndices(old => [...old, rowId])
     } else if (action === 'remove') {
-      const idsCopy = [...editedEntryIds];
-      idsCopy.splice(idsCopy.indexOf(entryId), 1)
-      setEditedEntryIds(idsCopy);
+      const idsCopy = [...editedRowIndices];
+      idsCopy.splice(idsCopy.indexOf(rowId), 1)
+      setEditedRowIndices(idsCopy);
     }
   }
 
   const submitChanges = () => {
     if (!validateRequiredServingSize(data)) return false;
+    if (!validateUniqueNames(data)) return false;
 
     const editedEntries = [];
     const newEntries = [];
 
     // remove duplicate ids in the case of multiple edits per entry
-    const dedupedIds = [...new Set(editedEntryIds)]
+    const dedupedRowIds = [...new Set(editedRowIndices)]
 
-    for (let editedEntryId of dedupedIds) {
-      for (let entry of data) {
-        if (entry.id === editedEntryId) {
-          editedEntries.push(entry);
-        }
-      }
+    for (let rowId of dedupedRowIds) {
+      editedEntries.push(data[rowId]);
     }
 
     for (let newEntry of data.reverse()) {
-      if (typeof newEntry.id === 'undefined') {
-        newEntries.push(newEntry);
-      } else {
+      if (typeof newEntry.id !== 'undefined') {
         break;
-      }
+      } 
+      newEntries.push(newEntry);
     }
-
-    if (!validateUniqueNames(data)) return false;
 
     if (editedEntries.length || newEntries.length) {
       let url = `api/${userId}/index`;
 
       createOrUpdateEntries(url, newEntries, editedEntries)
         .then(messages => {
-          setEditedEntryIds([]);
+          setEditedRowIndices([]);
           fetchEntries();
         })
         .catch(err => console.log(err));
@@ -381,7 +375,7 @@ export default function IndexTable(props) {
   
   const resetData = () => {
     setData(entries);
-    setEditedEntryIds([]);
+    setEditedRowIndices([]);
   }
 
   React.useEffect(() => {
@@ -401,7 +395,7 @@ export default function IndexTable(props) {
           entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
-          updateEditedEntryIds={updateEditedEntryIds}
+          updateEditedRowIndices={updateEditedRowIndices}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />

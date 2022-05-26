@@ -9,7 +9,7 @@ import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select
 import { validateRequiredLogUnit } from '../services/Validation';
 
 function Table({ columns, data, entries, skipSelectedRowsReset, status, 
-  updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
+  updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -39,7 +39,7 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
       autoResetSelectedRows: !skipSelectedRowsReset,
       entries,
       status,
-      updateEditedEntryIds,
+      updateEditedRowIndices,
       updateSelectedEntries,
       updateTableData,
     },
@@ -214,7 +214,7 @@ export default function LogTable(props) {
 
   const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);  
-  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
+  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
 
@@ -255,33 +255,30 @@ export default function LogTable(props) {
     ) 
   }
 
-  const updateEditedEntryIds = (entryId, action) => {
+  const updateEditedRowIndices = (entryId, action) => {
     if (action === 'add') {
-      setEditedEntryIds(old => [...old, entryId]);
+      setEditedRowIndices(old => [...old, entryId]);
     } else {
-      const idsCopy = [...editedEntryIds];
+      const idsCopy = [...editedRowIndices];
       idsCopy.splice(idsCopy.indexOf(entryId), 1)
-      setEditedEntryIds(idsCopy);
+      setEditedRowIndices(idsCopy);
     }
   }
 
   const submitChanges = () => {
     if (!validateRequiredLogUnit(data)) return false;
+
     const editedEntries = [];
 
-    // remove duplicate ids in the case of multiple edits per entry
-    const dedupedIds = [...new Set(editedEntryIds)]
+    // remove duplicate indices in the case of multiple edits per entry
+    const dedupedRowIndices = [...new Set(editedRowIndices)]
 
-    for (let editedEntryId of dedupedIds) {
-      for (let entry of data) {
-        if (entry.id === editedEntryId) {
-          editedEntries.push({
-            id: entry.id,
-            amount: entry.amount,
-            amount_unit: entry.amount_unit
-          });
-        }
-      }
+    for (let rowId of dedupedRowIndices) {
+      editedEntries.push({
+        id: data[rowId].id,
+        amount: data[rowId].amount,
+        amount_unit: data[rowId].amount_unit
+      });
     }
 
     if (editedEntries.length) {
@@ -290,7 +287,7 @@ export default function LogTable(props) {
       updateEntries(url, editedEntries)
         .then(response => {
           if (response.ok) {
-            setEditedEntryIds([]);
+            setEditedRowIndices([]);
             fetchEntries();
           }
         })
@@ -333,7 +330,7 @@ export default function LogTable(props) {
   }
 
   const resetData = () => {
-    setEditedEntryIds([]);
+    setEditedRowIndices([]);
     setData(entries);
   }
 
@@ -354,7 +351,7 @@ export default function LogTable(props) {
           entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
-          updateEditedEntryIds={updateEditedEntryIds}
+          updateEditedRowIndices={updateEditedRowIndices}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />

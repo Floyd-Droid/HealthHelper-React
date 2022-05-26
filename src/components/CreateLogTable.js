@@ -256,13 +256,11 @@ export default function CreateLogTable(props) {
     const entriesToCreate = [];
 
     for (let rowId of Object.keys(selectedEntries)) {
-      let entry = data[rowId];
-      let newEntry = {
-        id: entry.id, 
-        amount: entry.amount, 
-        amount_unit: entry.amount_unit
-      }
-      entriesToCreate.push(newEntry)
+      entriesToCreate.push({
+        id: data[rowId].id, 
+        amount: data[rowId].amount, 
+        amount_unit: data[rowId].amount_unit
+      });
     }
 
     if (entriesToCreate.length) {
