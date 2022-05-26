@@ -101,17 +101,19 @@ export function NumberRangeFilter({
   );
 }
 
-const getOriginalEntry = (entries, originalId) => {
-  let result = {};
+const getOriginalEntry = (entries, originalId, colId) => {
+  let originalEntry = {};
+  let originalValue = '';
 
   for (let entry of entries) {
     if (entry.id === originalId) {
-      result = entry;
+      originalEntry = entry;
+      originalValue = entry[colId]
       break;
     }
   }
-
-  return result;
+  
+  return [originalEntry, originalValue];
 }
 
 export const CalculatedCell = ({
@@ -123,13 +125,11 @@ export const CalculatedCell = ({
   let amount = original.amount;
   let unit = original.amount_unit;
 
-  const originalEntry = React.useMemo(
+  const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id), 
+      getOriginalEntry(entries, original.id, colId), 
       [entries]
-  )
-
-  let originalValue = originalEntry[colId];
+    )
 
   const value = React.useMemo(() => {
     let result = '';
@@ -179,24 +179,29 @@ export const Input = ({
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
 
-  const originalEntry = React.useMemo(
+  const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id), 
+      getOriginalEntry(entries, original.id, colId), 
       [entries]
-  )
-
-  let originalValue = originalEntry[colId];
+    )
 
   React.useEffect(() => {
     setValue(initialCellValue);
-
-    if (String(initialCellValue) === String(originalValue) || typeof originalValue === 'undefined') {
-
+    
+    if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false);
     } else {
       setIsEdited(true);
     }
-  }, [initialCellValue, entries]);
+  }, [initialCellValue, original.amount_unit, entries]);
+
+  React.useEffect(() => {
+    // In the case of user removal of corresponding index unit
+    if (colId === 'amount' && original.amount_unit === '---') {
+      updateEditedEntryIds(original.id, 'add');
+      updateTableData(index, colId, '')
+    }
+  }, [original.amount_unit])
 
   const onChange = e => {
     let newValue = e.target.value;
@@ -245,25 +250,29 @@ export const Select = ({
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
 
-  const originalEntry = React.useMemo(
+  const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id), 
+      getOriginalEntry(entries, original.id, colId), 
       [entries]
     )
-  
-  let originalValue = originalEntry ? originalEntry[colId] : '';
 
   const amountUnits = [
     'servings',
     ...(originalEntry.weight_unit ? [originalEntry.weight_unit] : []),
     ...(originalEntry.volume_unit ? [originalEntry.volume_unit] : []),
     ...(originalEntry.serving_by_item ? ['items'] : []),
-  ]
-
+  ];
+  
   React.useEffect(() => {
-    setValue(initialCellValue);
+    if (colId === 'amount_unit' && ![...amountUnits, '---'].includes(initialCellValue)) {
+      updateEditedEntryIds(original.id, 'add');
+      setValue("---")
+      updateTableData(index, colId, "---");
+    } else {
+      setValue(initialCellValue);
+    }
 
-    if (String(initialCellValue) === String(originalValue) || typeof originalValue === 'undefined') {
+    if (String(initialCellValue) === String(originalValue)) {
       setIsEdited(false);
     } else {
       setIsEdited(true);
@@ -304,7 +313,7 @@ export const Select = ({
     <div className={divClassName}>
       <select className={ `${colId}` } value={value} onChange={onChange}
         style={(colId === 'amount_unit' ? {width: '95px'} : {...(colId==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
-        {colId!=='amount_unit' ? <option key='0' value=''>---</option> : null}
+        {(colId!=='amount_unit' || value==="---") ? <option key='0' value=''>---</option> : null}
         {units.map((unit, i) => {
           return <option key={i} value={unit}>{unit}</option>
         })}

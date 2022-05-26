@@ -6,6 +6,7 @@ import { deleteEntries, getEntries, updateEntries } from '../services/EntryServi
 import { getFormattedDate, prepareEntries } from '../services/TableData';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
+import { validateRequiredLogUnit } from '../services/Validation';
 
 function Table({ columns, data, entries, skipSelectedRowsReset, status, 
   updateEditedEntryIds, updateSelectedEntries, updateTableData }) {
@@ -231,8 +232,8 @@ export default function LogTable(props) {
     .then((body) => {
       let logEntries = body.entries;
       let preparedEntries = prepareEntries(logEntries, status);
-      setData(preparedEntries);
       setEntries(preparedEntries);
+      setData(preparedEntries);
     })
     .catch((err) => {
       console.log(err)
@@ -265,6 +266,7 @@ export default function LogTable(props) {
   }
 
   const submitChanges = () => {
+    if (!validateRequiredLogUnit(data)) return false;
     const editedEntries = [];
 
     // remove duplicate ids in the case of multiple edits per entry
@@ -273,7 +275,11 @@ export default function LogTable(props) {
     for (let editedEntryId of dedupedIds) {
       for (let entry of data) {
         if (entry.id === editedEntryId) {
-          editedEntries.push(entry);
+          editedEntries.push({
+            id: entry.id,
+            amount: entry.amount,
+            amount_unit: entry.amount_unit
+          });
         }
       }
     }
@@ -304,8 +310,8 @@ export default function LogTable(props) {
     }
 
     setSkipSelectedRowsReset(false);
-    setData(dataCopy);
     setEntries(entriesCopy);
+    setData(dataCopy);
 
     if (entryIds.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
@@ -327,8 +333,8 @@ export default function LogTable(props) {
   }
 
   const resetData = () => {
-    setData(entries);
     setEditedEntryIds([]);
+    setData(entries);
   }
 
   React.useEffect(() => {

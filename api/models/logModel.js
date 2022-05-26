@@ -4,7 +4,7 @@ const { convertEmptyStringToNull } = require("./dbData.js");
 async function getLogEntries(userId, date) {
 
   const q = `
-    SELECT logs.id, logs.amount, logs.amount_unit,
+    SELECT logs.id, logs.index_id, logs.amount, logs.amount_unit,
       food_index.name, food_index.serving_by_weight, food_index.weight_unit,
       food_index.serving_by_volume, food_index.volume_unit, food_index.serving_by_item,
       food_index_macro.calories, food_index_macro.total_fat, food_index_macro.sat_fat,
@@ -45,7 +45,6 @@ async function createLogEntries(entries, userId, date) {
     try {
       let values = [entry.id, userId, date, entry.amount, entry.amount_unit];
       const dbResult = await client.query(createLogsQuery, values);
-      console.log('create: ', dbResult)
     } catch(err) {
       console.log(err)
     }
@@ -62,7 +61,6 @@ async function updateLogEntries(entries, userId, date) {
 
   for (let entry of preparedEntries) {
     try {
-      await client.query('BEGIN');
 
       const updateLogsQuery = `
         UPDATE logs
@@ -71,14 +69,12 @@ async function updateLogEntries(entries, userId, date) {
           amount_unit = $2
         WHERE id = $3
         AND user_id = $4
-        AND timestamp_added::date = date ($5); 
+        AND timestamp_added::date = date ($5);
       `;
 
-      let values = [entry.amount, entry.amount_unit, entry.id, Number(userId), date];
-
+      let values = [entry.amount, entry.amount_unit, entry.id, userId, date];
       await client.query(updateLogsQuery, values);
     } catch (err) {
-      await client.query('ROLLBACK');
       console.log(err)
     } 
   }

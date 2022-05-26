@@ -236,14 +236,14 @@ export default function IndexTable(props) {
         if (response.ok) {
           return response.json();
         } else {
-          return {entries: []}
+          return {entries: []};
         }
       })
       .then((body) => {
         const indexEntries = body.entries;
-        const preparedEntries = prepareEntries(indexEntries, status)
-        setData(preparedEntries)
-        setEntries(preparedEntries)
+        const preparedEntries = prepareEntries(indexEntries, status);
+        setEntries(preparedEntries);
+        setData(preparedEntries);
       })
       .catch((err) => {
         console.log(err)
@@ -306,8 +306,7 @@ export default function IndexTable(props) {
 
       createOrUpdateEntries(url, newEntries, editedEntries)
         .then(messages => {
-          console.log(messages);
-          setEditedEntryIds([])
+          setEditedEntryIds([]);
           fetchEntries();
         })
         .catch(err => console.log(err));
@@ -358,8 +357,8 @@ export default function IndexTable(props) {
     }
 
     setSkipSelectedRowsReset(false);
+    setEntries(entriesCopy);
     setData(dataCopy);
-    setEntries(entriesCopy)
     
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
@@ -392,10 +391,6 @@ export default function IndexTable(props) {
   React.useEffect(() => {
     fetchEntries()
   }, [])
-
-  React.useEffect(() => {
-    console.log(editedEntryIds)
-  }, [editedEntryIds])
 
   return (
     <>

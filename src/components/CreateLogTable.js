@@ -230,8 +230,8 @@ export default function CreateLogTable(props) {
       .then((body) => {
         const indexEntries = body.entries;
         const preparedEntries = prepareEntries(indexEntries, status)
-        setData(preparedEntries)
         setEntries(preparedEntries);
+        setData(preparedEntries);
       })
       .catch(err => {
         console.log('log table error: ', err)
@@ -258,9 +258,9 @@ export default function CreateLogTable(props) {
     for (let rowId of Object.keys(selectedEntries)) {
       let entry = data[rowId];
       let newEntry = {
-        id: Number(entry.id), 
-        amount: Number(entry.amount), 
-        amount_unit: String(entry.amount_unit)
+        id: entry.id, 
+        amount: entry.amount, 
+        amount_unit: entry.amount_unit
       }
       entriesToCreate.push(newEntry)
     }

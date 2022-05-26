@@ -65,6 +65,19 @@ export const validateRequiredServingSize = (entries) => {
   }
 }
 
+export const validateRequiredLogUnit = (entries) => {
+  for (let entry of entries) {
+    if (entry.amount_unit === '---') {
+      alert(
+        `Please give a unit for each entry. The following has none:\n
+        \u2022 ${entry.name}
+      `)
+      return false;
+    }
+  }
+  return true;
+}
+
 export const validateUniqueNames = (entries) => {
   let names = [];
   for (let entry of entries) {
