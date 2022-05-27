@@ -77,9 +77,10 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-header' {...column.getHeaderProps(column.getSortByToggleProps())}
+                <th className='text-center text-white position-sticky top-0 bg-header' 
+                {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
-                    if (typeof column.toggleSortBy === 'function') {
+                    if (column.canSort) {
                       column.toggleSortBy(!column.isSortedDesc)
                     }
                   }}>

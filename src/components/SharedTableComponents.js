@@ -101,21 +101,6 @@ export function NumberRangeFilter({
   );
 }
 
-const getOriginalEntry = (entries, originalId, colId) => {
-  let originalEntry = {};
-  let originalValue = '';
-
-  for (let entry of entries) {
-    if (entry.id === originalId) {
-      originalEntry = entry;
-      originalValue = entry[colId]
-      break;
-    }
-  }
-  
-  return [originalEntry, originalValue];
-}
-
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
@@ -127,7 +112,7 @@ export const CalculatedCell = ({
 
   const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id, colId), 
+      [entries[index], entries[index][colId]], 
       [entries]
     )
 
@@ -139,9 +124,9 @@ export const CalculatedCell = ({
       if (amount && originalEntry) {
         if (unit === 'servings') {
           servings = amount;
-        } else if (unit === originalEntry.weight_unit) {
+        } else if (unit === originalEntry.weight_unit && originalEntry.serving_by_weight !== '') {
           servings = amount / originalEntry.serving_by_weight;
-        } else if (unit === originalEntry.volume_unit) { 
+        } else if (unit === originalEntry.volume_unit && originalEntry.serving_by_volume !== '') { 
           servings = amount / originalEntry.serving_by_volume;
         } else if (unit === 'items') {
           servings = amount / originalEntry.serving_by_item;
@@ -181,7 +166,7 @@ export const Input = ({
 
   const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id, colId), 
+    [entries[index], entries[index][colId]], 
       [entries]
     )
 
@@ -212,7 +197,7 @@ export const Input = ({
 
       if (status !== 'createLog' && typeof original.id !== 'undefined') {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
-          updateEditedRowIndices(index, 'add');  // original.id
+          updateEditedRowIndices(index, 'add');
           setIsEdited(true);
         } else if ((String(newValue) === String(originalValue)) && isEdited) {
           updateEditedRowIndices(index, 'remove');
@@ -252,7 +237,7 @@ export const Select = ({
 
   const [originalEntry, originalValue] = React.useMemo(
     () => 
-      getOriginalEntry(entries, original.id, colId), 
+    [entries[index], entries[index][colId]], 
       [entries]
     )
 

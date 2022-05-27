@@ -1,10 +1,12 @@
 import {weightUnits, volumeUnits, fourDigitIds, twoDecimalIds} from '../services/TableData';
 
 const validateInputLength = (input, colId) => {
+  let disallowedInput = ['00', ' '];
+  
   if (fourDigitIds.includes(colId)) {
-    if ((String(parseInt(Number(input), 10)) .length > 4) || input === '00') return false;
+    if ((String(parseInt(Number(input), 10)) .length > 4) || disallowedInput.includes(input)) return false;
   } else {
-    if ((String(parseInt(Number(input), 10)).length > 3) || input === '00') return false;
+    if ((String(parseInt(Number(input), 10)).length > 3) || disallowedInput.includes(input)) return false;
   }
 
   if (input.includes(".")) {

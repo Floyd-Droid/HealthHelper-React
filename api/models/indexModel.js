@@ -77,6 +77,8 @@ async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
 
   const preparedEntries = convertEmptyStringToNull(entries);
+
+  console.log(preparedEntries)
   
   for (let entry of preparedEntries) {
     try {
