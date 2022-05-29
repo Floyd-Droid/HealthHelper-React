@@ -8,7 +8,7 @@ import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select
   SumFooter, TextFilter } from './SharedTableComponents';
 import { validateRequiredLogUnit } from '../services/Validation';
 
-function Table({ columns, data, entries, skipSelectedRowsReset, status, 
+function Table({ columns, data, date, entries, skipSelectedRowsReset, status, 
   updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -28,11 +28,12 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
     footerGroups,
     prepareRow,
     rows,
-    state: {selectedRowIds }
+    state: { selectedRowIds }
   } = useTable(
     {
       columns,
       data,
+      date,
       defaultColumn,
       autoResetFilters: false,
       autoResetSortBy: false,
@@ -242,6 +243,7 @@ export default function LogTable(props) {
   }
 
   const updateTableData = (rowIndex, columnId, value) => {
+    console.log('update')
     setSkipSelectedRowsReset(true)
     setData(old =>
       old.map((row, index) => {
@@ -336,12 +338,13 @@ export default function LogTable(props) {
   }
 
   React.useEffect(() => {
-    setSkipSelectedRowsReset(true);
-  }, [data])
-
-  React.useEffect(() => {
+    setSkipSelectedRowsReset(false);
     fetchEntries();
   }, [date])
+
+  React.useEffect(() => {
+    setSkipSelectedRowsReset(true);
+  }, [data])
   
   return (
     <>
@@ -349,6 +352,7 @@ export default function LogTable(props) {
         <Table
           columns={columns}
           data={data}
+          date={date}
           entries={entries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}

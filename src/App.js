@@ -2,6 +2,7 @@ import React from 'react';
 import './index.css'
 
 import CreateLogTable from './components/CreateLogTable';
+import DateForm from './components/DateForm';
 import IndexTable from './components/IndexTable';
 import LogTable from './components/LogTable';
 
@@ -15,7 +16,14 @@ class App extends React.Component {
       date: new Date(),
     };
 
+    this.updateDate = this.updateDate.bind(this);
     this.updateStatus = this.updateStatus.bind(this);
+  }
+
+  updateDate(newDate) {
+    this.setState({
+      date: newDate
+    })
   }
 
   updateStatus(newStatus) {
@@ -28,12 +36,18 @@ class App extends React.Component {
     return (
       <div className='app-container vw-100 vh-100 p-3' >
         {this.state.status === 'logs' &&
+        <>
+          <DateForm 
+          date={this.state.date}
+          onDateFormSubmit={this.updateDate}
+          />
           <LogTable
             status={this.state.status}
             userId={this.state.userId}
             date={this.state.date} 
             onNavSubmit={this.updateStatus}
           />
+        </>
         }
         {this.state.status === 'index' &&
           <IndexTable

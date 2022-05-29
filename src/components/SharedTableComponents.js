@@ -101,6 +101,12 @@ export function NumberRangeFilter({
   );
 }
 
+// const [originalEntry, originalValue] = React.useMemo(
+//   () => 
+//   [entries[index], entries[index][colId]], 
+//     [entries]
+//   )
+
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
@@ -111,10 +117,13 @@ export const CalculatedCell = ({
   let unit = original.amount_unit;
 
   const [originalEntry, originalValue] = React.useMemo(
-    () => 
-      [entries[index], entries[index][colId]], 
-      [entries]
-    )
+    () => {
+      if (entries?.[index]) {
+        return [entries[index], entries[index][colId]]
+      }
+      return [{}, '']
+    }, [entries]
+  )
 
   const value = React.useMemo(() => {
     let result = '';
@@ -155,6 +164,7 @@ export const Input = ({
   value: initialCellValue,
   column: { id: colId },
   row: { index, original },
+  data, 
   entries,
   status,
   updateEditedRowIndices,
@@ -165,18 +175,25 @@ export const Input = ({
   const [isEdited, setIsEdited] = React.useState(false);
 
   const [originalEntry, originalValue] = React.useMemo(
-    () => 
-    [entries[index], entries[index][colId]], 
-      [entries]
-    )
+    () => {
+      if (entries?.[index]) {
+        return [entries[index], entries[index][colId]]
+      }
+      return [{}, '']
+    }, [entries]
+  )
 
   React.useEffect(() => {
     setValue(initialCellValue);
     
-    if (String(initialCellValue) === String(originalValue)) {
-      setIsEdited(false);
-    } else {
-      setIsEdited(true);
+    // Highlight flashes briefly upon new date submission due to offset in state update
+    // Equal length between data and entries ensures the state has fully updated
+    if (data.length === entries.length) {
+      if (String(initialCellValue) === String(originalValue)) { 
+        setIsEdited(false);
+      } else {
+        setIsEdited(true);
+      }
     }
   }, [initialCellValue, original.amount_unit, entries]);
 
@@ -204,7 +221,7 @@ export const Input = ({
           setIsEdited(false);
         }
       }
-  
+
       updateTableData(index, colId, newValue);
     }
   }
@@ -214,11 +231,15 @@ export const Input = ({
   inputClassName += ' p-0 m-0 border-0';
 
   return (
-    <div className={divClassName}>
-      <input className={inputClassName} 
-        style={colId==='name' ? {} : {width: '40px'}}
-        value={value} onChange={onChange} />
-    </div>
+    <>
+      {entries.length === data.length && 
+        <div className={divClassName}>
+          <input className={inputClassName} 
+            style={colId==='name' ? {} : {width: '40px'}}
+            value={value} onChange={onChange} />
+        </div>}
+    </>
+
   );
 }
 
@@ -226,6 +247,7 @@ export const Select = ({
   value: initialCellValue,
   row: { index, original },
   column: { id: colId },
+  data,
   entries,
   status,
   updateEditedRowIndices,
@@ -236,16 +258,19 @@ export const Select = ({
   const [isEdited, setIsEdited] = React.useState(false);
 
   const [originalEntry, originalValue] = React.useMemo(
-    () => 
-    [entries[index], entries[index][colId]], 
-      [entries]
-    )
+    () => {
+      if (entries?.[index]) {
+        return [entries[index], entries[index][colId]]
+      }
+      return [{}, '']
+    }, [entries]
+  )
 
   const amountUnits = [
     'servings',
-    ...(originalEntry.weight_unit ? [originalEntry.weight_unit] : []),
-    ...(originalEntry.volume_unit ? [originalEntry.volume_unit] : []),
-    ...(originalEntry.serving_by_item ? ['items'] : []),
+    ...(original.weight_unit ? [original.weight_unit] : []),
+    ...(original.volume_unit ? [original.volume_unit] : []),
+    ...(original.serving_by_item ? ['items'] : []),
   ];
   
   React.useEffect(() => {
@@ -257,10 +282,12 @@ export const Select = ({
       setValue(initialCellValue);
     }
 
-    if (String(initialCellValue) === String(originalValue)) {
-      setIsEdited(false);
-    } else {
-      setIsEdited(true);
+    if (data.length === entries.length) {
+      if (String(initialCellValue) === String(originalValue) || (originalValue === '' && initialCellValue !== '')) {
+        setIsEdited(false);
+      } else {
+        setIsEdited(true);
+      }
     }
   }, [initialCellValue, entries])
 
