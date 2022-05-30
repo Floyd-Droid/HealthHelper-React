@@ -101,12 +101,6 @@ export function NumberRangeFilter({
   );
 }
 
-// const [originalEntry, originalValue] = React.useMemo(
-//   () => 
-//   [entries[index], entries[index][colId]], 
-//     [entries]
-//   )
-
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },

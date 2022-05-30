@@ -1,49 +1,37 @@
 import React from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default class DateForm extends React.Component {
 
   constructor(props) {
     super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
+
+    this.incrementDate = this.incrementDate.bind(this)
   }
 
-  handleSubmit(event) {
-    event.preventDefault();
-    
-    const month = event.target.elements[0].value
-    const day = event.target.elements[1].value
-    const year = event.target.elements[2].value
+  incrementDate(e) {
+    const value = e.target.value;
+    const newDay = this.props.date.getDate() + Number(value);
+    const newDate = new Date(this.props.date.setDate(newDay));
 
-    const newDate = new Date(year, month, day)
-
-    this.props.onDateFormSubmit(newDate);
+    this.props.onDateFormSubmit(newDate)
   }
   
   render() {
-
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July','August', 
-      'September', 'October', 'November', 'December']
-
-    return (
-      <div>
-        <form onSubmit={this.handleSubmit}>
-          <label htmlFor="month">Date</label>
-          <select defaultValue={this.props.date.getMonth()}>
-            {months.map((month, index) => {
-              return <option key={index} value={index.toString()}>{month}</option>;
-            })}
-          </select>
-          <input
-            type="text"
-            defaultValue={this.props.date.getDate()} />
-          <input
-            type="text"
-            defaultValue={this.props.date.getFullYear()} />
-          <input
-            type="submit"
-            value="Submit" />
-        </form>
-      </div>
-    );
+      return (
+        <div className='container d-flex justify-content-center'>
+          <button className='btn date-btn p-0 mx-2' type='button' onClick={this.incrementDate} value='-1'>
+            prev
+          </button>
+          <div>
+          <DatePicker className='date-input' 
+            selected={this.props.date} onChange={(date) => this.props.onDateFormSubmit(date)}/>
+          </div>
+          <button className='btn date-btn p-0 mx-2' type='button' onClick={this.incrementDate} value='1'>
+            next
+          </button>
+        </div>
+      );
   }
 }

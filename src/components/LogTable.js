@@ -243,7 +243,6 @@ export default function LogTable(props) {
   }
 
   const updateTableData = (rowIndex, columnId, value) => {
-    console.log('update')
     setSkipSelectedRowsReset(true)
     setData(old =>
       old.map((row, index) => {
