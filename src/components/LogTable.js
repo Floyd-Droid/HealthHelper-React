@@ -28,7 +28,8 @@ function Table({ columns, data, date, entries, skipSelectedRowsReset, status,
     footerGroups,
     prepareRow,
     rows,
-    state: { selectedRowIds }
+    state: { selectedRowIds },
+    toggleAllRowsSelected
   } = useTable(
     {
       columns,
@@ -67,6 +68,10 @@ function Table({ columns, data, date, entries, skipSelectedRowsReset, status,
       ])
     }
   );
+
+  React.useEffect(() => {
+    toggleAllRowsSelected(false);
+  }, [date])
 
   React.useEffect(() => {
     updateSelectedEntries(selectedRowIds)
