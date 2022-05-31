@@ -1,14 +1,19 @@
 import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import LogButtons from './buttons/LogButtons';
 import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, prepareEntries } from '../services/TableData';
+import { validateLogSubmission } from '../services/Validation';
+
+import LogButtons from './buttons/LogButtons';
+import MessageContainer from './Messages';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
-import { validateRequiredLogUnit } from '../services/Validation';
 
-function Table({ columns, data, date, entries, skipSelectedRowsReset, status, 
+
+
+
+function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsReset, status, 
   updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -79,6 +84,9 @@ function Table({ columns, data, date, entries, skipSelectedRowsReset, status,
 
   return (
     <>
+      {errorMessages.length > 0 && 
+        <MessageContainer messages={errorMessages}/>}
+    
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
@@ -224,7 +232,8 @@ export default function LogTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
-
+  const [errorMessages, setErrorMessages] = React.useState([])
+  
   const fetchEntries = () => {
     const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
 
@@ -273,7 +282,13 @@ export default function LogTable(props) {
   }
 
   const submitChanges = () => {
-    if (!validateRequiredLogUnit(data)) return false;
+    let errors = validateLogSubmission(data)
+    if (errors.length) {
+      setErrorMessages(errors)
+      return false;
+    } else {
+      setErrorMessages([])
+    }
 
     const editedEntries = [];
 
@@ -358,6 +373,7 @@ export default function LogTable(props) {
           data={data}
           date={date}
           entries={entries}
+          errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           updateEditedRowIndices={updateEditedRowIndices}

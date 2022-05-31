@@ -1,5 +1,7 @@
 import {weightUnits, volumeUnits, fourDigitIds, twoDecimalIds} from '../services/TableData';
 
+// Validation functions for pre-submission
+
 const validateInputLength = (input, colId) => {
   let disallowedInput = ['00', ' '];
   
@@ -46,6 +48,30 @@ export const validateSelect = (value, colId, amountUnits) => {
   return true;
 }
 
+
+// Validation functions for post-submission
+
+export const validateRequiredName = (entries) => {
+  for (let entry of entries) {
+    if (entry.name === '') {
+      return 'A name';
+    }
+  }
+  return '';
+}
+
+export const validateUniqueNames = (entries) => {
+  let names = [];
+  for (let entry of entries) {
+    if (names.includes(entry.name)) {
+      return 'A unique name';
+    }
+    names.push(entry.name)
+  }
+
+  return '';
+}
+
 export const validateRequiredServingSize = (entries) => {
   for (let entry of entries) {
     const servWeight = entry.serving_by_weight;
@@ -53,45 +79,45 @@ export const validateRequiredServingSize = (entries) => {
     const servVolume = entry.serving_by_volume;
     const volumeUnit = entry.volume_unit;
     const servItem = entry.serving_by_item;
+    console.log(volumeUnit)
 
     if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
-      alert(
-        `Please fill in at least one of the serving size field sets for each entry:\n
-        \u2022 Weight quantity and weight unit
-        \u2022 Volume quantity and volume unit
-        \u2022 Item quantity
-        `);
-      return false;
+      return 'At least one serving size section filled';
     }
-    return true;
   }
+  return '';
 }
 
-export const validateRequiredLogUnit = (entries) => {
+export const validateRequiredAmountUnit = (entries) => {
   for (let entry of entries) {
     if (entry.amount_unit === '---') {
-      alert(
-        `Please give a unit for each entry. The following has none:\n
-        \u2022 ${entry.name}
-      `)
-      return false;
+      return 'An amount unit';
     }
   }
-  return true;
+  return '';
 }
 
-export const validateUniqueNames = (entries) => {
-  let names = [];
-  for (let entry of entries) {
-    if (names.includes(entry.name)) {
-      alert(
-        `Please give unique names for each entry. The following is a duplicate:\n
-        \u2022 ${entry.name}
-      `)
-      return false;
-    }
-    names.push(entry.name)
-  }
+export const validateLogSubmission = (entries) => {
+  const requiredAmountUnitMessage = validateRequiredAmountUnit(entries)
 
-  return true;
+  const messages = [
+    ...(requiredAmountUnitMessage ? [requiredAmountUnitMessage] : [])
+  ]
+
+  return messages;
+}
+
+export const validateIndexSubmission = (entries) => {
+  const requiredNameMessage = validateRequiredName(entries);
+  const uniqueNameMessage = validateUniqueNames(entries);
+  const requiredServingSizeMessage = validateRequiredServingSize(entries)
+
+  const messages = [
+    ...( requiredNameMessage ? [requiredNameMessage] : []),
+    ...( uniqueNameMessage ? [uniqueNameMessage] : []),
+    ...( requiredServingSizeMessage ? [requiredServingSizeMessage] : []),
+  ]
+
+  console.log(messages)
+  return messages;
 }

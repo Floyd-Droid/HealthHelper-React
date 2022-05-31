@@ -1,13 +1,16 @@
 import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import CreateLogButtons from './buttons/CreateLogButtons';
 import { getEntries, createEntries } from '../services/EntryService';
 import { getFormattedDate, prepareEntries } from '../services/TableData';
+
+import CreateLogButtons from './buttons/CreateLogButtons';
+import MessageContainer from './Messages';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
-function Table({ columns, data, entries, skipSelectedRowsReset, status, 
+
+function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, 
   updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -72,6 +75,10 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
   return (
     <>
     <p>Select which entries to add, and give an amount.</p>
+
+    {errorMessages.length > 0 && 
+      <MessageContainer messages={errorMessages}/>}
+
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
@@ -215,7 +222,8 @@ export default function CreateLogTable(props) {
   const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
+  const [errorMessages, setErrorMessages] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -303,6 +311,7 @@ export default function CreateLogTable(props) {
           data={data}
           status={status}
           entries={entries}
+          errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}

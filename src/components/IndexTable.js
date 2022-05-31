@@ -1,14 +1,17 @@
 import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import IndexButtons from './buttons/IndexButtons';
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { prepareEntries } from '../services/TableData';
+import { validateIndexSubmission} from '../services/Validation.js';
+
+import IndexButtons from './buttons/IndexButtons';
+import MessageContainer from './Messages';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
-import { validateRequiredServingSize, validateUniqueNames } from '../services/Validation.js';
 
-function Table({ columns, data, entries, skipSelectedRowsReset, status, 
+
+function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, successMessage,
   updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -70,6 +73,9 @@ function Table({ columns, data, entries, skipSelectedRowsReset, status,
 
   return (
     <>
+      {errorMessages.length > 0 && 
+        <MessageContainer messages={errorMessages}/>}
+
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (
@@ -228,6 +234,7 @@ export default function IndexTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({})
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
+  const [errorMessages, setErrorMessages] = React.useState([])
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -279,8 +286,14 @@ export default function IndexTable(props) {
   }
 
   const submitChanges = () => {
-    if (!validateRequiredServingSize(data)) return false;
-    if (!validateUniqueNames(data)) return false;
+    let errors = validateIndexSubmission(data)
+
+    if (errors.length) {
+      setErrorMessages(errors)
+      return false;
+    } else {
+      setErrorMessages([])
+    }
 
     const editedEntries = [];
     const newEntries = [];
@@ -397,6 +410,7 @@ export default function IndexTable(props) {
           columns={columns}
           data={data}
           entries={entries}
+          errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           updateEditedRowIndices={updateEditedRowIndices}
