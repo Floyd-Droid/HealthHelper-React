@@ -79,7 +79,6 @@ export const validateRequiredServingSize = (entries) => {
     const servVolume = entry.serving_by_volume;
     const volumeUnit = entry.volume_unit;
     const servItem = entry.serving_by_item;
-    console.log(volumeUnit)
 
     if (!((servWeight && weightUnit) || (servVolume && volumeUnit) || servItem )) {
       return 'At least one serving size section filled';
@@ -118,6 +117,5 @@ export const validateIndexSubmission = (entries) => {
     ...( requiredServingSizeMessage ? [requiredServingSizeMessage] : []),
   ]
 
-  console.log(messages)
   return messages;
 }

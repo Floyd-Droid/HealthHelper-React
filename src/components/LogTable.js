@@ -11,10 +11,8 @@ import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select
   SumFooter, TextFilter } from './SharedTableComponents';
 
 
-
-
-function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsReset, status, 
-  updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
+function Table({ columns, data, date, entries, errorMessages, failedEntries, skipSelectedRowsReset, status, successMessages,
+  updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -84,8 +82,12 @@ function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsRe
 
   return (
     <>
+      {successMessages.length > 0 && 
+        <MessageContainer messages={successMessages} variant='success' type='success'/>}
       {errorMessages.length > 0 && 
-        <MessageContainer messages={errorMessages}/>}
+        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
+      {validationMessages.length > 0 && 
+        <MessageContainer messages={validationMessages} variant='danger' type='validation'/>}
     
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
@@ -231,23 +233,26 @@ export default function LogTable(props) {
   const [entries, setEntries] = React.useState([]);  
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
-  const [errorMessages, setErrorMessages] = React.useState([])
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
+  const [errorMessages, setErrorMessages] = React.useState([]);
+	const [successMessages, setSuccessMessages] = React.useState([]);
+  const [validationMessages, setValidationMessages] = React.useState([]);
+  const [failedEntries, setFailedEntries] = React.useState([]);
   
   const fetchEntries = () => {
     const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
 
     getEntries(logUrl)
-    .then((response) => {
-      if (response.ok) {
-        return response.json();
-      } else {
-        return {entries: []}
-      }
+    .then(body => {
+			if (typeof body.errorMessage !== 'undefined') {
+				setErrorMessages([body.errorMessage]);
+				return [];
+			} else {
+				return body.entries;
+			}
     })
-    .then((body) => {
-      let logEntries = body.entries;
-      let preparedEntries = prepareEntries(logEntries, status);
+    .then(entries => {
+      let preparedEntries = prepareEntries(entries, status);
       setEntries(preparedEntries);
       setData(preparedEntries);
     })
@@ -257,7 +262,7 @@ export default function LogTable(props) {
   }
 
   const updateTableData = (rowIndex, columnId, value) => {
-    setSkipSelectedRowsReset(true)
+    setSkipSelectedRowsReset(true);
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -268,7 +273,7 @@ export default function LogTable(props) {
         }
         return row;
       })
-    ) 
+    );
   }
 
   const updateEditedRowIndices = (entryId, action) => {
@@ -282,24 +287,26 @@ export default function LogTable(props) {
   }
 
   const submitChanges = () => {
-    let errors = validateLogSubmission(data)
-    if (errors.length) {
-      setErrorMessages(errors)
+    let validationErrors = validateLogSubmission(data);
+
+    if (validationErrors.length) {
+      setValidationMessages(validationErrors);
       return false;
     } else {
-      setErrorMessages([])
+      setValidationMessages([]);
     }
 
     const editedEntries = [];
 
     // remove duplicate indices in the case of multiple edits per entry
-    const dedupedRowIndices = [...new Set(editedRowIndices)]
+    const dedupedRowIndices = [...new Set(editedRowIndices)];
 
     for (let rowId of dedupedRowIndices) {
       editedEntries.push({
+				amount: data[rowId].amount,
+				amount_unit: data[rowId].amount_unit,
         id: data[rowId].id,
-        amount: data[rowId].amount,
-        amount_unit: data[rowId].amount_unit
+        name: data[rowId].name
       });
     }
 
@@ -307,11 +314,15 @@ export default function LogTable(props) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
 
       updateEntries(url, editedEntries)
-        .then(response => {
-          if (response.ok) {
-            setEditedRowIndices([]);
-            fetchEntries();
-          }
+        .then(body => {
+          if (typeof body.errorMessage !== 'undefined') {
+						setErrorMessages([body.errorMessage]);
+						setFailedEntries(body.failedEntries);
+          } else if (typeof body.successMessage !== 'undefined') {
+						setSuccessMessages([body.successMessage]);
+					}
+					setEditedRowIndices([]);
+					fetchEntries();
         })
         .catch(e => console.log('error in updateDb: \n', e))
     }
@@ -323,7 +334,10 @@ export default function LogTable(props) {
     const entriesCopy = [...entries];
 
     for (let rowId of Object.keys(selectedEntries).reverse()) {
-      entryIds.push(data[rowId].id);
+      entryIds.push({
+				id: data[rowId].id,
+				name: data[rowId].name
+			});
       dataCopy.splice(rowId, 1);
       entriesCopy.splice(rowId, 1);
     }
@@ -336,10 +350,13 @@ export default function LogTable(props) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
   
       deleteEntries(url, entryIds)
-        .then((response) => {
-          if (!response.ok) {
-            console.log('Something went wrong when deleting log entries.')
-          }
+        .then(body => {
+          if (typeof body.errorMessage !== 'undefined') {
+						setErrorMessages([body.errorMessage]);
+						setFailedEntries(body.failedEntries);
+          } else if (typeof body.successMessage !== 'undefined') {
+						setSuccessMessages([body.successMessage]);
+					}
         })
         .catch((err) => {
           console.log(err)
@@ -374,11 +391,14 @@ export default function LogTable(props) {
           date={date}
           entries={entries}
           errorMessages={errorMessages}
+					failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
+					successMessages={successMessages}
           updateEditedRowIndices={updateEditedRowIndices}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
+					validationMessages={validationMessages}
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>

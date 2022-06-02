@@ -10,9 +10,9 @@ import MessageContainer from './Messages';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-
-function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, successMessage,
-  updateEditedRowIndices, updateSelectedEntries, updateTableData }) {
+	
+function Table({ columns, data, entries, errorMessages, failedEntries, skipSelectedRowsReset, status, successMessages,
+  updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -73,8 +73,12 @@ function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, s
 
   return (
     <>
+      {successMessages.length > 0 && 
+        <MessageContainer messages={successMessages} variant='success' type='success'/>}
       {errorMessages.length > 0 && 
-        <MessageContainer messages={errorMessages}/>}
+        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
+      {validationMessages.length > 0 && 
+        <MessageContainer messages={validationMessages} variant='danger' type='validation'/>}
 
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
@@ -229,22 +233,26 @@ export default function IndexTable(props) {
     []
   )
 
-  const [data, setData] = React.useState([])
+  const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState({})
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true)
-  const [errorMessages, setErrorMessages] = React.useState([])
+  const [selectedEntries, setSelectedEntries] = React.useState({});
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
+  const [errorMessages, setErrorMessages] = React.useState([]);
+  const [successMessages, setSuccessMessages] = React.useState([]);
+  const [validationMessages, setValidationMessages] = React.useState([]);
+  const [failedEntries, setFailedEntries] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
 
     getEntries(url)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
+      .then(body => {
+        if (typeof body.errorMessage !== 'undefined') {
+					setErrorMessages([body.errorMessage]);
+          return [];
         } else {
-          return {entries: []};
+					return body.entries;
         }
       })
       .then((entries) => {
@@ -257,7 +265,7 @@ export default function IndexTable(props) {
 				}
       })
       .catch((err) => {
-        console.log(err)
+        console.log(err);
       })
   }
 
@@ -277,29 +285,29 @@ export default function IndexTable(props) {
 
   const updateEditedRowIndices = (rowId, action) => {
     if (action === 'add') {
-      setEditedRowIndices(old => [...old, rowId])
+      setEditedRowIndices(old => [...old, rowId]);
     } else if (action === 'remove') {
       const idsCopy = [...editedRowIndices];
-      idsCopy.splice(idsCopy.indexOf(rowId), 1)
+      idsCopy.splice(idsCopy.indexOf(rowId), 1);
       setEditedRowIndices(idsCopy);
     }
   }
 
   const submitChanges = () => {
-    let errors = validateIndexSubmission(data)
+    let validationErrors = validateIndexSubmission(data);
 
-    if (errors.length) {
-      setErrorMessages(errors)
+    if (validationErrors.length) {
+      setValidationMessages(validationErrors);
       return false;
     } else {
-      setErrorMessages([])
+      setValidationMessages([]);
     }
 
     const editedEntries = [];
     const newEntries = [];
 
     // remove duplicate ids in the case of multiple edits per entry
-    const dedupedRowIds = [...new Set(editedRowIndices)]
+    const dedupedRowIds = [...new Set(editedRowIndices)];
 
     for (let rowId of dedupedRowIds) {
       editedEntries.push(data[rowId]);
@@ -316,7 +324,14 @@ export default function IndexTable(props) {
       let url = `api/${userId}/index`;
 
       createOrUpdateEntries(url, newEntries, editedEntries)
-        .then(messages => {
+        .then(body => {
+          if (body.successMessages.length) {
+            setSuccessMessages(body.successMessages);
+          } 
+          if (body.errorMessages.length) {
+            setErrorMessages(body.errorMessages);
+            setFailedEntries(failedEntries);
+          }
           setEditedRowIndices([]);
           fetchEntries();
         })
@@ -361,7 +376,10 @@ export default function IndexTable(props) {
 
     for (let rowId of Object.keys(selectedEntries).reverse()) {
       if (typeof data[rowId].id !== 'undefined') {
-        existingEntryIds.push(data[rowId].id);
+        existingEntryIds.push({
+					id: data[rowId].id,
+					name: data[rowId].name
+				});
       }
       dataCopy.splice(rowId, 1);
       entriesCopy.splice(rowId, 1);
@@ -375,10 +393,13 @@ export default function IndexTable(props) {
       const url = `/api/${userId}/index`;
 
       deleteEntries(url, existingEntryIds)
-        .then((response) => {
-          if (!response.ok) {
-            console.log('Something went wrong when deleting index entries.');
-          }
+        .then(body => {
+          if (typeof body.errorMessage !== 'undefined') {
+						setErrorMessages([body.errorMessage]);
+            setFailedEntries(body.failedEntries);
+          } else if (typeof body.successMessage !== 'undefined') {
+						setSuccessMessages([body.successMessage]);
+					}
         })
         .catch((err) => {
           console.log(err);
@@ -396,11 +417,11 @@ export default function IndexTable(props) {
   }
 
   React.useEffect(() => {
-    setSkipSelectedRowsReset(true)
+    setSkipSelectedRowsReset(true);
   }, [data])
 
   React.useEffect(() => {
-    fetchEntries()
+    fetchEntries();
   }, [])
 
   return (
@@ -411,11 +432,14 @@ export default function IndexTable(props) {
           data={data}
           entries={entries}
           errorMessages={errorMessages}
+          failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
+          successMessages={successMessages}
           updateEditedRowIndices={updateEditedRowIndices}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
+          validationMessages={validationMessages}
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>

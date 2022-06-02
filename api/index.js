@@ -21,59 +21,63 @@ app.use((bodyParser.json()));
 // For requests of content-type application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
+const defaultError = {errorMessage: 'An error occurred. Please check that your changes were saved.'};
 
 // Log endpoints
 app.get('/api/:userId/logs', async (req, res) => {
-  let userId = req.params.userId;
-  let date = req.query.date;
+  const userId = req.params.userId;
+  const date = req.query.date;
 
   try {
-    const dbResult = await logModel.getLogEntries(userId, date)
-    const code = dbResult.error ? 500 : 200;
+    const dbResult = await logModel.getLogEntries(userId, date);
+    const code = typeof dbResult.errorMessage === 'undefined' ? 200 : 500;
     res.status(code).json(dbResult); 
   } catch (err) {
     console.log(err)
-    res.status(500).send();
+    const body = {errorMessage: `An error occurred. Please check your connection and try again.`};
+    res.status(500).json(body);
   }
 });
 
 app.post('/api/:userId/logs', async (req, res) => {
-  let userId = req.params.userId;
-  let date = req.query.date;
-
+	const entries = req.body;
+  const userId = req.params.userId;
+  const date = req.query.date;
+	
   try {
-    const dbResult = await logModel.createLogEntries(req.body, userId, date);
-    res.status(200).json(dbResult);
+    const dbResult = await logModel.createLogEntries(entries, userId, date);
+    res.status(201).json(dbResult);
   } catch(err) {
-    console.log(err)
-    res.status(500).send();
+    console.log(err);
+    res.status(500).json(defaultError);
   }
 })
 
 app.put('/api/:userId/logs', async (req, res) => {
+	const entries = req.body;
   const userId = req.params.userId;
   const date = req.query.date;
-  const body = req.body;
 
   try {
-    const dbResult = await logModel.updateLogEntries(body, userId, date);
+    const dbResult = await logModel.updateLogEntries(entries, userId, date);
     res.status(200).json(dbResult);
   } catch (err) {
-    console.log(err)
-    res.status(500).send();
+    console.log(err);
+    res.status(500).json(defaultError);
   } 
 })
 
 app.delete('/api/:userId/logs', async (req, res) => {
+	const entries = req.body;
   const userId = req.params.userId;
   const date = req.query.date;
 
   try {
-    const dbResult = await logModel.deleteLogEntries(req.body, userId, date);
-    res.status(200).json();
+    const dbResult = await logModel.deleteLogEntries(entries, userId, date);
+    res.status(200).json(dbResult);
   } catch(err) {
-    console.log(err)
-    res.status(500).send();
+    console.log(err);
+    res.status(500).json(defaultError);
   }
 })
 
@@ -84,52 +88,51 @@ app.get('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
-    const code = dbResult.error ? 500 : 200;
-    res.status(code).json(dbResult); 
+    const code = typeof dbResult.errorMessage === 'undefined' ? 200 : 500;
+    res.status(code).json(dbResult);
   } catch (err) {
-    console.log(err)
-    res.status(500).send();
+    console.log(err);
+    const body = {errorMessage: `An error occurred. Please check your connection and try again.`};
+    res.status(500).json(body);
   }
 })
 
 app.post('/api/:userId/index', async (req, res) => {
-  const body = req.body;
+	const entries = req.body;
   const userId = req.params.userId;
-
+	
   try {
-    const dbResult = await indexModel.createIndexEntries(body, userId);
-    res.status(200).json(dbResult);
+    const dbResult = await indexModel.createIndexEntries(entries, userId);
+    res.status(201).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).send();
+    res.status(500).json(defaultError);
   }
 })
 
 app.put('/api/:userId/index', async (req, res) => {
+	const entries = req.body;
   const userId = req.params.userId;
-  const body = req.body;
 
   try {
-    const dbResult = await indexModel.updateIndexEntries(body, userId);
+    const dbResult = await indexModel.updateIndexEntries(entries, userId);
     res.status(200).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).send();
+    res.status(500).json(defaultError);
   }
 })
 
 app.delete('/api/:userId/index', async (req, res) => {
+	const entries = req.body;
   const userId = req.params.userId;
-  const entryIds = req.body;
-
-  console.log('DELETE')
-
+  
   try {
-    const dbResult = await indexModel.deleteIndexEntries(entryIds, userId);
+    const dbResult = await indexModel.deleteIndexEntries(entries, userId);
     res.status(200).json(dbResult);
   } catch(err) {
     console.log(err);
-    res.status(500).send();
+    res.status(500).json(defaultError);
   }
 
 })

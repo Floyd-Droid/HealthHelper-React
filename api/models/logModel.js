@@ -23,11 +23,11 @@ async function getLogEntries(userId, date) {
   `;
 
     try {
-      const dbResponse = await pool.query(q, [Number(userId), date]);
+      const dbResponse = await pool.query(q, [userId, date]);
       return {entries: dbResponse.rows};
     } catch (err) {
-      console.log('error in getLogEntries: ', err)
-      return {error: 'Database error'}
+      console.log(err)
+      return {errorMessage: 'Please check your connection and try again.'};
     }
 }
 
@@ -35,6 +35,7 @@ async function createLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
   const preparedEntries = convertEmptyStringToNull(entries);
+  const failedEntries = [];
 
   const createLogsQuery = `
   INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
@@ -47,17 +48,22 @@ async function createLogEntries(entries, userId, date) {
       const dbResult = await client.query(createLogsQuery, values);
     } catch(err) {
       console.log(err)
+      failedEntries.push(entry.name)
     }
   }
   client.release();
 
-  return {message: 'Entries successfully created'}
+  if (failedEntries.length) {
+    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not created:'}
+  }
+  return {successMessage: 'Entries successfully created'};
 }
 
 async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
   const preparedEntries = convertEmptyStringToNull(entries);
+  const failedEntries = [];
 
   for (let entry of preparedEntries) {
     try {
@@ -76,15 +82,20 @@ async function updateLogEntries(entries, userId, date) {
       await client.query(updateLogsQuery, values);
     } catch (err) {
       console.log(err)
+      failedEntries.push(entry.name)
     } 
   }
   client.release();
 
-  return {message: 'Entries successfully updated'};
+  if (failedEntries.length) {
+    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not updated:'}
+  }
+  return {successMessage: 'Entries successfully updated'};
 }
 
-async function deleteLogEntries(ids, userId, date) {
+async function deleteLogEntries(entries, userId, date) {
   const client = await pool.connect();
+  const failedEntries = [];
 
   const deleteLogsQuery = `
     DELETE FROM logs
@@ -93,17 +104,21 @@ async function deleteLogEntries(ids, userId, date) {
     AND timestamp_added::date = date ($3);
   `
 
-  for (let id of ids) {
+  for (let entry of entries) {
     try {
-      let values = [id, userId, date]
+      let values = [entry.id, userId, date]
       await client.query(deleteLogsQuery, values)
     } catch(err) {
       console.log(err)
+      failedEntries.push(entry.name)
     }
   }
   client.release();
 
-  return {message: 'Entries successfully deleted'};
+  if (failedEntries.length) {
+    return {failedEntries: failedEntries, errorMessage: 'The following entries were not deleted:'}
+  }
+  return {successMessage: 'Entries successfully deleted'};
 }
 
 module.exports = {

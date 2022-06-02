@@ -25,7 +25,7 @@ async function getIndexEntries(userId) {
     return {entries: dbResponse.rows};
   } catch (err) {
     console.log(err)
-    return {error: 'Database error'}
+    return {errorMessage: 'Please check your connection and try again.'}
   }
 }
 
@@ -33,6 +33,7 @@ async function createIndexEntries(entries, userId) {
   const client = await pool.connect();
 
   const preparedEntries = convertEmptyStringToNull(entries);
+  const failedEntries = [];
 
   for (let entry of preparedEntries) {
     try {
@@ -66,19 +67,22 @@ async function createIndexEntries(entries, userId) {
       await client.query(createEntryQuery, values);
     } catch (err) {
       console.log(err);
+      failedEntries.push(entry.name)
     }
   }
   client.release();
 
-  return {message: 'Entries successfully created'};
+  if (failedEntries.length) {
+    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not created:'}
+  }
+  return {successMessage: 'Entries successfully created'};
 }
 
 async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
 
   const preparedEntries = convertEmptyStringToNull(entries);
-
-  console.log(preparedEntries)
+  const failedEntries = [];
   
   for (let entry of preparedEntries) {
     try {
@@ -144,16 +148,21 @@ async function updateIndexEntries(entries, userId) {
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
+      failedEntries.push(entry.name)
       console.log(err)
     } 
   }
   client.release();
   
-  return {message: 'Entries successfully updated'};
+  if (failedEntries.length) {
+    return {failedEntries: failedEntries, errorMessage: 'The following entries were not updated:'}
+  }
+  return {successMessage: 'Entries successfully updated'};
 }
 
-async function deleteIndexEntries(ids, userId) {
+async function deleteIndexEntries(entries, userId) {
   const client = await pool.connect();
+  const failedEntries = [];
 
   const deleteQuery = `
     DELETE FROM food_index
@@ -161,17 +170,21 @@ async function deleteIndexEntries(ids, userId) {
     AND user_id = $2;
   `;
 
-  for (let id of ids) {
+  for (let entry of entries) {
     try {
-      let values = [id, userId]
+      let values = [entry.id, userId]
       const dbResult = await client.query(deleteQuery, values);
     } catch(err) {
       console.log(err);
+      failedEntries.push(entry.name)
     }
   }
   client.release();
 
-  return {message: 'Entries Successfully deleted'};
+  if (failedEntries.length) {
+    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not deleted:'}
+  }
+  return {successMessage: 'Entries successfully deleted'};
 }
 
 module.exports = {

@@ -9,9 +9,9 @@ import MessageContainer from './Messages';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
 
-
-function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, 
-  updateSelectedEntries, updateTableData }) {
+	
+function Table({ columns, data, entries, errorMessages, failedEntries, skipSelectedRowsReset, 
+	successMessages, status, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
     () => ({
@@ -74,10 +74,12 @@ function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, s
 
   return (
     <>
-    <p>Select which entries to add, and give an amount.</p>
+    	<p>Select which entries to add, and give an amount.</p>
 
-    {errorMessages.length > 0 && 
-      <MessageContainer messages={errorMessages}/>}
+			{successMessages.length > 0 && 
+        <MessageContainer messages={successMessages} variant='success' type='success'/>}
+      {errorMessages.length > 0 && 
+        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
 
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
@@ -128,7 +130,7 @@ export default function CreateLogTable(props) {
   let status = props.status;
   let userId = props.userId;
   let date = props.date;
-  let formattedDate = getFormattedDate(date, 'url')
+  let formattedDate = getFormattedDate(date, 'url');
   
   const columns = React.useMemo(
     () => [
@@ -224,21 +226,23 @@ export default function CreateLogTable(props) {
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
   const [errorMessages, setErrorMessages] = React.useState([]);
+	const [successMessages, setSuccessMessages] = React.useState([]);
+	const [failedEntries, setFailedEntries] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
 
     getEntries(url)
-      .then(response => {
-        if (response.ok) {
-          return response.json();
+      .then(body => {
+        if (typeof body.errorMessage !== 'undefined') {
+          setErrorMessages([body.errorMessage]);
+					return [];
         } else {
-          return {entries: []};
+          return body.entries;
         }
       })
-      .then((body) => {
-        const indexEntries = body.entries;
-        const preparedEntries = prepareEntries(indexEntries, status)
+      .then(entries => {
+        const preparedEntries = prepareEntries(entries, status)
         setEntries(preparedEntries);
         setData(preparedEntries);
       })
@@ -266,20 +270,25 @@ export default function CreateLogTable(props) {
 
     for (let rowId of Object.keys(selectedEntries)) {
       entriesToCreate.push({
+				amount: data[rowId].amount, 
+				amount_unit: data[rowId].amount_unit,
         id: data[rowId].id, 
-        amount: data[rowId].amount, 
-        amount_unit: data[rowId].amount_unit
+        name: data[rowId].name
       });
     }
 
     if (entriesToCreate.length) {
       let url = `/api/${userId}/logs?date=${formattedDate}`;
       createEntries(url, entriesToCreate)
-        .then(response => {
-          if (response.ok) {
-            setSkipSelectedRowsReset(false);
-            resetData();
-          }
+        .then(body => {
+          if (typeof body.errorMessage !== 'undefined') {
+						setErrorMessages([body.errorMessage]);
+						setFailedEntries(body.failedEntries);
+          } else if (typeof body.successMessage !== 'undefined') {
+						setSuccessMessages([body.successMessage]);
+					}
+					setSkipSelectedRowsReset(false);
+					resetData();
         })
         .catch(err => {
           console.log(err)
@@ -312,7 +321,9 @@ export default function CreateLogTable(props) {
           status={status}
           entries={entries}
           errorMessages={errorMessages}
+					failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
+					successMessages={successMessages}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
         />

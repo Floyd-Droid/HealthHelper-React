@@ -1,9 +1,9 @@
 export async function getEntries(url) {
   try {
     const res = await fetch(url);
-    return res;
+    return res.json();
   } catch (err) {
-    console.log('err in getEntries: ', err);
+    console.log(err);
   }
 }
 
@@ -15,9 +15,9 @@ export async function updateEntries(url, entries) {
       body: JSON.stringify(entries)
     });
 
-    return res;
+    return res.json();
   } catch (err) {
-    console.log('err in updateEntries: ', err);
+    console.log(err);
   }
 } 
 
@@ -29,30 +29,30 @@ export async function createEntries(url, entries) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(entries)
     });
-    return res;
+    return res.json();
   } catch (err) {
     console.log(err);
   }
 }
 
 export async function createOrUpdateEntries(url, newEntries, editedEntries) {
-  let result = {messages: [], errors: []};
+  let result = {successMessages: [], errorMessages: []};
 
   try {
     if (newEntries.length) {
-      const createRes = await createEntries(url, newEntries);
-      if (createRes.ok) {
-        result.messages.push('Creation successful');
+      const createBody = await createEntries(url, newEntries);
+      if (typeof createBody.errorMessage === 'undefined') {
+        result.successMessages.push(createBody.successMessage)
       } else {
-        result.errors.push('Creation failed');
+        result.errorMessages.push(createBody.errorMessage)
       }
     }
     if (editedEntries.length) {
-      const updateRes = await updateEntries(url, editedEntries);
-      if (updateRes.ok) {
-        result.messages.push('Update successful');
+      const updateBody = await updateEntries(url, editedEntries);
+      if (typeof updateBody.errorMessage === 'undefined') {
+        result.successMessages.push(updateBody.successMessage)
       } else {
-        result.errors.push('Update failed');
+        result.errorMessages.push(updateBody.errorMessage)
       }
     }
 
@@ -62,15 +62,15 @@ export async function createOrUpdateEntries(url, newEntries, editedEntries) {
   }
 }
 
-export async function deleteEntries(url, entryIds) {
+export async function deleteEntries(url, entries) {
   try {
     const res = await fetch(url, {
       method: 'DELETE',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(entryIds)
+      body: JSON.stringify(entries)
     });
 
-    return res;
+    return res.json();
   } catch(err) {
     console.log(err);
   }
