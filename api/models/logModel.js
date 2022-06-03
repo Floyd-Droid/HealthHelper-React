@@ -4,7 +4,7 @@ const { convertEmptyStringToNull } = require("./dbData.js");
 async function getLogEntries(userId, date) {
 
   const q = `
-    SELECT logs.id, logs.index_id, logs.amount, logs.amount_unit,
+    SELECT logs.id, logs.index_id, logs.amount, logs.amount_unit, logs.timestamp_added,
       food_index.name, food_index.serving_by_weight, food_index.weight_unit,
       food_index.serving_by_volume, food_index.volume_unit, food_index.serving_by_item,
       food_index_macro.calories, food_index_macro.total_fat, food_index_macro.sat_fat,
@@ -19,7 +19,7 @@ async function getLogEntries(userId, date) {
     LEFT JOIN cost ON logs.index_id = cost.id
     WHERE logs.user_id = $1
     AND logs.timestamp_added::date = date ($2)
-    ORDER BY logs.timestamp_added ASC;
+    ORDER BY logs.id DESC;
   `;
 
     try {
@@ -38,8 +38,8 @@ async function createLogEntries(entries, userId, date) {
   const failedEntries = [];
 
   const createLogsQuery = `
-  INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
-  VALUES ($1, $2, date ($3), $4, $5);
+    INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
+    VALUES ($1, $2, date ($3), $4, $5);
   `
 
   for (let entry of preparedEntries) {
