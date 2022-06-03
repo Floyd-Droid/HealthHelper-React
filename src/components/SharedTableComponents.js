@@ -137,6 +137,7 @@ export const CalculatedCell = ({
 
       let precision = colId === 'cost_per_serving' ? 2 : 1;
       result = round(Number(servings) * Number(originalValue), precision);
+      result = isNaN(result) ? '' : result;
       }
     }
     
@@ -180,8 +181,8 @@ export const Input = ({
   React.useEffect(() => {
     setValue(initialCellValue);
     
-    // Highlight flashes briefly upon new date submission due to offset in state update
-    // Equal length between data and entries ensures the state has fully updated
+    // Highlight flashes briefly upon new date submission due to offset in state update.
+    // Equal length between data and entries ensures the state has fully updated.
     if (data.length === entries.length) {
       if (String(initialCellValue) === String(originalValue)) { 
         setIsEdited(false);
