@@ -226,12 +226,11 @@ export const Input = ({
 
   return (
     <>
-      {entries.length === data.length && 
-        <div className={divClassName}>
-          <input className={inputClassName} 
-            style={colId==='name' ? {} : {width: '40px'}}
-            value={value} onChange={onChange} />
-        </div>}
+			<div className={divClassName}>
+				<input className={inputClassName} 
+					style={colId==='name' ? {} : {width: '40px'}}
+					value={value} onChange={onChange} />
+			</div>
     </>
 
   );
