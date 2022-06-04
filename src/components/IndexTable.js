@@ -11,7 +11,7 @@ import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
 	
-function Table({ columns, data, entries, errorMessages, failedEntries, skipSelectedRowsReset, status, successMessages,
+function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, successMessages,
   updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
 
   const defaultColumn = React.useMemo(
@@ -241,7 +241,6 @@ export default function IndexTable(props) {
   const [errorMessages, setErrorMessages] = React.useState([]);
   const [successMessages, setSuccessMessages] = React.useState([]);
   const [validationMessages, setValidationMessages] = React.useState([]);
-  const [failedEntries, setFailedEntries] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -330,7 +329,6 @@ export default function IndexTable(props) {
           } 
           if (body.errorMessages.length) {
             setErrorMessages(body.errorMessages);
-            setFailedEntries(failedEntries);
           }
           setEditedRowIndices([]);
           fetchEntries();
@@ -396,7 +394,6 @@ export default function IndexTable(props) {
         .then(body => {
           if (typeof body.errorMessage !== 'undefined') {
 						setErrorMessages([body.errorMessage]);
-            setFailedEntries(body.failedEntries);
           } else if (typeof body.successMessage !== 'undefined') {
 						setSuccessMessages([body.successMessage]);
 					}
@@ -432,7 +429,6 @@ export default function IndexTable(props) {
           data={data}
           entries={entries}
           errorMessages={errorMessages}
-          failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
           successMessages={successMessages}

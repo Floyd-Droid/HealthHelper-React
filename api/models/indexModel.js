@@ -1,8 +1,7 @@
 const { pool } = require("../db.js");
-const { convertEmptyStringToNull } = require("./dbData.js");
+const { convertEmptyStringToNull, makeEntryNameList } = require("./dbData.js");
 
 async function getIndexEntries(userId) {
-
   const getEntriesQuery = `
     SELECT food_index.id, food_index.name, food_index.serving_by_weight, food_index.weight_unit, 
       food_index.serving_by_volume, food_index.volume_unit, food_index.serving_by_item,
@@ -73,7 +72,8 @@ async function createIndexEntries(entries, userId) {
   client.release();
 
   if (failedEntries.length) {
-    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not created:'}
+		const entryNameList = makeEntryNameList(failedEntries);
+    return {errorMessage: 'The following entries were not created: ' + entryNameList}
   }
   return {successMessage: 'Entries successfully created'};
 }
@@ -155,7 +155,8 @@ async function updateIndexEntries(entries, userId) {
   client.release();
   
   if (failedEntries.length) {
-    return {failedEntries: failedEntries, errorMessage: 'The following entries were not updated:'}
+		const entryNameList = makeEntryNameList(failedEntries);
+    return {errorMessage: 'The following entries were not updated: ' + entryNameList}
   }
   return {successMessage: 'Entries successfully updated'};
 }
@@ -182,7 +183,8 @@ async function deleteIndexEntries(entries, userId) {
   client.release();
 
   if (failedEntries.length) {
-    return {failedEdntries: failedEntries, errorMessage: 'The following entries were not deleted:'}
+		const entryNameList = makeEntryNameList(failedEntries);
+    return {errorMessage: 'The following entries were not deleted: ' + entryNameList}
   }
   return {successMessage: 'Entries successfully deleted'};
 }

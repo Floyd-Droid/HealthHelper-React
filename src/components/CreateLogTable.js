@@ -227,7 +227,6 @@ export default function CreateLogTable(props) {
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
   const [errorMessages, setErrorMessages] = React.useState([]);
 	const [successMessages, setSuccessMessages] = React.useState([]);
-	const [failedEntries, setFailedEntries] = React.useState([]);
 
   const fetchEntries = () => {
     const url = `/api/${userId}/index`;
@@ -283,7 +282,6 @@ export default function CreateLogTable(props) {
         .then(body => {
           if (typeof body.errorMessage !== 'undefined') {
 						setErrorMessages([body.errorMessage]);
-						setFailedEntries(body.failedEntries);
           } else if (typeof body.successMessage !== 'undefined') {
 						setSuccessMessages([body.successMessage]);
 					}
@@ -321,7 +319,6 @@ export default function CreateLogTable(props) {
           status={status}
           entries={entries}
           errorMessages={errorMessages}
-					failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
 					successMessages={successMessages}
           updateSelectedEntries={updateSelectedEntries}

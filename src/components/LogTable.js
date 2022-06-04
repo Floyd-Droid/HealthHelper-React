@@ -11,7 +11,7 @@ import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select
   SumFooter, TextFilter } from './SharedTableComponents';
 
 
-function Table({ columns, data, date, entries, errorMessages, failedEntries, skipSelectedRowsReset, status, successMessages,
+function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsReset, status, successMessages,
   updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
 
   const defaultColumn = React.useMemo(
@@ -237,7 +237,6 @@ export default function LogTable(props) {
   const [errorMessages, setErrorMessages] = React.useState([]);
 	const [successMessages, setSuccessMessages] = React.useState([]);
   const [validationMessages, setValidationMessages] = React.useState([]);
-  const [failedEntries, setFailedEntries] = React.useState([]);
   
   const fetchEntries = () => {
     const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
@@ -248,6 +247,7 @@ export default function LogTable(props) {
 				setErrorMessages([body.errorMessage]);
 				return [];
 			} else {
+				setErrorMessages([]);
 				return body.entries;
 			}
     })
@@ -317,7 +317,6 @@ export default function LogTable(props) {
         .then(body => {
           if (typeof body.errorMessage !== 'undefined') {
 						setErrorMessages([body.errorMessage]);
-						setFailedEntries(body.failedEntries);
           } else if (typeof body.successMessage !== 'undefined') {
 						setSuccessMessages([body.successMessage]);
 					}
@@ -353,7 +352,6 @@ export default function LogTable(props) {
         .then(body => {
           if (typeof body.errorMessage !== 'undefined') {
 						setErrorMessages([body.errorMessage]);
-						setFailedEntries(body.failedEntries);
           } else if (typeof body.successMessage !== 'undefined') {
 						setSuccessMessages([body.successMessage]);
 					}
@@ -391,7 +389,6 @@ export default function LogTable(props) {
           date={date}
           entries={entries}
           errorMessages={errorMessages}
-					failedEntries={failedEntries}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
 					successMessages={successMessages}
