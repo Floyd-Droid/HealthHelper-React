@@ -240,11 +240,14 @@ export default function IndexTable(props) {
           return {entries: []};
         }
       })
-      .then((body) => {
-        const indexEntries = body.entries;
-        const preparedEntries = prepareEntries(indexEntries, status);
-        setEntries(preparedEntries);
-        setData(preparedEntries);
+      .then((entries) => {
+				if (entries.length) {
+					const preparedEntries = prepareEntries(entries, status);
+					setEntries(preparedEntries);
+					setData(preparedEntries);
+				} else {
+					addNewRow();
+				}
       })
       .catch((err) => {
         console.log(err)
@@ -353,7 +356,7 @@ export default function IndexTable(props) {
 
     setSkipSelectedRowsReset(false);
     setEntries(entriesCopy);
-    setData(dataCopy);
+		setData(dataCopy)
     
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
