@@ -19,7 +19,7 @@ async function getIndexEntries(userId) {
   `;
 
   try {
-    let values = [userId];
+    const values = [userId];
     const dbResponse = await pool.query(getEntriesQuery, values);
     return {entries: dbResponse.rows};
   } catch (err) {
@@ -34,28 +34,29 @@ async function createIndexEntries(entries, userId) {
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
 
-  for (let entry of preparedEntries) {
+	const createEntryQuery = `
+		WITH index_insert AS (
+			INSERT INTO food_index 
+				(user_id, name, serving_by_weight, weight_unit, serving_by_volume, volume_unit, serving_by_item) VALUES
+				($1, $2, $3, $4, $5, $6, $7) RETURNING id AS new_entry_id
+			),
+		index_macro_insert AS (
+			INSERT INTO food_index_macro
+				(id, calories, total_fat, sat_fat, trans_fat, poly_fat, mono_fat, cholesterol, sodium, total_carbs, 
+					total_fiber, sol_fiber, insol_fiber, total_sugars, added_sugars, protein) VALUES
+				(
+					(SELECT new_entry_id FROM index_insert), 
+					$8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
+				)
+			)
+		INSERT INTO cost
+			(id, cost_per_container, servings_per_container) 
+			SELECT new_entry_id, $23, $24 FROM index_insert;
+	`;
+
+  for (const entry of preparedEntries) {
     try {
-      const createEntryQuery = `
-        WITH index_insert AS (
-          INSERT INTO food_index 
-            (user_id, name, serving_by_weight, weight_unit, serving_by_volume, volume_unit, serving_by_item) VALUES
-            ($1, $2, $3, $4, $5, $6, $7) RETURNING id AS new_entry_id
-          ),
-        index_macro_insert AS (
-          INSERT INTO food_index_macro
-            (id, calories, total_fat, sat_fat, trans_fat, poly_fat, mono_fat, cholesterol, sodium, total_carbs, 
-              total_fiber, sol_fiber, insol_fiber, total_sugars, added_sugars, protein) VALUES
-            (
-              (SELECT new_entry_id FROM index_insert), 
-              $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22
-            )
-          )
-        INSERT INTO cost
-          (id, cost_per_container, servings_per_container) 
-          SELECT new_entry_id, $23, $24 FROM index_insert;
-      `;
-      let values = [userId, entry.name, entry.serving_by_weight,
+      const values = [userId, entry.name, entry.serving_by_weight,
         entry.weight_unit, entry.serving_by_volume, entry.volume_unit,
         entry.serving_by_item, entry.calories, entry.total_fat, entry.sat_fat,
         entry.trans_fat, entry.poly_fat, entry.mono_fat, entry.cholesterol,
@@ -83,66 +84,67 @@ async function updateIndexEntries(entries, userId) {
 
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
+
+	const foodIndexQuery = `
+		UPDATE food_index
+		SET
+			name = $1,
+			serving_by_weight = $2,
+			weight_unit = $3,
+			serving_by_volume = $4,
+			volume_unit = $5,
+			serving_by_item = $6
+		WHERE food_index.id = $7
+		AND user_id = $8; 
+	`;
+
+	const foodIndexMacroQuery = `
+		UPDATE food_index_macro
+		SET
+			calories = $1,
+			total_fat = $2,
+			sat_fat = $3,
+			trans_fat = $4,
+			poly_fat = $5,
+			mono_fat = $6,
+			cholesterol = $7,
+			sodium = $8,
+			total_carbs = $9,
+			total_fiber = $10,
+			sol_fiber = $11,
+			insol_fiber = $12,
+			total_sugars = $13,
+			added_sugars = $14,
+			protein = $15
+		WHERE food_index_macro.id = $16;
+	`;
+
+	const costQuery = `
+		UPDATE cost
+		SET
+			cost_per_container = $1,
+			servings_per_container = $2
+		WHERE cost.id = $3;
+	`;
   
-  for (let entry of preparedEntries) {
+  for (const entry of preparedEntries) {
     try {
       await client.query('BEGIN');
-      const foodIndexQuery = `
-        UPDATE food_index
-        SET
-          name = $1,
-          serving_by_weight = $2,
-          weight_unit = $3,
-          serving_by_volume = $4,
-          volume_unit = $5,
-          serving_by_item = $6
-        WHERE food_index.id = $7
-        AND user_id = $8; 
-      `;
 
-      let foodIndexValues = [entry.name, entry.serving_by_weight, entry.weight_unit, entry.serving_by_volume,
-      entry.volume_unit, entry.serving_by_item, entry.id, userId];
+      const foodIndexValues = [entry.name, entry.serving_by_weight, entry.weight_unit, entry.serving_by_volume,
+      	entry.volume_unit, entry.serving_by_item, entry.id, userId];
 
       const res = await client.query(foodIndexQuery, foodIndexValues);
 
-      const foodIndexMacroQuery = `
-        UPDATE food_index_macro
-        SET
-          calories = $1,
-          total_fat = $2,
-          sat_fat = $3,
-          trans_fat = $4,
-          poly_fat = $5,
-          mono_fat = $6,
-          cholesterol = $7,
-          sodium = $8,
-          total_carbs = $9,
-          total_fiber = $10,
-          sol_fiber = $11,
-          insol_fiber = $12,
-          total_sugars = $13,
-          added_sugars = $14,
-          protein = $15
-        WHERE food_index_macro.id = $16;
-      `;
-
-      let foodIndexMacroValues = [entry.calories, entry.total_fat, entry.sat_fat,
-      entry.trans_fat, entry.poly_fat, entry.mono_fat,
-      entry.cholesterol, entry.sodium, entry.total_carbs,
-      entry.total_fiber, entry.sol_fiber, entry.insol_fiber,
-      entry.total_sugars, entry.added_sugars, entry.protein, entry.id];
+      const foodIndexMacroValues = [entry.calories, entry.total_fat, entry.sat_fat,
+				entry.trans_fat, entry.poly_fat, entry.mono_fat,
+				entry.cholesterol, entry.sodium, entry.total_carbs,
+				entry.total_fiber, entry.sol_fiber, entry.insol_fiber,
+				entry.total_sugars, entry.added_sugars, entry.protein, entry.id];
 
       await client.query(foodIndexMacroQuery, foodIndexMacroValues);
 
-      const costQuery = `
-        UPDATE cost
-        SET
-          cost_per_container = $1,
-          servings_per_container = $2
-        WHERE cost.id = $3;
-      `;
-
-      let costValues = [entry.cost_per_container, entry.servings_per_container, entry.id];
+      const costValues = [entry.cost_per_container, entry.servings_per_container, entry.id];
 
       await client.query(costQuery, costValues);
       await client.query('COMMIT');
@@ -171,9 +173,9 @@ async function deleteIndexEntries(entries, userId) {
     AND user_id = $2;
   `;
 
-  for (let entry of entries) {
+  for (const entry of entries) {
     try {
-      let values = [entry.id, userId]
+      const values = [entry.id, userId]
       const dbResult = await client.query(deleteQuery, values);
     } catch(err) {
       console.log(err);

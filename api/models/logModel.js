@@ -41,9 +41,9 @@ async function createLogEntries(entries, userId, date) {
     VALUES ($1, $2, date ($3), $4, $5);
   `
 
-  for (let entry of preparedEntries) {
+  for (const entry of preparedEntries) {
     try {
-      let values = [entry.id, userId, date, entry.amount, entry.amount_unit];
+      const values = [entry.id, userId, date, entry.amount, entry.amount_unit];
       const dbResult = await client.query(createLogsQuery, values);
     } catch(err) {
       console.log(err)
@@ -65,20 +65,19 @@ async function updateLogEntries(entries, userId, date) {
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
 
-  for (let entry of preparedEntries) {
+	const updateLogsQuery = `
+		UPDATE logs
+		SET
+			amount = $1,
+			amount_unit = $2
+		WHERE id = $3
+		AND user_id = $4
+		AND timestamp_added::date = date ($5);
+	`;
+
+  for (const entry of preparedEntries) {
     try {
-
-      const updateLogsQuery = `
-        UPDATE logs
-        SET
-          amount = $1,
-          amount_unit = $2
-        WHERE id = $3
-        AND user_id = $4
-        AND timestamp_added::date = date ($5);
-      `;
-
-      let values = [entry.amount, entry.amount_unit, entry.id, userId, date];
+      const values = [entry.amount, entry.amount_unit, entry.id, userId, date];
       await client.query(updateLogsQuery, values);
     } catch (err) {
       console.log(err)
@@ -105,9 +104,9 @@ async function deleteLogEntries(entries, userId, date) {
     AND timestamp_added::date = date ($3);
   `
 
-  for (let entry of entries) {
+  for (const entry of entries) {
     try {
-      let values = [entry.id, userId, date]
+      const values = [entry.id, userId, date]
       await client.query(deleteLogsQuery, values)
     } catch(err) {
       console.log(err)
