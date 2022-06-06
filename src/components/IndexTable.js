@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
-import { prepareEntries } from '../services/TableData';
+import { newIndexRow, prepareEntries } from '../services/TableData';
 import { validateIndexSubmission} from '../services/Validation.js';
 
 import IndexButtons from './buttons/IndexButtons';
@@ -255,18 +255,23 @@ export default function IndexTable(props) {
         }
       })
       .then((entries) => {
-				if (entries.length) {
-					const preparedEntries = prepareEntries(entries, status);
-					setEntries(preparedEntries);
-					setData(preparedEntries);
-				} else {
-					addNewRow();
-				}
+				const preparedEntries = prepareEntries(entries, status);
+				setTable(preparedEntries, preparedEntries);
       })
       .catch((err) => {
         console.log(err);
       })
   }
+
+	const setTable = (potentialData, potentialEntries) => {
+		if (potentialData.length) {
+			setEntries(potentialEntries);
+			setData(potentialData);
+		} else {
+			setEntries([newIndexRow]);
+			setData([newIndexRow]);
+		}
+	}
 
   const updateTableData = (rowIndex, columnId, value) => {
     setData(old =>
@@ -338,33 +343,7 @@ export default function IndexTable(props) {
   }
 
   const addNewRow = () => {
-    const newRow = {
-      name: '',
-      serving_by_weight: '',
-      weight_unit: '',
-      serving_by_volume: '',
-      volume_unit: '',
-      serving_by_item: '',
-      calories: '',
-      total_fat: '',
-      sat_fat: '',
-      trans_fat: '',
-      poly_fat: '',
-      mono_fat: '',
-      cholesterol: '',
-      sodium: '',
-      total_carbs: '',
-      total_fiber: '',
-      sol_fiber: '',
-      insol_fiber: '',
-      total_sugars: '',
-      added_sugars: '',
-      protein: '',
-      cost_per_container: '',
-      servings_per_container: '',
-      cost_per_serving: '',
-    };
-    setData(old => [...old, newRow]);
+		setData(old => [...old, newIndexRow]);
   }
 
   const deleteRows = () => {
@@ -384,9 +363,8 @@ export default function IndexTable(props) {
     }
 
     setSkipSelectedRowsReset(false);
-    setEntries(entriesCopy);
-		setData(dataCopy)
-    
+		setTable(dataCopy, entriesCopy);
+		
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
 

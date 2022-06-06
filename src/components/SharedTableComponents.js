@@ -104,6 +104,7 @@ export function NumberRangeFilter({
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
+	data, 
   entries,
   updateTableData
 }) => {
@@ -140,16 +141,18 @@ export const CalculatedCell = ({
       result = isNaN(result) ? '' : result;
       }
     }
-    
+
     return result;
   }, [amount, unit, originalEntry, originalValue])
 
   React.useEffect(() => {
-    updateTableData(index, colId, value);
-  }, [value])
+		if (data[index][colId] !== value) {
+			updateTableData(index, colId, value);
+		}
+  }, [value, original])
 
   return (
-    <div>
+    <div className='d-flex justify-content-center align-items-center'>
       {value}
     </div>
   );
@@ -184,7 +187,7 @@ export const Input = ({
     // Highlight flashes briefly upon new date submission due to offset in state update.
     // Equal length between data and entries ensures the state has fully updated.
     if (data.length === entries.length) {
-      if (String(initialCellValue) === String(originalValue)) { 
+      if (String(initialCellValue) === String(originalValue) || original.isPlaceholder) { 
         setIsEdited(false);
       } else {
         setIsEdited(true);
@@ -192,9 +195,9 @@ export const Input = ({
     }
   }, [initialCellValue, original.amount_unit, entries]);
 
-  React.useEffect(() => {
+	React.useEffect(() => {
     // In the case of user removal of corresponding index unit
-    if (colId === 'amount' && original.amount_unit === '---') {
+    if (colId === 'amount' && original.reset) {
       updateEditedRowIndices(index, 'add');
       updateTableData(index, colId, '')
     }
@@ -221,19 +224,29 @@ export const Input = ({
     }
   }
 
-  let divClassName = isEdited ? 'bg-cell-edit' : '';
-  let inputClassName = colId === 'name' ? `${colId} text-left` : `${colId} text-center`;
-  inputClassName += ' p-0 m-0 border-0';
+  let divClassName = 'cell-container d-flex justify-content-center align-items-center';
+	if (isEdited) {
+		divClassName += ' bg-cell-edit';
+	}
+
+  let inputClassName =`h-75 p-0 m-0 border-0`;
+
+	if (colId === 'name') {
+		inputClassName += ' text-left'
+	} else {
+		inputClassName += ' text-center'
+	}
 
   return (
-    <>
+		<>
 			<div className={divClassName}>
-				<input className={inputClassName} 
-					style={colId==='name' ? {} : {width: '40px'}}
-					value={value} onChange={onChange} />
+				{!original.isPlaceholder &&
+					<input className={inputClassName}
+						style={colId==='name' ? {} : {width: '40px'}}
+						value={value} onChange={onChange} />
+				}
 			</div>
-    </>
-
+		</>
   );
 }
 
@@ -266,18 +279,19 @@ export const Select = ({
     ...(original.volume_unit ? [original.volume_unit] : []),
     ...(original.serving_by_item ? ['items'] : []),
   ];
-  
-  React.useEffect(() => {
+
+	React.useEffect(() => {
     if (colId === 'amount_unit' && ![...amountUnits, '---'].includes(initialCellValue)) {
       updateEditedRowIndices(index, 'add');
       setValue("---")
       updateTableData(index, colId, "---");
+			updateTableData(index, 'reset', true);
     } else {
       setValue(initialCellValue);
     }
 
     if (data.length === entries.length) {
-      if (String(initialCellValue) === String(originalValue) || (originalValue === '' && initialCellValue !== '')) {
+      if (String(initialCellValue) === String(originalValue)) {
         setIsEdited(false);
       } else {
         setIsEdited(true);
@@ -312,19 +326,25 @@ export const Select = ({
     }
   }
 
-  let divClassName = isEdited ? 'bg-cell-edit' : ''
-  divClassName += ' p-2 m-0';
+	let divClassName = 'cell-container d-flex justify-content-center align-items-center p-2 m-0';
+  if (isEdited) {
+		divClassName += ' bg-cell-edit'
+	}
 
-  return (
-    <div className={divClassName}>
-      <select className={ `${colId}` } value={value} onChange={onChange}
-        style={(colId === 'amount_unit' ? {width: '95px'} : {...(colId==='weight_unit' ? {width: '55px'} : {width: '75px'})})}>
-        {(colId!=='amount_unit' || value==="---") ? <option key='0' value=''>---</option> : null}
-        {units.map((unit, i) => {
-          return <option key={i} value={unit}>{unit}</option>
-        })}
-      </select>
-    </div>
+	return (
+		<>
+			<div className={divClassName}>
+				{!original.isPlaceholder &&
+					<select className={ `${colId} p-0` } value={value} onChange={onChange}
+						style={(colId === 'amount_unit' ? {width: '85px'} : {...(colId==='weight_unit' ? {width: '50px'} : {width: '60px'})})}>
+						{(colId!=='amount_unit' || value==="---") ? <option key='0' value=''>---</option> : null}
+						{units.map((unit, i) => {
+							return <option key={i} value={unit}>{unit}</option>
+						})}
+					</select>
+				}
+			</div>
+		</>
   );
 }
 
@@ -345,7 +365,7 @@ export const IndexCostCell = ({
   }, [servingsPerContainer, costPerContainer])
 
   return (
-    <div>
+    <div className = 'cell-container d-flex justify-content-center align-items-center'>
       {value}
     </div>
   )
@@ -372,8 +392,8 @@ export const SumFooter = ({
     }, [selectedRowIds, data]
   )
 
-  let selectedTotalDivClassName = 'text-center py-2';
-  let totalDivClassName = 'text-center py-2';
+	let selectedTotalDivClassName = 'py-2';
+  let totalDivClassName = 'py-2';
 
   if (status === 'logs') {
     selectedTotalDivClassName += ' border-bottom'

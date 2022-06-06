@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import { getEntries, createEntries } from '../services/EntryService';
-import { getFormattedDate, prepareEntries } from '../services/TableData';
+import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 
 import CreateLogButtons from './buttons/CreateLogButtons';
 import MessageContainer from './Messages';
@@ -116,7 +116,7 @@ function Table({ columns, data, entries, errorMessages, failedEntries, skipSelec
           {footerGroups.map(group => (
             <tr {...group.getFooterGroupProps()}>
               {group.headers.map(column => (
-                <td className='bg-white border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
+                <td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
               ))}
             </tr>
           ))}
@@ -241,9 +241,14 @@ export default function CreateLogTable(props) {
         }
       })
       .then(entries => {
-        const preparedEntries = prepareEntries(entries, status)
-        setEntries(preparedEntries);
-        setData(preparedEntries);
+				if (entries.length) {
+					const preparedEntries = prepareEntries(entries, status)
+					setEntries(preparedEntries);
+					setData(preparedEntries);
+				} else {
+					setData([placeholderLogRow])
+				}
+
       })
       .catch(err => {
         console.log('log table error: ', err)
@@ -327,6 +332,7 @@ export default function CreateLogTable(props) {
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <CreateLogButtons
+					data={data}
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
           onSubmit={submitChanges}

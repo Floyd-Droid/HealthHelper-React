@@ -23,7 +23,7 @@ export default class IndexButtons extends React.Component {
 
   handleNav(e) {
     e.preventDefault();
-    this.props.onNavSubmit('logs');
+    this.props.onNavSubmit(e.target.value);
   }
 
   handleResetData(e) {
@@ -40,7 +40,7 @@ export default class IndexButtons extends React.Component {
     return (
       <form>
         <div className='d-flex justify-content-start'>
-          <button type='button' className='btn bg-btn mr-3' onClick={this.handleNav}>Go to logs</button>
+          <button type='button' className='btn bg-btn mr-3' onClick={this.handleNav} value='logs'>Go to logs</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleAddNewRow}>+</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleDeleteEntries}>Delete selected entries</button>
           <button type='button' className='btn bg-btn mx-3' onClick={this.handleResetData}>Undo changes</button>

@@ -1,6 +1,15 @@
 input {
   background-color: inherit; }
 
+html {
+  font-size: 14px; }
+
+.table > thead > tr > th {
+  font-size: 1.1em; }
+
+.table > tbody > tr > th {
+  font-size: 1em; }
+
 button.date-btn {
   height: 30px; }
 
@@ -8,15 +17,16 @@ input.date-input {
   width: 100px;
   height: 30px; }
 
+div.cell-container {
+  height: 40px; }
+
 .table > tbody > tr:nth-child(odd) > td,
 .table > tbody > tr:nth-child(odd) > th {
-  background-color: white;
-  /* Choose your own color here */ }
+  background-color: white; }
 
 .table > tbody > tr:nth-child(even) > td,
 .table > tbody > tr:nth-child(even) > th {
-  background-color: #ebe9e7;
-  /* Choose your own color here */ }
+  background-color: #ebe9e7; }
 
 .table-striped > tbody > tr > td:nth-child(2) {
   text-align: left !important; }

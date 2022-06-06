@@ -2,7 +2,7 @@ import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
-import { getFormattedDate, prepareEntries } from '../services/TableData';
+import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 import { validateLogSubmission } from '../services/Validation';
 
 import LogButtons from './buttons/LogButtons';
@@ -108,8 +108,8 @@ function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsRe
             </tr>
           ))}
         </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
+        <tbody {...getTableBodyProps()}>	
+					{rows.map((row, i) => {
             prepareRow(row)
             return (
               <tr {...row.getRowProps()}>
@@ -124,7 +124,7 @@ function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsRe
         {footerGroups.map(group => (
           <tr {...group.getFooterGroupProps()}>
             {group.headers.map(column => (
-              <td className='bg-white border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
+              <td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
             ))}
           </tr>
         ))}
@@ -252,14 +252,23 @@ export default function LogTable(props) {
 			}
     })
     .then(entries => {
-      let preparedEntries = prepareEntries(entries, status);
-      setEntries(preparedEntries);
-      setData(preparedEntries);
+			const preparedEntries = prepareEntries(entries, status);
+			setTable(preparedEntries, preparedEntries);
     })
     .catch((err) => {
       console.log(err)
     })
   }
+
+	const setTable = (potentialData, potentialEntries) => {
+		if (potentialData.length) {
+			setEntries(potentialEntries);
+			setData(potentialData);
+		} else {
+			setEntries([placeholderLogRow])
+			setData([placeholderLogRow])
+		}
+	}
 
   const updateTableData = (rowIndex, columnId, value) => {
     setSkipSelectedRowsReset(true);
@@ -342,8 +351,8 @@ export default function LogTable(props) {
     }
 
     setSkipSelectedRowsReset(false);
-    setEntries(entriesCopy);
-    setData(dataCopy);
+		setTable(dataCopy, entriesCopy);
+    
 
     if (entryIds.length) {
       let url = `api/${userId}/logs?date=${formattedDate}`;
@@ -368,7 +377,7 @@ export default function LogTable(props) {
 
   const resetData = () => {
     setEditedRowIndices([]);
-    setData(entries);
+		setData(entries);
   }
 
   React.useEffect(() => {
@@ -400,6 +409,7 @@ export default function LogTable(props) {
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
         <LogButtons
+					data={data}
           onDeleteRows={deleteRows}
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
