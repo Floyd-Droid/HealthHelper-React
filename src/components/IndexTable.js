@@ -242,25 +242,109 @@ export default function IndexTable(props) {
   const [successMessages, setSuccessMessages] = React.useState([]);
   const [validationMessages, setValidationMessages] = React.useState([]);
 
-  const fetchEntries = () => {
+  const fetchEntries = async () => {
     const url = `/api/${userId}/index`;
+		let entries;
 
-    getEntries(url)
-      .then(body => {
-        if (typeof body.errorMessage !== 'undefined') {
+		try {
+			const body = await getEntries(url);
+
+			if (typeof body.errorMessage !== 'undefined') {
+				setErrorMessages([body.errorMessage]);
+				entries = [];
+			} else {
+				entries = body.entries;
+			}
+	
+			const preparedEntries = prepareEntries(entries, status);
+			setTable(preparedEntries, preparedEntries);
+		} catch(err) {
+      console.log(err);
+    }
+  }
+
+	const submitChanges = async () => {
+    let validationErrors = validateIndexSubmission(data);
+
+    if (validationErrors.length) {
+      setValidationMessages(validationErrors);
+      return false;
+    } else {
+      setValidationMessages([]);
+    }
+
+    const editedEntries = [];
+    const newEntries = [];
+
+    // remove duplicate ids in the case of multiple edits per entry
+    const dedupedRowIds = [...new Set(editedRowIndices)];
+
+    for (let rowId of dedupedRowIds) {
+      editedEntries.push(data[rowId]);
+    }
+
+    for (let newEntry of data.reverse()) {
+      if (typeof newEntry.id !== 'undefined') {
+        break;
+      } 
+      newEntries.push(newEntry);
+    }
+
+    if (editedEntries.length || newEntries.length) {
+      const url = `api/${userId}/index`;
+
+			try {
+				const body = await createOrUpdateEntries(url, newEntries, editedEntries);
+
+				if (body.successMessages.length) {
+					setSuccessMessages(body.successMessages);
+				} 
+				if (body.errorMessages.length) {
+					setErrorMessages(body.errorMessages);
+				}
+
+				setEditedRowIndices([]);
+				fetchEntries();
+			} catch(err) {
+				console.log(err);
+    	}
+  	}
+	}
+
+	const deleteRows = async () => {
+    const existingEntryIds = [];
+    const dataCopy = [...data];
+    const entriesCopy = [...entries];
+
+    for (const rowId of Object.keys(selectedEntries).reverse()) {
+      if (typeof data[rowId].id !== 'undefined') {
+        existingEntryIds.push({
+					id: data[rowId].id,
+					name: data[rowId].name
+				});
+      }
+      dataCopy.splice(rowId, 1);
+      entriesCopy.splice(rowId, 1);
+    }
+
+    setSkipSelectedRowsReset(false);
+		setTable(dataCopy, entriesCopy);
+		
+    if (existingEntryIds.length) {
+      const url = `/api/${userId}/index`;
+
+			try {
+				const body = await deleteEntries(url, existingEntryIds);
+
+				if (typeof body.errorMessage !== 'undefined') {
 					setErrorMessages([body.errorMessage]);
-          return [];
-        } else {
-					return body.entries;
-        }
-      })
-      .then((entries) => {
-				const preparedEntries = prepareEntries(entries, status);
-				setTable(preparedEntries, preparedEntries);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+				} else if (typeof body.successMessage !== 'undefined') {
+					setSuccessMessages([body.successMessage]);
+				}
+			} catch(err) {
+          console.log(err);
+      }
+    }
   }
 
 	const setTable = (potentialData, potentialEntries) => {
@@ -297,89 +381,8 @@ export default function IndexTable(props) {
     }
   }
 
-  const submitChanges = () => {
-    let validationErrors = validateIndexSubmission(data);
-
-    if (validationErrors.length) {
-      setValidationMessages(validationErrors);
-      return false;
-    } else {
-      setValidationMessages([]);
-    }
-
-    const editedEntries = [];
-    const newEntries = [];
-
-    // remove duplicate ids in the case of multiple edits per entry
-    const dedupedRowIds = [...new Set(editedRowIndices)];
-
-    for (let rowId of dedupedRowIds) {
-      editedEntries.push(data[rowId]);
-    }
-
-    for (let newEntry of data.reverse()) {
-      if (typeof newEntry.id !== 'undefined') {
-        break;
-      } 
-      newEntries.push(newEntry);
-    }
-
-    if (editedEntries.length || newEntries.length) {
-      const url = `api/${userId}/index`;
-
-      createOrUpdateEntries(url, newEntries, editedEntries)
-        .then(body => {
-          if (body.successMessages.length) {
-            setSuccessMessages(body.successMessages);
-          } 
-          if (body.errorMessages.length) {
-            setErrorMessages(body.errorMessages);
-          }
-          setEditedRowIndices([]);
-          fetchEntries();
-        })
-        .catch(err => console.log(err));
-    }
-  }
-
   const addNewRow = () => {
 		setData(old => [...old, newIndexRow]);
-  }
-
-  const deleteRows = () => {
-    const existingEntryIds = [];
-    const dataCopy = [...data];
-    const entriesCopy = [...entries];
-
-    for (const rowId of Object.keys(selectedEntries).reverse()) {
-      if (typeof data[rowId].id !== 'undefined') {
-        existingEntryIds.push({
-					id: data[rowId].id,
-					name: data[rowId].name
-				});
-      }
-      dataCopy.splice(rowId, 1);
-      entriesCopy.splice(rowId, 1);
-    }
-
-    setSkipSelectedRowsReset(false);
-		setTable(dataCopy, entriesCopy);
-		
-    if (existingEntryIds.length) {
-      const url = `/api/${userId}/index`;
-
-      deleteEntries(url, existingEntryIds)
-        .then(body => {
-          if (typeof body.errorMessage !== 'undefined') {
-						setErrorMessages([body.errorMessage]);
-          } else if (typeof body.successMessage !== 'undefined') {
-						setSuccessMessages([body.successMessage]);
-					}
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-    }
   }
 
   const updateSelectedEntries = (selectedRowIds) => {

@@ -228,48 +228,33 @@ export default function CreateLogTable(props) {
   const [errorMessages, setErrorMessages] = React.useState([]);
 	const [successMessages, setSuccessMessages] = React.useState([]);
 
-  const fetchEntries = () => {
+  const fetchEntries = async () => {
     const url = `/api/${userId}/index`;
+		let entries;
 
-    getEntries(url)
-      .then(body => {
-        if (typeof body.errorMessage !== 'undefined') {
-          setErrorMessages([body.errorMessage]);
-					return [];
-        } else {
-          return body.entries;
-        }
-      })
-      .then(entries => {
-				if (entries.length) {
-					const preparedEntries = prepareEntries(entries, status)
-					setEntries(preparedEntries);
-					setData(preparedEntries);
-				} else {
-					setData([placeholderLogRow])
-				}
-
-      })
-      .catch(err => {
-        console.log('log table error: ', err)
-      })
+		try {
+			const body = await getEntries(url);
+	
+			if (typeof body.errorMessage !== 'undefined') {
+				setErrorMessages([body.errorMessage]);
+				entries = [];
+			} else {
+				entries = body.entries;
+			}
+	
+			if (entries.length) {
+				const preparedEntries = prepareEntries(entries, status);
+				setEntries(preparedEntries);
+				setData(preparedEntries);
+			} else {
+				setData([placeholderLogRow])
+			} 
+		} catch(err) {
+        console.log(err)
+    }
   }
 
-  const updateTableData = (rowIndex, columnId, value) => {
-    setData(old =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    )
-  }
-
-  const submitChanges = () => {
+  const submitChanges = async () => {
     const entriesToCreate = [];
 
     for (const rowId of Object.keys(selectedEntries)) {
@@ -283,20 +268,36 @@ export default function CreateLogTable(props) {
 
     if (entriesToCreate.length) {
       const url = `/api/${userId}/logs?date=${formattedDate}`;
-      createEntries(url, entriesToCreate)
-        .then(body => {
-          if (typeof body.errorMessage !== 'undefined') {
-						setErrorMessages([body.errorMessage]);
-          } else if (typeof body.successMessage !== 'undefined') {
-						setSuccessMessages([body.successMessage]);
-					}
-					setSkipSelectedRowsReset(false);
-					resetData();
-        })
-        .catch(err => {
-          console.log(err)
-        })
+
+			try {
+				const body = await createEntries(url, entriesToCreate);
+
+				if (typeof body.errorMessage !== 'undefined') {
+					setErrorMessages([body.errorMessage]);
+				} else if (typeof body.successMessage !== 'undefined') {
+					setSuccessMessages([body.successMessage]);
+				}
+
+				setSkipSelectedRowsReset(false);
+				resetData();
+			} catch(err) {
+          console.log(err);
+      }
     }
+  }
+
+	const updateTableData = (rowIndex, columnId, value) => {
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...old[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    )
   }
 
   const updateSelectedEntries = (selectedRowIds) => {
