@@ -135,10 +135,10 @@ function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsRe
 }
 
 export default function LogTable(props) {
-  let status = props.status;
-  let userId = props.userId;
-  let date = props.date;
-  let formattedDate = getFormattedDate(date, 'url');
+  const status = props.status;
+  const userId = props.userId;
+  const date = props.date;
+  const formattedDate = getFormattedDate(date, 'url');
   
   const columns = React.useMemo(
     () => [
@@ -296,7 +296,7 @@ export default function LogTable(props) {
   }
 
   const submitChanges = () => {
-    let validationErrors = validateLogSubmission(data);
+    const validationErrors = validateLogSubmission(data);
 
     if (validationErrors.length) {
       setValidationMessages(validationErrors);
@@ -310,7 +310,7 @@ export default function LogTable(props) {
     // remove duplicate indices in the case of multiple edits per entry
     const dedupedRowIndices = [...new Set(editedRowIndices)];
 
-    for (let rowId of dedupedRowIndices) {
+    for (const rowId of dedupedRowIndices) {
       editedEntries.push({
 				amount: data[rowId].amount,
 				amount_unit: data[rowId].amount_unit,
@@ -320,7 +320,7 @@ export default function LogTable(props) {
     }
 
     if (editedEntries.length) {
-      let url = `api/${userId}/logs?date=${formattedDate}`;
+      const url = `api/${userId}/logs?date=${formattedDate}`;
 
       updateEntries(url, editedEntries)
         .then(body => {
@@ -341,7 +341,7 @@ export default function LogTable(props) {
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
-    for (let rowId of Object.keys(selectedEntries).reverse()) {
+    for (const rowId of Object.keys(selectedEntries).reverse()) {
       entryIds.push({
 				id: data[rowId].id,
 				name: data[rowId].name
@@ -355,7 +355,7 @@ export default function LogTable(props) {
     
 
     if (entryIds.length) {
-      let url = `api/${userId}/logs?date=${formattedDate}`;
+      const url = `api/${userId}/logs?date=${formattedDate}`;
   
       deleteEntries(url, entryIds)
         .then(body => {

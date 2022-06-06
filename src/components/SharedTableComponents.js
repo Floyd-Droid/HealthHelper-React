@@ -136,7 +136,7 @@ export const CalculatedCell = ({
           servings = amount / originalEntry.serving_by_item;
         }
 
-      let precision = colId === 'cost_per_serving' ? 2 : 1;
+      const precision = colId === 'cost_per_serving' ? 2 : 1;
       result = round(Number(servings) * Number(originalValue), precision);
       result = isNaN(result) ? '' : result;
       }
@@ -204,8 +204,8 @@ export const Input = ({
   }, [original.amount_unit])
 
   const onChange = e => {
-    let newValue = e.target.value;
-    let validated = validateInput(newValue, colId);
+    const newValue = e.target.value;
+    const validated = validateInput(newValue, colId);
 
     if (validated) {
       setValue(newValue);
@@ -306,8 +306,8 @@ export const Select = ({
     : volumeUnits;
 
   const onChange = e => {
-    let newValue = e.target.value;
-    let validated = validateSelect(newValue, colId, amountUnits);
+    const newValue = e.target.value;
+    const validated = validateSelect(newValue, colId, amountUnits);
 
     if (validated) {
       setValue(newValue);
@@ -400,7 +400,7 @@ export const SumFooter = ({
   }
 
   const emptyFooterIds = ['amount', 'amount_unit', 'name']
-  let showTotal = !emptyFooterIds.includes(colId)
+  const showTotal = !emptyFooterIds.includes(colId)
 
   return (
     <>

@@ -3,7 +3,7 @@ import {weightUnits, volumeUnits, fourDigitIds, twoDecimalIds} from '../services
 // Validation functions for pre-submission
 
 const validateInputLength = (input, colId) => {
-  let disallowedInput = ['00', ' '];
+  const disallowedInput = ['00', ' '];
   
   if (fourDigitIds.includes(colId)) {
     if ((String(parseInt(Number(input), 10)) .length > 4) || disallowedInput.includes(input)) return false;
@@ -40,7 +40,7 @@ export const validateSelect = (value, colId, amountUnits) => {
   if (colId === 'amount_unit') {
     if (!amountUnits.includes(value)) return false;
   } else {
-    let tmpUnits = colId === 'weight_unit' ? [...weightUnits] : [...volumeUnits];
+    const tmpUnits = colId === 'weight_unit' ? [...weightUnits] : [...volumeUnits];
     tmpUnits.push('')
     if (!tmpUnits.includes(value)) return false;
   }
@@ -52,7 +52,7 @@ export const validateSelect = (value, colId, amountUnits) => {
 // Validation functions for post-submission
 
 export const validateRequiredName = (entries) => {
-  for (let entry of entries) {
+  for (const entry of entries) {
     if (entry.name === '') {
       return 'A name';
     }
@@ -61,8 +61,8 @@ export const validateRequiredName = (entries) => {
 }
 
 export const validateUniqueNames = (entries) => {
-  let names = [];
-  for (let entry of entries) {
+  const names = [];
+  for (const entry of entries) {
     if (names.includes(entry.name)) {
       return 'A unique name';
     }
@@ -73,7 +73,7 @@ export const validateUniqueNames = (entries) => {
 }
 
 export const validateRequiredServingSize = (entries) => {
-  for (let entry of entries) {
+  for (const entry of entries) {
     const servWeight = entry.serving_by_weight;
     const weightUnit = entry.weight_unit;
     const servVolume = entry.serving_by_volume;
@@ -88,7 +88,7 @@ export const validateRequiredServingSize = (entries) => {
 }
 
 export const validateRequiredAmountUnit = (entries) => {
-  for (let entry of entries) {
+  for (const entry of entries) {
     if (entry.amount_unit === '---') {
       return 'An amount unit';
     }

@@ -127,10 +127,10 @@ function Table({ columns, data, entries, errorMessages, failedEntries, skipSelec
 }
 
 export default function CreateLogTable(props) {
-  let status = props.status;
-  let userId = props.userId;
-  let date = props.date;
-  let formattedDate = getFormattedDate(date, 'url');
+  const status = props.status;
+  const userId = props.userId;
+  const date = props.date;
+  const formattedDate = getFormattedDate(date, 'url');
   
   const columns = React.useMemo(
     () => [
@@ -272,7 +272,7 @@ export default function CreateLogTable(props) {
   const submitChanges = () => {
     const entriesToCreate = [];
 
-    for (let rowId of Object.keys(selectedEntries)) {
+    for (const rowId of Object.keys(selectedEntries)) {
       entriesToCreate.push({
 				amount: data[rowId].amount, 
 				amount_unit: data[rowId].amount_unit,
@@ -282,7 +282,7 @@ export default function CreateLogTable(props) {
     }
 
     if (entriesToCreate.length) {
-      let url = `/api/${userId}/logs?date=${formattedDate}`;
+      const url = `/api/${userId}/logs?date=${formattedDate}`;
       createEntries(url, entriesToCreate)
         .then(body => {
           if (typeof body.errorMessage !== 'undefined') {

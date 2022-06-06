@@ -117,9 +117,9 @@ function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, s
 }
 
 export default function IndexTable(props) {
-  let status = props.status;
-  let userId = props.userId
-  let date = props.date
+  const status = props.status;
+  const userId = props.userId
+  const date = props.date
 
   const columns = React.useMemo(
     () => [
@@ -325,7 +325,7 @@ export default function IndexTable(props) {
     }
 
     if (editedEntries.length || newEntries.length) {
-      let url = `api/${userId}/index`;
+      const url = `api/${userId}/index`;
 
       createOrUpdateEntries(url, newEntries, editedEntries)
         .then(body => {
@@ -351,7 +351,7 @@ export default function IndexTable(props) {
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
-    for (let rowId of Object.keys(selectedEntries).reverse()) {
+    for (const rowId of Object.keys(selectedEntries).reverse()) {
       if (typeof data[rowId].id !== 'undefined') {
         existingEntryIds.push({
 					id: data[rowId].id,

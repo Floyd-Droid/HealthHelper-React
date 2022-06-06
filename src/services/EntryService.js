@@ -36,7 +36,7 @@ export async function createEntries(url, entries) {
 }
 
 export async function createOrUpdateEntries(url, newEntries, editedEntries) {
-  let result = {successMessages: [], errorMessages: []};
+  const result = {successMessages: [], errorMessages: []};
 
   try {
     if (newEntries.length) {

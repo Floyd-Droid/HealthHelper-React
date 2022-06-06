@@ -58,15 +58,15 @@ export const placeholderLogRow = {
 
 
 export function round(num, precision) {
-  let round = Math.round(num + "e+" + precision) + ("e-" + precision);
-  let result = precision === 2 ? Number(round).toFixed(2) : Number(round);
+  const round = Math.round(num + "e+" + precision) + ("e-" + precision);
+  const result = precision === 2 ? Number(round).toFixed(2) : Number(round);
   return result;
 }
 
 export const prepareEntries = (entries, status) => {
-  let preparedEntries = [];
+  const preparedEntries = [];
 
-  for (let entry of entries) {
+  for (const entry of entries) {
     Object.keys(entry).forEach((key) => {
       if (key !== 'id') {
         entry[key] = entry[key] === null ? '' : entry[key];
@@ -77,7 +77,7 @@ export const prepareEntries = (entries, status) => {
       ? round(entry.cost_per_container, 2)
       : entry.cost_per_container;
 
-    let costPerServing = entry.cost_per_container && entry.servings_per_container
+    const costPerServing = entry.cost_per_container && entry.servings_per_container
       ? entry.cost_per_container / entry.servings_per_container
       : '';
 
@@ -98,7 +98,7 @@ export const getFormattedDate = (date, context) => {
   if (context === 'table') {
     return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   } else if (context === 'url') {
-    let slashDate = date.toLocaleDateString('en-CA', { year: 'numeric', month: 'numeric', day: 'numeric' });
+    const slashDate = date.toLocaleDateString('en-CA', { year: 'numeric', month: 'numeric', day: 'numeric' });
     return slashDate.replace(/\//g, '-');
   }
 }
