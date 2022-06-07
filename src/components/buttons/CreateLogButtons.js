@@ -26,7 +26,7 @@ export default class CreateLogButtons extends React.Component {
 
   render() {
 		const data = this.props.data;
-		const disableButton = data.length === 1 && typeof data[0].isPlaceholder;
+		const disableButton = data.length === 1 && data[0].isPlaceholder;
 
     return (
       <form>

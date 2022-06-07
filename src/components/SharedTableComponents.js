@@ -282,6 +282,7 @@ export const Select = ({
 
 	React.useEffect(() => {
     if (colId === 'amount_unit' && ![...amountUnits, '---'].includes(initialCellValue)) {
+			console.log(original)
       updateEditedRowIndices(index, 'add');
       setValue("---")
       updateTableData(index, colId, "---");

@@ -238,107 +238,7 @@ export default function LogTable(props) {
 	const [successMessages, setSuccessMessages] = React.useState([]);
   const [validationMessages, setValidationMessages] = React.useState([]);
 
-	const fetchEntries = async () => {
-    const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
-		let entries;
-
-		try {
-			const body = await getEntries(logUrl);
-	
-			if (typeof body.errorMessage !== 'undefined') {
-				setErrorMessages([body.errorMessage]);
-				entries = [];
-			} else {
-				setErrorMessages([]);
-				entries = body.entries;
-			}
-	
-			const preparedEntries = prepareEntries(entries, status);
-			setTable(preparedEntries, preparedEntries);
-		} catch(err) {
-      console.log(err);
-    }
-  }
-
-	const submitChanges = async () => {
-    const validationErrors = validateLogSubmission(data);
-
-    if (validationErrors.length) {
-      setValidationMessages(validationErrors);
-      return false;
-    } else {
-      setValidationMessages([]);
-    }
-
-    const editedEntries = [];
-
-    // remove duplicate indices in the case of multiple edits per entry
-    const dedupedRowIndices = [...new Set(editedRowIndices)];
-
-    for (const rowId of dedupedRowIndices) {
-      editedEntries.push({
-				amount: data[rowId].amount,
-				amount_unit: data[rowId].amount_unit,
-        id: data[rowId].id,
-        name: data[rowId].name
-      });
-    }
-
-    if (editedEntries.length) {
-			const url = `api/${userId}/logs?date=${formattedDate}`;
-
-			try {
-				const body = await updateEntries(url, editedEntries);
-	
-				if (typeof body.errorMessage !== 'undefined') {
-					setErrorMessages([body.errorMessage]);
-				} else if (typeof body.successMessage !== 'undefined') {
-					setSuccessMessages([body.successMessage]);
-				}
-
-				setEditedRowIndices([]);
-				fetchEntries();
-			} catch(err) {
-				console.log(err);
-			}
-    }
-  }
-
-	const deleteRows = async () => {
-    const entryIds = [];
-    const dataCopy = [...data];
-    const entriesCopy = [...entries];
-
-    for (const rowId of Object.keys(selectedEntries).reverse()) {
-      entryIds.push({
-				id: data[rowId].id,
-				name: data[rowId].name
-			});
-      dataCopy.splice(rowId, 1);
-      entriesCopy.splice(rowId, 1);
-    }
-
-    setSkipSelectedRowsReset(false);
-		setTable(dataCopy, entriesCopy);
-    
-    if (entryIds.length) {
-      const url = `api/${userId}/logs?date=${formattedDate}`;
-			
-			try {
-				const body = await deleteEntries(url, entryIds);
-
-				if (typeof body.errorMessage !== 'undefined') {
-					setErrorMessages([body.errorMessage]);
-				} else if (typeof body.successMessage !== 'undefined') {
-					setSuccessMessages([body.successMessage]);
-				}
-			} catch(err) {
-				console.log(err);
-			}
-    }
-  }
-
-	const setTable = (potentialData, potentialEntries) => {
+	const updateTableEntries = (potentialData, potentialEntries) => {
 		if (potentialData.length) {
 			setEntries(potentialEntries);
 			setData(potentialData);
@@ -346,6 +246,14 @@ export default function LogTable(props) {
 			setEntries([placeholderLogRow]);
 			setData([placeholderLogRow]);
 		}
+	}
+
+	const updateMessages = (messages) => {
+		const validationMessages = typeof messages.validationMessages === 'undefined' ? [] : messages.validationMessages;
+
+		setErrorMessages(messages.errorMessages);
+		setSuccessMessages(messages.successMessages);
+		setValidationMessages(validationMessages);
 	}
 
   const updateTableData = (rowIndex, columnId, value) => {
@@ -377,13 +285,96 @@ export default function LogTable(props) {
     setSelectedEntries(selectedRowIds);
   }
 
-  const resetData = () => {
+	const resetData = () => {
     setEditedRowIndices([]);
 		setData(entries);
   }
 
+	const fetchEntries = async () => {
+    const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
+
+		try {
+			const body = await getEntries(logUrl);
+
+			if (body.errorMessages.length) {
+				updateMessages(body);
+			}
+			
+			const preparedEntries = prepareEntries(body.entries, status);
+			updateTableEntries(preparedEntries, preparedEntries);
+		} catch(err) {
+      console.log(err);
+    }
+  }
+
+	const submitChanges = async () => {
+    const validationErrors = validateLogSubmission(data);
+		const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
+		updateMessages(messages);
+
+		if (validationErrors.length) return false;
+
+    const editedEntries = [];
+
+    // remove duplicate indices in the case of multiple edits per entry
+    const dedupedRowIndices = [...new Set(editedRowIndices)];
+
+    for (const rowId of dedupedRowIndices) {
+      editedEntries.push({
+				amount: data[rowId].amount,
+				amount_unit: data[rowId].amount_unit,
+        id: data[rowId].id,
+        name: data[rowId].name
+      });
+    }
+
+    if (editedEntries.length) {
+			const url = `api/${userId}/logs?date=${formattedDate}`;
+
+			try {
+				const body = await updateEntries(url, editedEntries);
+				
+				updateMessages(body);
+				setEditedRowIndices([]);
+				fetchEntries();
+			} catch(err) {
+				console.log(err);
+			}
+    }
+  }
+
+	const deleteRows = async () => {
+    const entryIds = [];
+    const dataCopy = [...data];
+    const entriesCopy = [...entries];
+
+    for (const rowId of Object.keys(selectedEntries).reverse()) {
+      entryIds.push({
+				id: data[rowId].id,
+				name: data[rowId].name
+			});
+      dataCopy.splice(rowId, 1);
+      entriesCopy.splice(rowId, 1);
+    }
+
+    setSkipSelectedRowsReset(false);
+		updateTableEntries(dataCopy, entriesCopy);
+    
+    if (entryIds.length) {
+      const url = `api/${userId}/logs?date=${formattedDate}`;
+			
+			try {
+				const body = await deleteEntries(url, entryIds);
+				updateMessages(body);
+			} catch(err) {
+				console.log(err);
+			}
+    }
+  }
+
   React.useEffect(() => {
     setSkipSelectedRowsReset(false);
+		updateMessages({validationMessages: [], successMessages: [], errorMessages: []})
     fetchEntries();
   }, [date])
 

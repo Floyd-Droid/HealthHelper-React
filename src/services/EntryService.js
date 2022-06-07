@@ -41,19 +41,13 @@ export async function createOrUpdateEntries(url, newEntries, editedEntries) {
   try {
     if (newEntries.length) {
       const createBody = await createEntries(url, newEntries);
-      if (typeof createBody.errorMessage === 'undefined') {
-        result.successMessages.push(createBody.successMessage)
-      } else {
-        result.errorMessages.push(createBody.errorMessage)
-      }
+			result.successMessages.push(...createBody.successMessages);
+			result.errorMessages.push(...createBody.errorMessages);
     }
     if (editedEntries.length) {
       const updateBody = await updateEntries(url, editedEntries);
-      if (typeof updateBody.errorMessage === 'undefined') {
-        result.successMessages.push(updateBody.successMessage)
-      } else {
-        result.errorMessages.push(updateBody.errorMessage)
-      }
+			result.successMessages.push(...updateBody.successMessages);
+			result.errorMessages.push(...updateBody.errorMessages);
     }
 
     return result;

@@ -2,6 +2,8 @@ const { pool } = require("../db.js");
 const { convertEmptyStringToNull, makeEntryNameList } = require("./dbData.js");
 
 async function getLogEntries(userId, date) {
+	const result = {entries: [], errorMessages: [], successMessages: []};
+
   const q = `
     SELECT logs.id, logs.index_id, logs.amount, logs.amount_unit, logs.timestamp_added,
       food_index.name, food_index.serving_by_weight, food_index.weight_unit,
@@ -23,15 +25,19 @@ async function getLogEntries(userId, date) {
 
     try {
       const dbResponse = await pool.query(q, [userId, date]);
-      return {entries: dbResponse.rows};
+			result.entries = dbResponse.rows;
+      return result;
     } catch (err) {
-      console.log(err)
-      return {errorMessage: 'Please check your connection and try again.'};
+      console.log(err);
+			result.errorMessages.push('Please check your connection and try again.');
+      return result;
     }
 }
 
 async function createLogEntries(entries, userId, date) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
 
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
@@ -39,28 +45,35 @@ async function createLogEntries(entries, userId, date) {
   const createLogsQuery = `
     INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
     VALUES ($1, $2, date ($3), $4, $5);
-  `
+  `;
 
   for (const entry of preparedEntries) {
     try {
       const values = [entry.id, userId, date, entry.amount, entry.amount_unit];
-      const dbResult = await client.query(createLogsQuery, values);
+      await client.query(createLogsQuery, values);
     } catch(err) {
-      console.log(err)
-      failedEntries.push(entry.name)
+      console.log(err);
+      failedEntries.push(entry.name);
     }
   }
   client.release();
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not created: ' + entryNameList}
+		result.errorMessages.push('The following entries were not created: ' + entryNameList);
   }
-  return {successMessage: 'Entries successfully created'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully created');
+	}
+	
+  return result;
 }
 
 async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
 
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
@@ -80,21 +93,28 @@ async function updateLogEntries(entries, userId, date) {
       const values = [entry.amount, entry.amount_unit, entry.id, userId, date];
       await client.query(updateLogsQuery, values);
     } catch (err) {
-      console.log(err)
-      failedEntries.push(entry.name)
+      console.log(err);
+      failedEntries.push(entry.name);
     } 
   }
   client.release();
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not updated: ' + entryNameList}
+		result.errorMessages.push('The following entries were not updated: ' + entryNameList);
   }
-  return {successMessage: 'Entries successfully updated'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully updated');
+	}
+
+  return result;
 }
 
 async function deleteLogEntries(entries, userId, date) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
   const failedEntries = [];
 
   const deleteLogsQuery = `
@@ -102,24 +122,29 @@ async function deleteLogEntries(entries, userId, date) {
     WHERE id = $1
     AND user_id = $2
     AND timestamp_added::date = date ($3);
-  `
+  `;
 
   for (const entry of entries) {
     try {
-      const values = [entry.id, userId, date]
-      await client.query(deleteLogsQuery, values)
+      const values = [entry.id, userId, date];
+      await client.query(deleteLogsQuery, values);
     } catch(err) {
-      console.log(err)
-      failedEntries.push(entry.name)
+      console.log(err);
+      failedEntries.push(entry.name);
     }
   }
   client.release();
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not deleted:' + entryNameList}
+		result.errorMessages.push('The following entries were not deleted:' + entryNameList);
   }
-  return {successMessage: 'Entries successfully deleted'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully deleted');
+	}
+
+  return result;
 }
 
 module.exports = {

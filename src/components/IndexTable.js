@@ -242,36 +242,85 @@ export default function IndexTable(props) {
   const [successMessages, setSuccessMessages] = React.useState([]);
   const [validationMessages, setValidationMessages] = React.useState([]);
 
+	const updateTableEntries = (potentialData, potentialEntries) => {
+		if (potentialData.length) {
+			setEntries(potentialEntries);
+			setData(potentialData);
+		} else {
+			setEntries([newIndexRow]);
+			setData([newIndexRow]);
+		}
+	}
+
+	const updateMessages = (messages) => {
+		const validationMessages = typeof messages.validationMessages === 'undefined' ? [] : messages.validationMessages;
+
+		setErrorMessages(messages.errorMessages);
+		setSuccessMessages(messages.successMessages);
+		setValidationMessages(validationMessages);
+	}
+
+	const updateTableData = (rowIndex, columnId, value) => {
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...old[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    )
+  }
+
+  const updateEditedRowIndices = (rowId, action) => {
+    if (action === 'add') {
+      setEditedRowIndices(old => [...old, rowId]);
+    } else if (action === 'remove') {
+      const idsCopy = [...editedRowIndices];
+      idsCopy.splice(idsCopy.indexOf(rowId), 1);
+      setEditedRowIndices(idsCopy);
+    }
+  }
+
+  const updateSelectedEntries = (selectedRowIds) => {
+    setSelectedEntries(selectedRowIds);
+  }
+
+	const addNewRow = () => {
+		setData(old => [...old, newIndexRow]);
+  }
+  
+  const resetData = () => {
+    setData(entries);
+    setEditedRowIndices([]);
+  }
+
   const fetchEntries = async () => {
     const url = `/api/${userId}/index`;
-		let entries;
 
 		try {
 			const body = await getEntries(url);
 
-			if (typeof body.errorMessage !== 'undefined') {
-				setErrorMessages([body.errorMessage]);
-				entries = [];
-			} else {
-				entries = body.entries;
+			if (body.errorMessages.length) {
+				updateMessages(body);
 			}
-	
-			const preparedEntries = prepareEntries(entries, status);
-			setTable(preparedEntries, preparedEntries);
+			
+			const preparedEntries = prepareEntries(body.entries, status);
+			updateTableEntries(preparedEntries, preparedEntries);
 		} catch(err) {
       console.log(err);
     }
   }
 
 	const submitChanges = async () => {
-    let validationErrors = validateIndexSubmission(data);
+    const validationErrors = validateIndexSubmission(data);
 
-    if (validationErrors.length) {
-      setValidationMessages(validationErrors);
-      return false;
-    } else {
-      setValidationMessages([]);
-    }
+		const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
+		updateMessages(messages);
+
+		if (validationErrors.length) return false;
 
     const editedEntries = [];
     const newEntries = [];
@@ -296,13 +345,7 @@ export default function IndexTable(props) {
 			try {
 				const body = await createOrUpdateEntries(url, newEntries, editedEntries);
 
-				if (body.successMessages.length) {
-					setSuccessMessages(body.successMessages);
-				} 
-				if (body.errorMessages.length) {
-					setErrorMessages(body.errorMessages);
-				}
-
+				updateMessages(body)
 				setEditedRowIndices([]);
 				fetchEntries();
 			} catch(err) {
@@ -328,71 +371,19 @@ export default function IndexTable(props) {
     }
 
     setSkipSelectedRowsReset(false);
-		setTable(dataCopy, entriesCopy);
+		updateTableEntries(dataCopy, entriesCopy);
 		
     if (existingEntryIds.length) {
       const url = `/api/${userId}/index`;
 
 			try {
 				const body = await deleteEntries(url, existingEntryIds);
-
-				if (typeof body.errorMessage !== 'undefined') {
-					setErrorMessages([body.errorMessage]);
-				} else if (typeof body.successMessage !== 'undefined') {
-					setSuccessMessages([body.successMessage]);
-				}
+				updateMessages(body)
 			} catch(err) {
           console.log(err);
       }
     }
-  }
-
-	const setTable = (potentialData, potentialEntries) => {
-		if (potentialData.length) {
-			setEntries(potentialEntries);
-			setData(potentialData);
-		} else {
-			setEntries([newIndexRow]);
-			setData([newIndexRow]);
-		}
 	}
-
-  const updateTableData = (rowIndex, columnId, value) => {
-    setData(old =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    )
-  }
-
-  const updateEditedRowIndices = (rowId, action) => {
-    if (action === 'add') {
-      setEditedRowIndices(old => [...old, rowId]);
-    } else if (action === 'remove') {
-      const idsCopy = [...editedRowIndices];
-      idsCopy.splice(idsCopy.indexOf(rowId), 1);
-      setEditedRowIndices(idsCopy);
-    }
-  }
-
-  const addNewRow = () => {
-		setData(old => [...old, newIndexRow]);
-  }
-
-  const updateSelectedEntries = (selectedRowIds) => {
-    setSelectedEntries(selectedRowIds);
-  }
-  
-  const resetData = () => {
-    setData(entries);
-    setEditedRowIndices([]);
-  }
 
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);

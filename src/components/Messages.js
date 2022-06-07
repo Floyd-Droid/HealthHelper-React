@@ -9,7 +9,7 @@ export default function MessageContainer(props) {
 	const errorText = <p>An error occurred:</p>
 
 	return (
-		<Alert variant={variant}>
+		<Alert variant={variant} class='close'>
 			{type === 'validation' && validationText}
 			{type === 'error' && errorText}
 			<ul>

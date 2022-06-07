@@ -10,7 +10,7 @@ import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select
   TextFilter } from './SharedTableComponents';
 
 	
-function Table({ columns, data, entries, errorMessages, failedEntries, skipSelectedRowsReset, 
+function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, 
 	successMessages, status, updateSelectedEntries, updateTableData }) {
 
   const defaultColumn = React.useMemo(
@@ -228,27 +228,52 @@ export default function CreateLogTable(props) {
   const [errorMessages, setErrorMessages] = React.useState([]);
 	const [successMessages, setSuccessMessages] = React.useState([]);
 
+	const updateTableEntries = (potentialData, potentialEntries) => {
+		if (potentialData.length) {
+			setEntries(potentialEntries);
+			setData(potentialData);
+		} else {
+			setEntries([placeholderLogRow]);
+			setData([placeholderLogRow]);
+		}
+	}
+
+	const updateMessages = (messages) => {
+		setErrorMessages(messages.errorMessages);
+		setSuccessMessages(messages.successMessages);
+	}
+
+	const updateTableData = (rowIndex, columnId, value) => {
+    setData(old =>
+      old.map((row, index) => {
+        if (index === rowIndex) {
+          return {
+            ...old[rowIndex],
+            [columnId]: value,
+          };
+        }
+        return row;
+      })
+    )
+  }
+
+	const updateSelectedEntries = (selectedRowIds) => {
+    setSelectedEntries(selectedRowIds);
+  }
+
+	const resetData = () => {
+    setData(entries);
+  }
+
   const fetchEntries = async () => {
     const url = `/api/${userId}/index`;
-		let entries;
 
 		try {
 			const body = await getEntries(url);
-	
-			if (typeof body.errorMessage !== 'undefined') {
-				setErrorMessages([body.errorMessage]);
-				entries = [];
-			} else {
-				entries = body.entries;
-			}
-	
-			if (entries.length) {
-				const preparedEntries = prepareEntries(entries, status);
-				setEntries(preparedEntries);
-				setData(preparedEntries);
-			} else {
-				setData([placeholderLogRow])
-			} 
+			updateMessages(body);
+			
+			const preparedEntries = prepareEntries(body.entries, status);
+			updateTableEntries(preparedEntries, preparedEntries);
 		} catch(err) {
         console.log(err)
     }
@@ -272,40 +297,13 @@ export default function CreateLogTable(props) {
 			try {
 				const body = await createEntries(url, entriesToCreate);
 
-				if (typeof body.errorMessage !== 'undefined') {
-					setErrorMessages([body.errorMessage]);
-				} else if (typeof body.successMessage !== 'undefined') {
-					setSuccessMessages([body.successMessage]);
-				}
-
+				updateMessages(body);
 				setSkipSelectedRowsReset(false);
 				resetData();
 			} catch(err) {
           console.log(err);
       }
     }
-  }
-
-	const updateTableData = (rowIndex, columnId, value) => {
-    setData(old =>
-      old.map((row, index) => {
-        if (index === rowIndex) {
-          return {
-            ...old[rowIndex],
-            [columnId]: value,
-          };
-        }
-        return row;
-      })
-    )
-  }
-
-  const updateSelectedEntries = (selectedRowIds) => {
-    setSelectedEntries(selectedRowIds);
-  }
-
-  const resetData = () => {
-    setData(entries);
   }
 
   React.useEffect(() => {

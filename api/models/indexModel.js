@@ -2,6 +2,8 @@ const { pool } = require("../db.js");
 const { convertEmptyStringToNull, makeEntryNameList } = require("./dbData.js");
 
 async function getIndexEntries(userId) {
+	const result = {entries: [], errorMessages: [], successMessages: []};
+
   const getEntriesQuery = `
     SELECT food_index.id, food_index.name, food_index.serving_by_weight, food_index.weight_unit, 
       food_index.serving_by_volume, food_index.volume_unit, food_index.serving_by_item,
@@ -21,15 +23,19 @@ async function getIndexEntries(userId) {
   try {
     const values = [userId];
     const dbResponse = await pool.query(getEntriesQuery, values);
-    return {entries: dbResponse.rows};
+		result.entries = dbResponse.rows;
+    return result;
   } catch (err) {
-    console.log(err)
-    return {errorMessage: 'Please check your connection and try again.'}
+    console.log(err);
+		result.errorMessages.push('Please check your connection and try again.');
+    return result;
   }
 }
 
 async function createIndexEntries(entries, userId) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
 
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
@@ -67,20 +73,27 @@ async function createIndexEntries(entries, userId) {
       await client.query(createEntryQuery, values);
     } catch (err) {
       console.log(err);
-      failedEntries.push(entry.name)
+      failedEntries.push(entry.name);
     }
   }
   client.release();
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not created: ' + entryNameList}
+		result.errorMessages.push('The following entries were not created: ' + entryNameList);
   }
-  return {successMessage: 'Entries successfully created'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully created');
+	}
+
+  return result;
 }
 
 async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
 
   const preparedEntries = convertEmptyStringToNull(entries);
   const failedEntries = [];
@@ -134,7 +147,7 @@ async function updateIndexEntries(entries, userId) {
       const foodIndexValues = [entry.name, entry.serving_by_weight, entry.weight_unit, entry.serving_by_volume,
       	entry.volume_unit, entry.serving_by_item, entry.id, userId];
 
-      const res = await client.query(foodIndexQuery, foodIndexValues);
+      await client.query(foodIndexQuery, foodIndexValues);
 
       const foodIndexMacroValues = [entry.calories, entry.total_fat, entry.sat_fat,
 				entry.trans_fat, entry.poly_fat, entry.mono_fat,
@@ -150,21 +163,28 @@ async function updateIndexEntries(entries, userId) {
       await client.query('COMMIT');
     } catch (err) {
       await client.query('ROLLBACK');
-      failedEntries.push(entry.name)
-      console.log(err)
+      failedEntries.push(entry.name);
+      console.log(err);
     } 
   }
   client.release();
   
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not updated: ' + entryNameList}
+		result.errorMessages.push('The following entries were not updated: ' + entryNameList);
   }
-  return {successMessage: 'Entries successfully updated'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully updated');
+	}
+
+  return result;
 }
 
 async function deleteIndexEntries(entries, userId) {
   const client = await pool.connect();
+
+	const result = {errorMessages: [], successMessages: []};
   const failedEntries = [];
 
   const deleteQuery = `
@@ -175,20 +195,25 @@ async function deleteIndexEntries(entries, userId) {
 
   for (const entry of entries) {
     try {
-      const values = [entry.id, userId]
-      const dbResult = await client.query(deleteQuery, values);
+      const values = [entry.id, userId];
+      await client.query(deleteQuery, values);
     } catch(err) {
       console.log(err);
-      failedEntries.push(entry.name)
+      failedEntries.push(entry.name);
     }
   }
   client.release();
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-    return {errorMessage: 'The following entries were not deleted: ' + entryNameList}
+		result.errorMessages.push('The following entries were not deleted: ' + entryNameList);
   }
-  return {successMessage: 'Entries successfully deleted'};
+
+	if (failedEntries.length !== entries.length) {
+		result.successMessages.push('Entries successfully deleted');
+	}
+
+  return result;
 }
 
 module.exports = {

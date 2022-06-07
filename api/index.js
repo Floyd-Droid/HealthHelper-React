@@ -21,7 +21,15 @@ app.use((bodyParser.json()));
 // For requests of content-type application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const defaultError = {errorMessage: 'An error occurred. Please check that your changes were saved.'};
+const defaultErrorResult = {
+	successMessages: [], 
+	errorMessages: ['An error occurred. Please check that your changes were saved.']
+};
+
+const connectionErrorResult = {
+	successMessages: [],
+	errorMessages: ['An error occurred. Please check your connection and try again.'],
+};
 
 // Log endpoints
 app.get('/api/:userId/logs', async (req, res) => {
@@ -30,12 +38,11 @@ app.get('/api/:userId/logs', async (req, res) => {
 
   try {
     const dbResult = await logModel.getLogEntries(userId, date);
-    const code = typeof dbResult.errorMessage === 'undefined' ? 200 : 500;
+    const code = dbResult.errorMessages.length ? 500 : 200;
     res.status(code).json(dbResult); 
   } catch (err) {
-    console.log(err)
-    const body = {errorMessage: `An error occurred. Please check your connection and try again.`};
-    res.status(500).json(body);
+    console.log(err);
+    res.status(500).json(connectionErrorResult);
   }
 });
 
@@ -46,10 +53,16 @@ app.post('/api/:userId/logs', async (req, res) => {
 	
   try {
     const dbResult = await logModel.createLogEntries(entries, userId, date);
-    res.status(201).json(dbResult);
+		const code = dbResult.successMessages.length ? 201 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+		
+    res.status(code).json(dbResult);
   } catch(err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   }
 })
 
@@ -60,10 +73,16 @@ app.put('/api/:userId/logs', async (req, res) => {
 
   try {
     const dbResult = await logModel.updateLogEntries(entries, userId, date);
-    res.status(200).json(dbResult);
+		const code = dbResult.successMessages.length ? 200 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+
+    res.status(code).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   } 
 })
 
@@ -74,10 +93,16 @@ app.delete('/api/:userId/logs', async (req, res) => {
 
   try {
     const dbResult = await logModel.deleteLogEntries(entries, userId, date);
+		const code = dbResult.successMessages.length ? 200 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+
     res.status(200).json(dbResult);
   } catch(err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   }
 })
 
@@ -88,12 +113,11 @@ app.get('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.getIndexEntries(userId);
-    const code = typeof dbResult.errorMessage === 'undefined' ? 200 : 500;
+    const code = dbResult.errorMessages.length ? 500 : 200;
     res.status(code).json(dbResult);
   } catch (err) {
     console.log(err);
-    const body = {errorMessage: `An error occurred. Please check your connection and try again.`};
-    res.status(500).json(body);
+    res.status(500).json(connectionErrorResult);
   }
 })
 
@@ -103,10 +127,16 @@ app.post('/api/:userId/index', async (req, res) => {
 	
   try {
     const dbResult = await indexModel.createIndexEntries(entries, userId);
-    res.status(201).json(dbResult);
+		const code = dbResult.successMessages.length ? 201 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+
+    res.status(code).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   }
 })
 
@@ -116,10 +146,16 @@ app.put('/api/:userId/index', async (req, res) => {
 
   try {
     const dbResult = await indexModel.updateIndexEntries(entries, userId);
-    res.status(200).json(dbResult);
+		const code = dbResult.successMessages.length ? 200 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+
+    res.status(code).json(dbResult);
   } catch (err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   }
 })
 
@@ -129,10 +165,16 @@ app.delete('/api/:userId/index', async (req, res) => {
   
   try {
     const dbResult = await indexModel.deleteIndexEntries(entries, userId);
-    res.status(200).json(dbResult);
+		const code = dbResult.successMessages.length ? 200 : 500;
+
+		if (dbResult.errorMessages.length) {
+			dbResult.successMessages = [];
+		}
+
+    res.status(code).json(dbResult);
   } catch(err) {
     console.log(err);
-    res.status(500).json(defaultError);
+    res.status(500).json(defaultErrorResult);
   }
 
 })
