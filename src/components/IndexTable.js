@@ -293,8 +293,9 @@ export default function IndexTable(props) {
   }
   
   const resetData = () => {
+		setEditedRowIndices([]);
+		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
     setData(entries);
-    setEditedRowIndices([]);
   }
 
   const fetchEntries = async () => {

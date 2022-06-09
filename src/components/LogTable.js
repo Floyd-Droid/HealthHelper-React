@@ -287,6 +287,7 @@ export default function LogTable(props) {
 
 	const resetData = () => {
     setEditedRowIndices([]);
+		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
 		setData(entries);
   }
 

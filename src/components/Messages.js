@@ -1,4 +1,5 @@
 import Alert from 'react-bootstrap/Alert';
+import React from 'react';
 
 export default function MessageContainer(props) {
 	const messages = props.messages;
@@ -8,13 +9,22 @@ export default function MessageContainer(props) {
 	const validationText = <p>Your changes were not submitted. Each entry should have:</p>
 	const errorText = <p>An error occurred:</p>
 
-	return (
-		<Alert variant={variant} class='close'>
-			{type === 'validation' && validationText}
-			{type === 'error' && errorText}
-			<ul>
-				{messages.map((message, i) => <li key={i}>{message}</li>)}
-			</ul>
-		</Alert>
-	)
+	const [show, setShow] = React.useState(true);
+
+	React.useEffect(() => {
+		setShow(true);
+	}, [messages])
+
+	if (show) {
+		return (
+			<Alert variant={variant} show={show} onClose={() => setShow(false)} dismissible>
+				{type === 'validation' && validationText}
+				{type === 'error' && errorText}
+				<ul>
+					{messages.map((message, i) => <li key={i}>{message}</li>)}
+				</ul>
+			</Alert>
+		)
+	}
+	return null;
 }

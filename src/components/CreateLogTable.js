@@ -262,6 +262,7 @@ export default function CreateLogTable(props) {
   }
 
 	const resetData = () => {
+		updateMessages({successMessages: [], errorMessages: []});
     setData(entries);
   }
 
@@ -299,7 +300,7 @@ export default function CreateLogTable(props) {
 
 				updateMessages(body);
 				setSkipSelectedRowsReset(false);
-				resetData();
+				setData(entries)
 			} catch(err) {
           console.log(err);
       }
