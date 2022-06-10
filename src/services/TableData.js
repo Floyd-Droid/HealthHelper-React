@@ -6,6 +6,7 @@ export const fourDigitIds = ['calories', 'cholesterol', 'sodium'];
 export const twoDecimalIds = ['amount', 'serving_by_weight', 'serving_by_volume', 'cost_per_container', 'cost_per_serving'];
 
 export const newIndexRow = {
+	isNew: true,
 	name: '',
 	serving_by_weight: '',
 	weight_unit: '',

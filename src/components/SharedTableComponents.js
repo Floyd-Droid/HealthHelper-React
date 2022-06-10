@@ -104,10 +104,10 @@ export function NumberRangeFilter({
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
-	data, 
   entries,
   updateTableData
 }) => {
+
   let amount = original.amount;
   let unit = original.amount_unit;
 
@@ -146,7 +146,7 @@ export const CalculatedCell = ({
   }, [amount, unit, originalEntry, originalValue])
 
   React.useEffect(() => {
-		if (data[index][colId] !== value) {
+		if (original[colId] !== value) {
 			updateTableData(index, colId, value);
 		}
   }, [value, original])
@@ -162,7 +162,6 @@ export const Input = ({
   value: initialCellValue,
   column: { id: colId },
   row: { index, original },
-  data, 
   entries,
   status,
   updateEditedRowIndices,
@@ -181,28 +180,6 @@ export const Input = ({
     }, [entries]
   )
 
-  React.useEffect(() => {
-    setValue(initialCellValue);
-    
-    // Highlight flashes briefly upon new date submission due to offset in state update.
-    // Equal length between data and entries ensures the state has fully updated.
-    if (data.length === entries.length) {
-      if (String(initialCellValue) === String(originalValue) || original.isPlaceholder) { 
-        setIsEdited(false);
-      } else {
-        setIsEdited(true);
-      }
-    }
-  }, [initialCellValue, original.amount_unit, entries]);
-
-	React.useEffect(() => {
-    // In the case of user removal of corresponding index unit
-    if (colId === 'amount' && original.reset) {
-      updateEditedRowIndices(index, 'add');
-      updateTableData(index, colId, '')
-    }
-  }, [original.amount_unit])
-
   const onChange = e => {
     const newValue = e.target.value;
     const validated = validateInput(newValue, colId);
@@ -210,7 +187,7 @@ export const Input = ({
     if (validated) {
       setValue(newValue);
 
-      if (status !== 'createLog' && typeof original.id !== 'undefined') {
+      if (status !== 'createLog' && !original.isNew) {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
           updateEditedRowIndices(index, 'add');
           setIsEdited(true);
@@ -219,10 +196,27 @@ export const Input = ({
           setIsEdited(false);
         }
       }
-
       updateTableData(index, colId, newValue);
     }
   }
+
+	React.useEffect(() => {
+    setValue(initialCellValue);
+
+		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
+			setIsEdited(true);
+		} else {
+			setIsEdited(false)
+		}
+  }, [initialCellValue, originalValue, original.isNew, original.isReset]);
+
+	React.useEffect(() => {
+    // In the case of user removal of corresponding index unit
+    if (colId === 'amount' && original.isReset) {
+      updateEditedRowIndices(index, 'add');
+      updateTableData(index, colId, '')
+    }
+  }, [original.isReset])
 
   let divClassName = 'cell-container d-flex justify-content-center align-items-center';
 	if (isEdited) {
@@ -261,8 +255,20 @@ export const Select = ({
   updateTableData,
 }) => {
 
+	let units = [];
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
+
+	if (colId === 'amount_unit') {
+		units = [
+			'servings',
+			...(original.weight_unit ? [original.weight_unit] : []),
+			...(original.volume_unit ? [original.volume_unit] : []),
+			...(original.serving_by_item ? ['items'] : []),
+		];
+	} else {
+		units = colId === 'weight_unit' ? weightUnits : volumeUnits;
+	}
 
   const [originalEntry, originalValue] = React.useMemo(
     () => {
@@ -273,47 +279,32 @@ export const Select = ({
     }, [entries]
   )
 
-  const amountUnits = [
-    'servings',
-    ...(original.weight_unit ? [original.weight_unit] : []),
-    ...(original.volume_unit ? [original.volume_unit] : []),
-    ...(original.serving_by_item ? ['items'] : []),
-  ];
+	React.useEffect(() => {
+    setValue(initialCellValue);
+
+		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
+			setIsEdited(true);
+		} else {
+			setIsEdited(false)
+		}
+  }, [initialCellValue, originalValue, original.isNew, original.isReset])
 
 	React.useEffect(() => {
-    if (colId === 'amount_unit' && ![...amountUnits, '---'].includes(initialCellValue)) {
-			console.log(original)
+    if (colId === 'amount_unit' && ![...units, '---'].includes(initialCellValue)) {
       updateEditedRowIndices(index, 'add');
-      setValue("---")
       updateTableData(index, colId, "---");
-			updateTableData(index, 'reset', true);
-    } else {
-      setValue(initialCellValue);
+			updateTableData(index, 'isReset', true);
     }
-
-    if (data.length === entries.length) {
-      if (String(initialCellValue) === String(originalValue)) {
-        setIsEdited(false);
-      } else {
-        setIsEdited(true);
-      }
-    }
-  }, [initialCellValue, entries])
-
-  let units = (colId === 'amount_unit')
-  ? amountUnits 
-  : colId === 'weight_unit' 
-    ? weightUnits
-    : volumeUnits;
+  }, [entries])
 
   const onChange = e => {
     const newValue = e.target.value;
-    const validated = validateSelect(newValue, colId, amountUnits);
+    const validated = validateSelect(newValue, colId, units);
 
     if (validated) {
       setValue(newValue);
 
-      if (status !== 'createLog' && typeof original.id !== 'undefined') {
+      if (status !== 'createLog' && !original.isNew) {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
           updateEditedRowIndices(index, 'add');
           setIsEdited(true);
@@ -365,8 +356,14 @@ export const IndexCostCell = ({
     return result;
   }, [servingsPerContainer, costPerContainer])
 
+	let divClassName = 'cell-container d-flex justify-content-center align-items-center';
+
+	if (original.isNew) {
+		divClassName += ' bg-cell-edit';
+	}
+
   return (
-    <div className = 'cell-container d-flex justify-content-center align-items-center'>
+    <div className={divClassName} >
       {value}
     </div>
   )
