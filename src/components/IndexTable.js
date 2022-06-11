@@ -118,8 +118,7 @@ function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, s
 
 export default function IndexTable(props) {
   const status = props.status;
-  const userId = props.userId
-  const date = props.date
+  const userId = props.userId;
 
   const columns = React.useMemo(
     () => [
@@ -356,6 +355,8 @@ export default function IndexTable(props) {
 	}
 
 	const deleteRows = async () => {
+		if (!Object.values(selectedEntries).length)	return false;
+
     const existingEntryIds = [];
     const dataCopy = [...data];
     const entriesCopy = [...entries];
@@ -379,7 +380,7 @@ export default function IndexTable(props) {
 
 			try {
 				const body = await deleteEntries(url, existingEntryIds);
-				updateMessages(body)
+				updateMessages(body);
 			} catch(err) {
           console.log(err);
       }

@@ -345,12 +345,14 @@ export default function LogTable(props) {
   }
 
 	const deleteRows = async () => {
-    const entryIds = [];
+		if (!Object.values(selectedEntries).length)	return false;
+
+    const entriesToDelete = [];
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
     for (const rowId of Object.keys(selectedEntries).reverse()) {
-      entryIds.push({
+      entriesToDelete.push({
 				id: data[rowId].id,
 				name: data[rowId].name
 			});
@@ -361,16 +363,14 @@ export default function LogTable(props) {
     setSkipSelectedRowsReset(false);
 		updateTableEntries(dataCopy, entriesCopy);
     
-    if (entryIds.length) {
-      const url = `api/${userId}/logs?date=${formattedDate}`;
-			
-			try {
-				const body = await deleteEntries(url, entryIds);
-				updateMessages(body);
-			} catch(err) {
-				console.log(err);
-			}
-    }
+		const url = `api/${userId}/logs?date=${formattedDate}`;
+		
+		try {
+			const body = await deleteEntries(url, entriesToDelete);
+			updateMessages(body);
+		} catch(err) {
+			console.log(err);
+		}
   }
 
   React.useEffect(() => {
