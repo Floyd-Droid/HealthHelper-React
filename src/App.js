@@ -6,67 +6,52 @@ import DateForm from './components/DateForm';
 import IndexTable from './components/IndexTable';
 import LogTable from './components/LogTable';
 
+const App = () => {
+	const [status, setStatus] = React.useState('logs');
+	const [userId, setUserId] = React.useState(1);
+	const [date, setDate] = React.useState(new Date());
 
-class App extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      status: 'logs',
-      userId: 1,
-      date: new Date(),
-    };
+	const updateDate = (newDate) => {
+		setDate(newDate);
+	}
 
-    this.updateDate = this.updateDate.bind(this);
-    this.updateStatus = this.updateStatus.bind(this);
-  }
+	const updateStatus = (newStatus) => {
+		setStatus(newStatus);
+	}
 
-  updateDate(newDate) {
-    this.setState({
-      date: newDate
-    })
-  }
-
-  updateStatus(newStatus) {
-    this.setState({
-      status: newStatus
-    });
-  }
-  
-  render() {
-    return (
-      <div className='app-container vw-100 vh-100 p-3' >
-        {this.state.status === 'logs' &&
+	return (
+		<div className='app-container vw-100 vh-100 p-3' >
+      {status === 'logs' &&
         <>
           <DateForm 
-          date={this.state.date}
-          onDateFormSubmit={this.updateDate}
+          date={date}
+          onDateFormSubmit={updateDate}
           />
           <LogTable
-            status={this.state.status}
-            userId={this.state.userId}
-            date={this.state.date} 
-            onNavSubmit={this.updateStatus}
+            status={status}
+            userId={userId}
+            date={date} 
+            onNavSubmit={updateStatus}
           />
         </>
-        }
-        {this.state.status === 'index' &&
-          <IndexTable
-            status={this.state.status}
-            userId={this.state.userId}
-            onNavSubmit={this.updateStatus}
-          />
-        }
-        {this.state.status === 'createLog' &&
-          <CreateLogTable
-            status={this.state.status}
-            userId={this.state.userId}
-            date={this.state.date}
-            onNavSubmit={this.updateStatus}
-          />
-        }
-      </div>
-    );
-  }
+      }
+      {status === 'index' &&
+				<IndexTable
+					status={status}
+					userId={userId}
+					onNavSubmit={updateStatus}
+				/>
+      }
+      {status === 'createLog' &&
+				<CreateLogTable
+					status={status}
+					userId={userId}
+					date={date}
+					onNavSubmit={updateStatus}
+				/>
+      }
+    </div>
+	)
 }
 
 export default App;
