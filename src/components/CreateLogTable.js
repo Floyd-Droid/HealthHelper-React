@@ -4,7 +4,7 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import { getEntries, createEntries } from '../services/EntryService';
 import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 
-import CreateLogButtons from './buttons/CreateLogButtons';
+import TableButtons from './TableButtons';
 import MessageContainer from './Messages';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select, SumFooter,
   TextFilter } from './SharedTableComponents';
@@ -331,8 +331,9 @@ export default function CreateLogTable(props) {
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-        <CreateLogButtons
+        <TableButtons
 					data={data}
+					status={status}
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
           onSubmit={submitChanges}

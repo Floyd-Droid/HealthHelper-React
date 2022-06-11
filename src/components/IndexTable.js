@@ -3,9 +3,9 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { newIndexRow, prepareEntries } from '../services/TableData';
-import { validateIndexSubmission} from '../services/Validation.js';
+import { validateIndexSubmission} from '../services/Validation';
 
-import IndexButtons from './buttons/IndexButtons';
+import TableButtons from './TableButtons';
 import MessageContainer from './Messages';
 import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
@@ -413,7 +413,9 @@ export default function IndexTable(props) {
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-        <IndexButtons
+        <TableButtons
+					data={data}
+					status={status}
           onAddNewRow={addNewRow}
           onDeleteRows={deleteRows}
           onNavSubmit={props.onNavSubmit}

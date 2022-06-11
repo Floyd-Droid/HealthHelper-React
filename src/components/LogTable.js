@@ -5,7 +5,7 @@ import { deleteEntries, getEntries, updateEntries } from '../services/EntryServi
 import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 import { validateLogSubmission } from '../services/Validation';
 
-import LogButtons from './buttons/LogButtons';
+import TableButtons from './TableButtons';
 import MessageContainer from './Messages';
 import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
@@ -402,8 +402,9 @@ export default function LogTable(props) {
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-        <LogButtons
+        <TableButtons
 					data={data}
+					status={status}
           onDeleteRows={deleteRows}
           onResetData={resetData}
           onNavSubmit={props.onNavSubmit}
