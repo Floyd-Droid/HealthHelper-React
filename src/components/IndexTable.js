@@ -1,20 +1,20 @@
 import React from 'react';
-import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
+
+import Table from './Table';
+import TableButtons from './TableButtons';
 
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { newIndexRow, prepareEntries } from '../services/TableData';
 import { validateIndexSubmission} from '../services/Validation';
-
-import TableButtons from './TableButtons';
-import MessageContainer from './Messages';
-import { IndeterminateCheckbox, IndexCostCell, Input, NumberRangeFilter, Select,
+import { IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-	
-function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, status, successMessages,
-  updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
 
-  const defaultColumn = React.useMemo(
+export default function IndexTable(props) {
+  const status = props.status;
+  const userId = props.userId;
+
+	const defaultColumn = React.useMemo(
     () => ({
       Cell: Input,
       Filter: NumberRangeFilter,
@@ -22,103 +22,6 @@ function Table({ columns, data, entries, errorMessages, skipSelectedRowsReset, s
     }),
     []
   );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    prepareRow,
-    rows,
-    state: { selectedRowIds }
-  } = useTable(
-    {
-      columns,
-      data,
-      defaultColumn,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-      autoResetSelectedRows: !skipSelectedRowsReset,
-      entries,
-      status, 
-      updateEditedRowIndices,
-      updateSelectedEntries,
-      updateTableData,
-    },
-    useFilters,
-    useSortBy,
-    useRowSelect,
-    hooks => {
-      hooks.visibleColumns.push(columns => [
-        {
-          id: 'selection',
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          Cell: ({row}) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-        },
-        ...columns
-      ])
-    }
-  )
-
-  React.useEffect(() => {
-    updateSelectedEntries(selectedRowIds)
-  }, [selectedRowIds])
-
-  return (
-    <>
-      {successMessages.length > 0 && 
-        <MessageContainer messages={successMessages} variant='success' type='success'/>}
-      {errorMessages.length > 0 && 
-        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
-      {validationMessages.length > 0 && 
-        <MessageContainer messages={validationMessages} variant='danger' type='validation'/>}
-
-      <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
-        <thead className='thead-dark'>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-header' 
-                {...column.getHeaderProps(column.getSortByToggleProps())}
-                  onClick={() => {
-                    if (column.canSort) {
-                      column.toggleSortBy(!column.isSortedDesc)
-                    }
-                  }}>
-                  {column.render('Header')}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>
-          {rows.map((row, i) => {
-            prepareRow(row)
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return <td className='p-0 m-0 text-center align-middle' {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </>
-  )
-}
-
-export default function IndexTable(props) {
-  const status = props.status;
-  const userId = props.userId;
 
   const columns = React.useMemo(
     () => [
@@ -401,6 +304,7 @@ export default function IndexTable(props) {
         <Table
           columns={columns}
           data={data}
+					defaultColumn={defaultColumn}
           entries={entries}
           errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}

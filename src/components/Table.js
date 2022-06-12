@@ -112,15 +112,17 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             )
           })}
         </tbody>
-				<tfoot>
-				{footerGroups.map(group => (
-					<tr {...group.getFooterGroupProps()}>
-						{group.headers.map(column => (
-							<td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
-						))}
-					</tr>
-				))}
-			</tfoot>
+				{status !== 'index' &&
+					<tfoot>
+					{footerGroups.map(group => (
+						<tr {...group.getFooterGroupProps()}>
+							{group.headers.map(column => (
+								<td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
+							))}
+						</tr>
+					))}
+					</tfoot>
+				}
       </table>
     </>
   )
