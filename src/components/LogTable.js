@@ -1,20 +1,22 @@
 import React from 'react';
-import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import { deleteEntries, getEntries, updateEntries } from '../services/EntryService';
+import Table from './Table';
+import TableButtons from './TableButtons';
+
+import { createEntries, deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 import { validateLogSubmission } from '../services/Validation';
-
-import TableButtons from './TableButtons';
-import MessageContainer from './Messages';
-import { CalculatedCell, IndeterminateCheckbox, Input, NumberRangeFilter, Select,
+import { CalculatedCell, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
 
 
-function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsReset, status, successMessages,
-  updateEditedRowIndices, updateSelectedEntries, updateTableData, validationMessages }) {
+export default function LogTable(props) {
+  const status = props.status;
+  const userId = props.userId;
+  const date = props.date;
+  const formattedDate = getFormattedDate(date, 'url');
 
-  const defaultColumn = React.useMemo(
+	const defaultColumn = React.useMemo(
     () => ({
       Cell: CalculatedCell,
       Filter: NumberRangeFilter,
@@ -23,122 +25,6 @@ function Table({ columns, data, date, entries, errorMessages, skipSelectedRowsRe
     }),
     []
   );
-
-  const {
-    getTableProps,
-    getTableBodyProps,
-    headerGroups,
-    footerGroups,
-    prepareRow,
-    rows,
-    state: { selectedRowIds },
-    toggleAllRowsSelected
-  } = useTable(
-    {
-      columns,
-      data,
-      date,
-      defaultColumn,
-      autoResetFilters: false,
-      autoResetSortBy: false,
-      autoResetSelectedRows: !skipSelectedRowsReset,
-      entries,
-      status,
-      updateEditedRowIndices,
-      updateSelectedEntries,
-      updateTableData,
-    },
-    useFilters,
-    useSortBy,
-    useRowSelect,
-    hooks => {
-      hooks.visibleColumns.push(columns => [
-        {
-          id: 'selection',
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          Cell: ({ row }) => (
-            <div>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-          Footer: () => null
-        },
-        ...columns
-      ])
-    }
-  );
-
-  React.useEffect(() => {
-    toggleAllRowsSelected(false);
-  }, [date])
-
-  React.useEffect(() => {
-    updateSelectedEntries(selectedRowIds)
-  }, [selectedRowIds])
-
-  return (
-    <>
-      {successMessages.length > 0 && 
-        <MessageContainer messages={successMessages} variant='success' type='success'/>}
-      {errorMessages.length > 0 && 
-        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
-      {validationMessages.length > 0 && 
-        <MessageContainer messages={validationMessages} variant='danger' type='validation'/>}
-    
-      <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
-        <thead className='thead-dark'>
-          {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-header' 
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  onClick={() => {
-                    if (column.canSort) {
-                      column.toggleSortBy(!column.isSortedDesc)
-                    }
-                  }}>
-                  {column.render('Header')}
-                  <div>{column.canFilter ? column.render('Filter') : null}</div>
-                </th>
-              ))}
-            </tr>
-          ))}
-        </thead>
-        <tbody {...getTableBodyProps()}>	
-					{rows.map((row, i) => {
-            prepareRow(row)
-            return (
-              <tr {...row.getRowProps()}>
-                {row.cells.map(cell => {
-                  return <td className='p-0 m-0 text-center align-middle' {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                })}
-              </tr>
-            )
-          })}
-        </tbody>
-        <tfoot>
-        {footerGroups.map(group => (
-          <tr {...group.getFooterGroupProps()}>
-            {group.headers.map(column => (
-              <td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
-            ))}
-          </tr>
-        ))}
-      </tfoot>
-      </table>
-    </>
-  )
-}
-
-export default function LogTable(props) {
-  const status = props.status;
-  const userId = props.userId;
-  const date = props.date;
-  const formattedDate = getFormattedDate(date, 'url');
   
   const columns = React.useMemo(
     () => [
@@ -292,10 +178,16 @@ export default function LogTable(props) {
   }
 
 	const fetchEntries = async () => {
-    const logUrl = `/api/${userId}/logs?date=${formattedDate}`;
+		let url = '';
 
+		if (status === 'logs') {
+			url = `/api/${userId}/logs?date=${formattedDate}`;
+		} else if (status === 'createLog') {
+			url = `/api/${userId}/index`;
+		}
+    
 		try {
-			const body = await getEntries(logUrl);
+			const body = await getEntries(url);
 
 			if (body.errorMessages.length) {
 				updateMessages(body);
@@ -309,35 +201,49 @@ export default function LogTable(props) {
   }
 
 	const submitChanges = async () => {
-    const validationErrors = validateLogSubmission(data);
-		const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
-		updateMessages(messages);
+		const newOrEditedLogEntries = [];
+		let entryRowIndices = [];
 
-		if (validationErrors.length) return false;
+		if (status === 'logs') {
+			const validationErrors = validateLogSubmission(data);
+			const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
+			updateMessages(messages);
+	
+			if (validationErrors.length) return false;
 
-    const editedEntries = [];
+			// remove duplicate indices in the case of multiple edits per entry
+			entryRowIndices = [...new Set(editedRowIndices)];
 
-    // remove duplicate indices in the case of multiple edits per entry
-    const dedupedRowIndices = [...new Set(editedRowIndices)];
+		} else if (status === 'createLog') {
+			entryRowIndices = Object.keys(selectedEntries);
+		}
 
-    for (const rowId of dedupedRowIndices) {
-      editedEntries.push({
+		for (const rowId of entryRowIndices) {
+			newOrEditedLogEntries.push({
 				amount: data[rowId].amount,
 				amount_unit: data[rowId].amount_unit,
-        id: data[rowId].id,
-        name: data[rowId].name
-      });
-    }
+				id: data[rowId].id,
+				name: data[rowId].name
+			});
+		}
 
-    if (editedEntries.length) {
-			const url = `api/${userId}/logs?date=${formattedDate}`;
+    if (newOrEditedLogEntries.length) {
+			let url = `/api/${userId}/logs?date=${formattedDate}`;
+			let body = {};
 
 			try {
-				const body = await updateEntries(url, editedEntries);
+				if (status === 'logs') {
+					body = await updateEntries(url, newOrEditedLogEntries);
+
+					setEditedRowIndices([]);
+					fetchEntries();
+				} else if (status === 'createLog') {
+					body = await createEntries(url, newOrEditedLogEntries);
+					//setSkipSelectedRowsReset(false);
+					setData(entries);
+				}
 				
 				updateMessages(body);
-				setEditedRowIndices([]);
-				fetchEntries();
 			} catch(err) {
 				console.log(err);
 			}
@@ -374,10 +280,18 @@ export default function LogTable(props) {
   }
 
   React.useEffect(() => {
-    setSkipSelectedRowsReset(false);
+		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
+
+		if (status === 'logs') {
+			setSkipSelectedRowsReset(false);
+			fetchEntries();
+		}
+  }, [date])
+
+	React.useEffect(() => {
 		updateMessages({validationMessages: [], successMessages: [], errorMessages: []})
     fetchEntries();
-  }, [date])
+  }, [status])
 
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
@@ -390,6 +304,7 @@ export default function LogTable(props) {
           columns={columns}
           data={data}
           date={date}
+					defaultColumn={defaultColumn}
           entries={entries}
           errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}

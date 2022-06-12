@@ -1,7 +1,6 @@
 import React from 'react';
 import './index.css'
 
-import CreateLogTable from './components/CreateLogTable';
 import DateForm from './components/DateForm';
 import IndexTable from './components/IndexTable';
 import LogTable from './components/LogTable';
@@ -21,7 +20,8 @@ const App = () => {
 
 	return (
 		<div className='app-container vw-100 vh-100 p-3' >
-      {status === 'logs' &&
+
+      {status !== 'index' &&
         <>
           <DateForm 
           date={date}
@@ -39,14 +39,6 @@ const App = () => {
 				<IndexTable
 					status={status}
 					userId={userId}
-					onNavSubmit={updateStatus}
-				/>
-      }
-      {status === 'createLog' &&
-				<CreateLogTable
-					status={status}
-					userId={userId}
-					date={date}
 					onNavSubmit={updateStatus}
 				/>
       }

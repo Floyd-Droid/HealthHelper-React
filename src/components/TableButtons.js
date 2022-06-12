@@ -4,6 +4,10 @@ const TableButtons = (props) => {
 	const data = props.data
 	const disableButton = data.length === 1 && data[0].isPlaceholder;
 
+	const handleAddNewRow = () => {
+		props.onAddNewRow();
+	}
+
 	const handleDeleteEntries = () => {
     props.onDeleteRows();
 	}
@@ -32,10 +36,14 @@ const TableButtons = (props) => {
 					{status!=='logs' &&
 						<button type='button' className='btn bg-btn mx-3' onClick={handleNav} value='logs'>Go to logs</button>
 					}
-          
-          <button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleDeleteEntries}>Delete selected entries</button>
-          <button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleResetData}>Undo changes</button>
-          <button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleSubmit}>Submit changes</button>
+          {status !== 'createLog' &&
+						<button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleDeleteEntries}>Delete selected entries</button>
+					}
+          {status === 'index' &&
+						<button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleAddNewRow}>Add new row</button>
+					}
+          <button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleResetData}>Reset</button>
+          <button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleSubmit}>Submit</button>
         </div>
       </form>
 	)
