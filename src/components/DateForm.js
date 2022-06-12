@@ -2,36 +2,30 @@ import React from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default class DateForm extends React.Component {
+export default function DateForm(props) {
 
-  constructor(props) {
-    super(props);
+	const date = props.date;
 
-    this.incrementDate = this.incrementDate.bind(this)
-  }
-
-  incrementDate(e) {
+  const incrementDate = (e) => {
     const value = e.target.value;
-    const newDay = this.props.date.getDate() + Number(value);
-    const newDate = new Date(this.props.date.setDate(newDay));
+    const newDay = date.getDate() + Number(value);
+    const newDate = new Date(date.setDate(newDay));
 
-    this.props.onDateFormSubmit(newDate)
+    props.onDateFormSubmit(newDate)
   }
   
-  render() {
-      return (
-        <div className='container d-flex justify-content-center'>
-          <button className='btn date-btn p-0 mx-2' type='button' onClick={this.incrementDate} value='-1'>
-            prev
-          </button>
-          <div>
-          <DatePicker className='date-input' 
-            selected={this.props.date} onChange={(date) => this.props.onDateFormSubmit(date)}/>
-          </div>
-          <button className='btn date-btn p-0 mx-2' type='button' onClick={this.incrementDate} value='1'>
-            next
-          </button>
-        </div>
-      );
-  }
+	return (
+		<div className='container d-flex justify-content-center'>
+			<button className='btn date-btn p-0 mx-2' type='button' onClick={incrementDate} value='-1'>
+				prev
+			</button>
+			<div>
+			<DatePicker className='date-input' 
+				selected={date} onChange={(date) => props.onDateFormSubmit(date)}/>
+			</div>
+			<button className='btn date-btn p-0 mx-2' type='button' onClick={incrementDate} value='1'>
+				next
+			</button>
+		</div>
+	);
 }
