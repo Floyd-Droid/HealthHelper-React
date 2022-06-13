@@ -12,7 +12,7 @@ export default function Log(props) {
 				status={props.status}
 				userId={props.userId}
 				date={props.date} 
-				onNavSubmit={props.onNavSubmit}
+				onNavigate={props.onNavigate}
 			/>
 	</>
 	)

@@ -5,7 +5,7 @@ export default function Index(props) {
 		<IndexTable
 			status={props.status}
 			userId={props.userId}
-			onNavSubmit={props.updateStatus}
+			onNavigate={props.onNavigate}
 		/>
 	)
 }
