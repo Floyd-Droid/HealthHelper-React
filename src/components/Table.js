@@ -59,7 +59,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
   );
 
   React.useEffect(() => {
-		if (status === 'logs') {
+		if (status === 'log') {
 			toggleAllRowsSelected(false);
 		}
   }, [date])

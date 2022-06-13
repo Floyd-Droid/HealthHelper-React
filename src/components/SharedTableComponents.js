@@ -393,7 +393,7 @@ export const SumFooter = ({
 	let selectedTotalDivClassName = 'py-2';
   let totalDivClassName = 'py-2';
 
-  if (status === 'logs') {
+  if (status === 'log') {
     selectedTotalDivClassName += ' border-bottom'
   }
 
@@ -405,7 +405,7 @@ export const SumFooter = ({
       <div className={selectedTotalDivClassName}>
         {(showTotal && String(round(selectedTotal, 1))) || (colId==='name' && 'Selected Total') || '---'}
       </div>
-      {status === 'logs' && 
+      {status === 'log' && 
         <div className={totalDivClassName}>
           {(showTotal && String(round(total, 1))) || (colId==='name' && 'Total') || '---'}
         </div>}

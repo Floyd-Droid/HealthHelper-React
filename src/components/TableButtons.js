@@ -30,11 +30,11 @@ const TableButtons = (props) => {
 					{status!=='index' &&
 						<button type='button' className='btn bg-btn mr-3' onClick={handleNav} value='index'>Go to index</button>
 					}
-					{status==='logs' &&
+					{status==='log' &&
 						<button type='button' className='btn bg-btn mx-3' onClick={handleNav} value='createLog'>Create entries</button>
 					}
-					{status!=='logs' &&
-						<button type='button' className='btn bg-btn mx-3' onClick={handleNav} value='logs'>Go to logs</button>
+					{status!=='log' &&
+						<button type='button' className='btn bg-btn mx-3' onClick={handleNav} value='log'>Go to logs</button>
 					}
           {status !== 'createLog' &&
 						<button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleDeleteEntries}>Delete selected entries</button>

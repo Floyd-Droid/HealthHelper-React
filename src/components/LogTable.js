@@ -180,8 +180,8 @@ export default function LogTable(props) {
 	const fetchEntries = async () => {
 		let url = '';
 
-		if (status === 'logs') {
-			url = `/api/${userId}/logs?date=${formattedDate}`;
+		if (status === 'log') {
+			url = `/api/${userId}/log?date=${formattedDate}`;
 		} else if (status === 'createLog') {
 			url = `/api/${userId}/index`;
 		}
@@ -204,7 +204,7 @@ export default function LogTable(props) {
 		const newOrEditedLogEntries = [];
 		let entryRowIndices = [];
 
-		if (status === 'logs') {
+		if (status === 'log') {
 			const validationErrors = validateLogSubmission(data);
 			const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
 			updateMessages(messages);
@@ -228,18 +228,17 @@ export default function LogTable(props) {
 		}
 
     if (newOrEditedLogEntries.length) {
-			let url = `/api/${userId}/logs?date=${formattedDate}`;
+			let url = `/api/${userId}/log?date=${formattedDate}`;
 			let body = {};
 
 			try {
-				if (status === 'logs') {
+				if (status === 'log') {
 					body = await updateEntries(url, newOrEditedLogEntries);
 
 					setEditedRowIndices([]);
 					fetchEntries();
 				} else if (status === 'createLog') {
 					body = await createEntries(url, newOrEditedLogEntries);
-					//setSkipSelectedRowsReset(false);
 					setData(entries);
 				}
 				
@@ -269,7 +268,7 @@ export default function LogTable(props) {
     setSkipSelectedRowsReset(false);
 		updateTableEntries(dataCopy, entriesCopy);
     
-		const url = `api/${userId}/logs?date=${formattedDate}`;
+		const url = `api/${userId}/log?date=${formattedDate}`;
 		
 		try {
 			const body = await deleteEntries(url, entriesToDelete);
@@ -282,7 +281,7 @@ export default function LogTable(props) {
   React.useEffect(() => {
 		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
 
-		if (status === 'logs') {
+		if (status === 'log') {
 			setSkipSelectedRowsReset(false);
 			fetchEntries();
 		}

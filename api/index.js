@@ -32,7 +32,7 @@ const connectionErrorResult = {
 };
 
 // Log endpoints
-app.get('/api/:userId/logs', async (req, res) => {
+app.get('/api/:userId/log', async (req, res) => {
   const userId = req.params.userId;
   const date = req.query.date;
 
@@ -46,7 +46,7 @@ app.get('/api/:userId/logs', async (req, res) => {
   }
 });
 
-app.post('/api/:userId/logs', async (req, res) => {
+app.post('/api/:userId/log', async (req, res) => {
 	const entries = req.body;
   const userId = req.params.userId;
   const date = req.query.date;
@@ -66,7 +66,7 @@ app.post('/api/:userId/logs', async (req, res) => {
   }
 })
 
-app.put('/api/:userId/logs', async (req, res) => {
+app.put('/api/:userId/log', async (req, res) => {
 	const entries = req.body;
   const userId = req.params.userId;
   const date = req.query.date;
@@ -86,7 +86,7 @@ app.put('/api/:userId/logs', async (req, res) => {
   } 
 })
 
-app.delete('/api/:userId/logs', async (req, res) => {
+app.delete('/api/:userId/log', async (req, res) => {
 	const entries = req.body;
   const userId = req.params.userId;
   const date = req.query.date;
