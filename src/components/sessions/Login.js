@@ -1,38 +1,39 @@
 import React from 'react';
-import fire from '../../firebase';
+import { logInWithEmailAndPassword, registerUserWithEmailAndPassword, listUsers } from '../../firebase';
 
-export default function Login() {
+export default function Login(props) {
+	const type = props.type;
 	const [email, setEmail] = React.useState();
 	const [password, setPassword] = React.useState();
-	
-	const handleSubmit = (e) => {
-		e.preventDefault();
-		console.log(`submitted email: 
-			${email} password: ${password}`);
+
+	const handleSubmit = () => {
+		if (type === 'login') {
+			logInWithEmailAndPassword(email, password);
+		} else if (type === 'register') {
+			registerUserWithEmailAndPassword(email, password);
+		}
 	}
-	
+
 	return (
 		<div>    
 			<h2>Login</h2>
-			<form onSubmit={handleSubmit}>
+			<div>
 				<input
 					type="text"
-					onChange={({ target }) =>     
-						setEmail(target.value)}
+					onChange={e => setEmail(e.target.value)}
 					placeholder="Email"
 				/>
 				<br />
 				<input
 					type="password"
-					onChange={({ target}) => 
-						setPassword(target.value)}
+					onChange={e => setPassword(e.target.value)}
 					placeholder="Password"
 				/>
 				<br />
-				<button type="submit">
+				<button type="submit" onClick={handleSubmit}>
 					Sign in
 				</button>
-			</form>
+			</div>
 		</div>
 	)
 };

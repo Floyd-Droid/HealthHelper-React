@@ -1,5 +1,6 @@
 import { Outlet, Link } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
+import { logout } from '../firebase';
 
 export default function Layout(props) {
 
@@ -18,8 +19,8 @@ export default function Layout(props) {
 							<Link to='log' className='nav-link' onClick={handleNavigate} status='log'>Log</Link>
 							<Link to='index' className='nav-link' onClick={handleNavigate} status='index'>Index</Link>
 							<NavDropdown title="User" id="basic-nav-dropdown">
-								<NavDropdown.Item href="settings">Settings</NavDropdown.Item>
-								<NavDropdown.Item href="logout">Log out</NavDropdown.Item>
+								<NavDropdown.Item href="/settings">Settings</NavDropdown.Item>f
+								<NavDropdown.Item href="/login" onClick={logout}>Log out</NavDropdown.Item>
 							</NavDropdown>
 						</Nav>
 					</Navbar.Collapse>

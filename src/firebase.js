@@ -8,7 +8,7 @@ import {
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
 	sendPasswordResetEmail,
-	signOut
+	signOut,
 } from "firebase/auth";
 
 const config = {
@@ -23,39 +23,45 @@ const config = {
 
 // Initialize Firebase
 const app = initializeApp(config);
-const auth = getAuth(app);
+export const auth = getAuth(app);
 
-// onAuthStateChanged(auth, (user) => {
-//   if (user) {
-//     // User is signed in, see docs for a list of available properties
-//     // https://firebase.google.com/docs/reference/js/firebase.User
-//     const uid = user.uid;
-//     // ...
-//   } else {
-//     // User is signed out
-//     // ...
-//   }
-// });
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // User is signed in, see docs for a list of available properties
+    // https://firebase.google.com/docs/reference/js/firebase.User
+    const uid = user.uid;
+    // ...
+  } else {
+    // User is signed out
+    // ...
+  }
+});
 
-// createUserWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//     // ..
-//   });
+export const registerUserWithEmailAndPassword = async (email, password) => {
+	try {
+		await createUserWithEmailAndPassword(auth, email, password);
+	} catch (err) {
+		console.log(err);
+	}
+};
 
-// signInWithEmailAndPassword(auth, email, password)
-//   .then((userCredential) => {
-//     // Signed in 
-//     const user = userCredential.user;
-//     // ...
-//   })
-//   .catch((error) => {
-//     const errorCode = error.code;
-//     const errorMessage = error.message;
-//   });
+export const logInWithEmailAndPassword = async (email, password) => {
+	try {
+		await signInWithEmailAndPassword(auth, email, password);
+	} catch (err) {
+		console.log(err)
+	}
+};
+
+export const passwordReset = async (email) => {
+	try {
+		await sendPasswordResetEmail(auth, email);
+		alert('Password reset email has been sent');
+	} catch (err) {
+		console.log(err)
+	}
+};
+
+export const logout = () => {
+	signOut(auth);
+};
