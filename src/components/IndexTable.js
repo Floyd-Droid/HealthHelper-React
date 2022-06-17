@@ -12,7 +12,7 @@ import { IndexCostCell, Input, NumberRangeFilter, Select,
 
 
 export default function IndexTable(props) {
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
   const status = props.status;
   const userId = props.userId;
 

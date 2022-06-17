@@ -9,6 +9,10 @@ import {
 	signInWithEmailAndPassword,
 	sendPasswordResetEmail,
 	signOut,
+	deleteUser,
+	linkWithRedirect,
+	getRedirectResult,
+	updateProfile
 } from "firebase/auth";
 
 const config = {
@@ -24,12 +28,14 @@ const config = {
 // Initialize Firebase
 const app = initializeApp(config);
 export const auth = getAuth(app);
+export const googleProvider = new GoogleAuthProvider();
 
 onAuthStateChanged(auth, (user) => {
   if (user) {
     // User is signed in, see docs for a list of available properties
     // https://firebase.google.com/docs/reference/js/firebase.User
     const uid = user.uid;
+		console.log(uid)
     // ...
   } else {
     // User is signed out
@@ -37,21 +43,18 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-export const registerUserWithEmailAndPassword = async (email, password) => {
+export const registerUserWithEmailAndPassword = async (username, email, password) => {
 	try {
-		await createUserWithEmailAndPassword(auth, email, password);
-	} catch (err) {
-		console.log(err);
-	}
-};
-
-export const logInWithEmailAndPassword = async (email, password) => {
-	try {
-		await signInWithEmailAndPassword(auth, email, password);
+		const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+		await updateProfile(userCredential.user, {
+			displayName: username
+		});
+		return {successMessages: ['Welcome aboard!']}
 	} catch (err) {
 		console.log(err)
 	}
-};
+}
+
 
 export const passwordReset = async (email) => {
 	try {
@@ -62,6 +65,23 @@ export const passwordReset = async (email) => {
 	}
 };
 
+export const deleteAccount = async (user) => {
+	try {
+		await deleteUser(user);
+		console.log('Account deleted');
+	} catch (err) {
+		console.log(err);
+	}
+}
+
 export const logout = () => {
 	signOut(auth);
 };
+
+export const authLink = async () => {
+	try {
+		await linkWithRedirect(auth.currentUser, googleProvider);
+	} catch (err) {
+		console.log(err)
+	}
+}

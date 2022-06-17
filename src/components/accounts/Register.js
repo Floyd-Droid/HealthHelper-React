@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { registerUserWithEmailAndPassword } from '../../firebase';
 
 export default function Register() {
 	const navigate = useNavigate();
@@ -10,8 +10,8 @@ export default function Register() {
 
 	const handleSubmit = async (method) => {
 		if (method === 'email') {
-			const res = await createUserWithEmailAndPassword(email, password);
-			if (res) navigate('/log');
+			const res = await registerUserWithEmailAndPassword(username, email, password);
+			if (res.successMessages.length) navigate('/log');
 		} else if (method === 'google') {
 			console.log('placeholder');
 		}

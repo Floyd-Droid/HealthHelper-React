@@ -2,12 +2,12 @@ import React, { useContext } from 'react';
 
 import UserContext from '../../context/UserContext';
 import Button from 'react-bootstrap/Button'
-import { getRedirectResult, } from 'firebase/auth';
-import { auth, authLink, googleProvider, deleteAccount } from '../../firebase';
+import { getRedirectResult, deleteUser, } from 'firebase/auth';
+import { auth, authLink, googleProvider, } from '../../firebase';
 
 
 export default function Settings(props) {
-	const user = useContext(UserContext);
+	const { user, loading } = useContext(UserContext);
 	const [username, setUsername] = React.useState();
 	const [email, setEmail] = React.useState();
 	const [linkEmail, setLinkEmail] = React.useState();
@@ -22,7 +22,11 @@ export default function Settings(props) {
 	}
 
 	const handleDeleteAccount = async () => {
-		await deleteAccount(user);
+		try {
+			await deleteUser(user);
+		} catch (err) {
+			console.log(err);
+		}
 	}
 
 	return (

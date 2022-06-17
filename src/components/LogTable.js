@@ -12,7 +12,7 @@ import { CalculatedCell, Input, NumberRangeFilter, Select,
 
 
 export default function LogTable(props) {
-	const user = useContext(UserContext);
+	const { user } = useContext(UserContext);
   const status = props.status;
   const userId = props.userId;
   const date = props.date;
