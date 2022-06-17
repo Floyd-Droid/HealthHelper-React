@@ -1,18 +1,25 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { logInWithEmailAndPassword } from '../../firebase';
+import { Link, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../../firebase';
 
-export default function Login(props) {
-	const type = props.type;
-	const [username, setUsername] = React.useState()
+export default function Login() {
+	const [username, setUsername] = React.useState();
 	const [email, setEmail] = React.useState();
 	const [password, setPassword] = React.useState();
 
-	const handleSubmit = (method) => {
-		if (method === 'email') {
-			logInWithEmailAndPassword(email, password);
-		} else if (method === 'google') {
-			console.log('placeholder');
+	const navigate = useNavigate();
+
+	const handleSubmit = async (method) => {
+		try {
+			if (method === 'email') {
+				const res = await signInWithEmailAndPassword(auth, email, password);
+				if (res) navigate('/log');
+			} else if (method === 'google') {
+				console.log('placeholder')
+			}
+		} catch (err) {
+			console.log(err)
 		}
 	}
 

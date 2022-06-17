@@ -5,8 +5,8 @@ export default function Log(props) {
 	return (
 		<>
 			<DateForm 
-			date={props.date}
-			onDateFormSubmit={props.onDateFormSubmit}
+				date={props.date}
+				onDateFormSubmit={props.onDateFormSubmit}
 			/>
 			<LogTable
 				status={props.status}

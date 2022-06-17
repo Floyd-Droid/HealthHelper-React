@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
-import Table from './Table';
-import TableButtons from './TableButtons';
-
+import UserContext from '../context/UserContext';
 import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { newIndexRow, prepareEntries } from '../services/TableData';
 import { validateIndexSubmission} from '../services/Validation';
+
+import Table from './Table';
+import TableButtons from './TableButtons';
 import { IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
 
 export default function IndexTable(props) {
+	const user = useContext(UserContext);
   const status = props.status;
   const userId = props.userId;
 

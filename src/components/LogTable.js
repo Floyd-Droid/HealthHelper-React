@@ -1,16 +1,18 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
-import Table from './Table';
-import TableButtons from './TableButtons';
-
+import UserContext from '../context/UserContext';
 import { createEntries, deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 import { validateLogSubmission } from '../services/Validation';
+
+import Table from './Table';
+import TableButtons from './TableButtons';
 import { CalculatedCell, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
 
 
 export default function LogTable(props) {
+	const user = useContext(UserContext);
   const status = props.status;
   const userId = props.userId;
   const date = props.date;

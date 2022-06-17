@@ -1,16 +1,19 @@
 import React from 'react';
-import { registerUserWithEmailAndPassword } from '../../firebase';
+import { useNavigate } from 'react-router-dom';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 
-export default function Register(props) {
+export default function Register() {
+	const navigate = useNavigate();
 	const [username, setUsername] = React.useState()
 	const [email, setEmail] = React.useState();
 	const [password, setPassword] = React.useState();
 
-	const handleSubmit = (method) => {
+	const handleSubmit = async (method) => {
 		if (method === 'email') {
-			registerUserWithEmailAndPassword(email, password);
+			const res = await createUserWithEmailAndPassword(email, password);
+			if (res) navigate('/log');
 		} else if (method === 'google') {
-			console.log('placeholder')
+			console.log('placeholder');
 		}
 	}
 

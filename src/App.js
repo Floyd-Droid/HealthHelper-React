@@ -1,13 +1,15 @@
 import React from 'react';
 import './index.css';
 
+import { UserProvider } from './context/UserContext';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
 import Layout from './components/Layout';
-import Login from './components/sessions/Login';
-import Register from './components/sessions/Register';
+import Login from './components/accounts/Login';
+import Register from './components/accounts/Register';
+import Settings from './components/accounts/Settings';
 import Log from './components/Log';
 import Index from './components/Index';
 
@@ -29,24 +31,30 @@ const App = () => {
 
 	React.useEffect(() => {
 		if (loading) return false;
-		if (user) navigate('/log');
+		if (!user) navigate('/login');
 	}, [user, loading]);
 
 	return (
-		<div className='app-container vw-100 vh-100 p-3' >
-			<Routes>
-				<Route path='/login' element={<Login/>}/>
-				<Route path='/register' element={<Register/>}/>
-				<Route path='/' element={<Layout onNavigate={updateStatus}/>}>
-					<Route path='log' 
-						element={<Log status={status} userId={userId} date={date} onNavigate={updateStatus} onDateFormSubmit={updateDate}/>}
-					/>
-					<Route path='index' 
-						element={<Index status={status} userId={userId} onNavigate={updateStatus}/>}
-					/>
-				</Route>
-			</Routes>
-    </div>
+		<UserProvider
+			value={user}>
+			<div className='app-container vw-100 vh-100 p-3' >
+				<Routes>
+					<Route path='/login' element={<Login/>}/>
+					<Route path='/register' element={<Register/>}/>
+					<Route path='/' element={<Layout onNavigate={updateStatus}/>}>
+						<Route path='log' 
+							element={<Log status={status} userId={userId} date={date} onNavigate={updateStatus} onDateFormSubmit={updateDate}/>}
+						/>
+						<Route path='index' 
+							element={<Index status={status} userId={userId} onNavigate={updateStatus}/>}
+						/>
+						<Route path='accounts/settings' 
+							element={<Settings user={user}/>}
+						/>
+					</Route>
+				</Routes>
+			</div>
+		</UserProvider>
 	)
 }
 
