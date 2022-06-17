@@ -1,7 +1,7 @@
-const { pool } = require("../db.js");
-const { convertEmptyStringToNull, makeEntryNameList } = require("./dbData.js");
+import { pool } from '../db.js';
+import { convertEmptyStringToNull, makeEntryNameList } from './dbData.js';
 
-async function getIndexEntries(userId) {
+export async function getIndexEntries(userId) {
 	const result = {entries: [], errorMessages: [], successMessages: []};
 
   const getEntriesQuery = `
@@ -32,7 +32,7 @@ async function getIndexEntries(userId) {
   }
 }
 
-async function createIndexEntries(entries, userId) {
+export async function createIndexEntries(entries, userId) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -90,7 +90,7 @@ async function createIndexEntries(entries, userId) {
   return result;
 }
 
-async function updateIndexEntries(entries, userId) {
+export async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -181,7 +181,7 @@ async function updateIndexEntries(entries, userId) {
   return result;
 }
 
-async function deleteIndexEntries(entries, userId) {
+export async function deleteIndexEntries(entries, userId) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -214,11 +214,4 @@ async function deleteIndexEntries(entries, userId) {
 	}
 
   return result;
-}
-
-module.exports = {
-  createIndexEntries,
-  deleteIndexEntries,
-  getIndexEntries,
-  updateIndexEntries,
 }

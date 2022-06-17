@@ -1,4 +1,4 @@
-const convertEmptyStringToNull = (entries) => {
+export function convertEmptyStringToNull(entries) {
   for (let entry of entries) {
     Object.keys(entry).forEach((key) => {
         entry[key] = entry[key] === '' ? null : entry[key];
@@ -8,7 +8,7 @@ const convertEmptyStringToNull = (entries) => {
   return entries;
 }
 
-const makeEntryNameList = (entryNames) => {
+export function makeEntryNameList(entryNames) {
 	// return a string of comma separated entry names
 	let result = '';
 	entryNames.forEach((entryName, i) => {
@@ -20,9 +20,4 @@ const makeEntryNameList = (entryNames) => {
 	})
 
 	return result;
-}
-
-module.exports = {
-  convertEmptyStringToNull,
-	makeEntryNameList
 }

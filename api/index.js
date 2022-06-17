@@ -1,11 +1,11 @@
-const express = require("express");
-const bodyParser = require("body-parser");
-const cors = require("cors");
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+
+import * as logModel from './models/logModel.js';
+import * as indexModel from './models/indexModel.js';
+
 const PORT = process.env.PORT || 3001;
-
-const logModel = require('./models/logModel.js');
-const indexModel = require('./models/indexModel.js');
-
 const app = express();
 
 var corsOptions = {

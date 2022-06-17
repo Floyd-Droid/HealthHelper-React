@@ -1,7 +1,7 @@
-const { pool } = require("../db.js");
-const { convertEmptyStringToNull, makeEntryNameList } = require("./dbData.js");
+import { pool } from '../db.js';
+import { convertEmptyStringToNull, makeEntryNameList } from './dbData.js';
 
-async function getLogEntries(userId, date) {
+export async function getLogEntries(userId, date) {
 	const result = {entries: [], errorMessages: [], successMessages: []};
 
   const q = `
@@ -34,7 +34,7 @@ async function getLogEntries(userId, date) {
     }
 }
 
-async function createLogEntries(entries, userId, date) {
+export async function createLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -70,7 +70,7 @@ async function createLogEntries(entries, userId, date) {
   return result;
 }
 
-async function updateLogEntries(entries, userId, date) {
+export async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -111,7 +111,7 @@ async function updateLogEntries(entries, userId, date) {
   return result;
 }
 
-async function deleteLogEntries(entries, userId, date) {
+export async function deleteLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
 	const result = {errorMessages: [], successMessages: []};
@@ -145,11 +145,4 @@ async function deleteLogEntries(entries, userId, date) {
 	}
 
   return result;
-}
-
-module.exports = {
-  createLogEntries,
-  deleteLogEntries,
-  getLogEntries,
-  updateLogEntries,
 }
