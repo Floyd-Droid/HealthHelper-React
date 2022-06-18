@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import UserContext from '../../context/UserContext';
 import Button from 'react-bootstrap/Button'
 import { deleteUser, updateProfile, updateEmail  } from 'firebase/auth';
+import { passwordReset } from '../../firebase';
 
 
 export default function Settings(props) {
@@ -29,6 +30,14 @@ export default function Settings(props) {
 			}
 		} catch (err) {
 			console.log(err)
+		}
+	}
+
+	const handlePasswordReset = async () => {
+		try {
+			await passwordReset(user.email);
+		} catch (err) {
+			console.log(err);
 		}
 	}
 	
@@ -73,6 +82,7 @@ export default function Settings(props) {
 			</div>
 			<div>
 				<h2>Reset Password</h2>
+				<p>Click <a href='#' onClick={handlePasswordReset}>here</a> to reset your password</p>
 			</div>
 			<div>
 				<h2>Link accounts</h2>
