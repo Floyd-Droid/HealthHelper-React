@@ -2,8 +2,7 @@ import React, { useContext } from 'react';
 
 import UserContext from '../../context/UserContext';
 import Button from 'react-bootstrap/Button'
-import { getRedirectResult, deleteUser, } from 'firebase/auth';
-import { auth, authLink, googleProvider, } from '../../firebase';
+import { deleteUser, updateProfile, updateEmail  } from 'firebase/auth';
 
 
 export default function Settings(props) {
@@ -13,8 +12,24 @@ export default function Settings(props) {
 	const [linkEmail, setLinkEmail] = React.useState();
 	const [linkPassword, setLinkPassword] = React.useState();
 
-	const handleInfoUpdate = () => {
-		console.log('placeholder');
+	const handleUpdateUsername = async () => {
+		try {
+			if (user.displayName !== username) {
+				await updateProfile(user, {displayName: username});
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	const handleUpdateEmail = async () => {
+		try {
+			if (user.email !== email) {
+				await updateEmail(user, email);
+			}
+		} catch (err) {
+			console.log(err)
+		}
 	}
 	
 	const handleLinkAccount = async () => {
@@ -37,8 +52,13 @@ export default function Settings(props) {
 					<input
 							type="text"
 							onChange={e => setUsername(e.target.value)}
-							placeholder={'username here'}
+							placeholder={user !== null ? user.displayName : ''}
 						/>
+					<Button 
+						variant='primary' 
+						onClick={handleUpdateUsername}>
+						Update
+					</Button>
 						<p>Email</p>
 					<input
 						type="text"
@@ -47,8 +67,8 @@ export default function Settings(props) {
 					/>
 					<Button 
 						variant='primary' 
-						onClick={handleInfoUpdate}>
-						Update Info
+						onClick={handleUpdateEmail}>
+						Update
 					</Button>
 			</div>
 			<div>
