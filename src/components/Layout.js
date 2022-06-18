@@ -6,17 +6,17 @@ import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import { logout } from '../firebase';
 
 export default function Layout(props) {
-	const { user, loading } = useContext(UserContext);
+	const { user, isLoading } = useContext(UserContext);
 
 	const handleNavigate = (e) => {
 		props.onNavigate(e.target.attributes.status.value);
 	}
 
 	React.useEffect(() => {
-		if (loading) {
+		if (isLoading) {
 			return false;
 		}
-	}, [loading])
+	}, [isLoading])
 
 	return (
 		<>

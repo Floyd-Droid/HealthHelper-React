@@ -10,7 +10,6 @@ export default function Log(props) {
 			/>
 			<LogTable
 				status={props.status}
-				userId={props.userId}
 				date={props.date} 
 				onNavigate={props.onNavigate}
 			/>

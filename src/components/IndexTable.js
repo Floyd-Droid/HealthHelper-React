@@ -12,9 +12,18 @@ import { IndexCostCell, Input, NumberRangeFilter, Select,
 
 
 export default function IndexTable(props) {
-	const { user } = useContext(UserContext);
+	const { user, isLoading } = useContext(UserContext);
   const status = props.status;
-  const userId = props.userId;
+	const url = '/api/index';
+
+	const [data, setData] = React.useState([]);
+  const [entries, setEntries] = React.useState([]);
+  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
+  const [selectedEntries, setSelectedEntries] = React.useState({});
+  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
+  const [errorMessages, setErrorMessages] = React.useState([]);
+  const [successMessages, setSuccessMessages] = React.useState([]);
+  const [validationMessages, setValidationMessages] = React.useState([]);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -137,15 +146,6 @@ export default function IndexTable(props) {
     []
   )
 
-  const [data, setData] = React.useState([]);
-  const [entries, setEntries] = React.useState([]);
-  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState({});
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-  const [errorMessages, setErrorMessages] = React.useState([]);
-  const [successMessages, setSuccessMessages] = React.useState([]);
-  const [validationMessages, setValidationMessages] = React.useState([]);
-
 	const updateTableEntries = (potentialData, potentialEntries) => {
 		if (potentialData.length) {
 			setEntries(potentialEntries);
@@ -203,10 +203,9 @@ export default function IndexTable(props) {
   }
 
   const fetchEntries = async () => {
-    const url = `/api/${userId}/index`;
-
 		try {
-			const body = await getEntries(url);
+			const token = await user.getIdToken(true);
+			const body = await getEntries(url, token);
 
 			if (body.errorMessages.length) {
 				updateMessages(body);
@@ -245,10 +244,9 @@ export default function IndexTable(props) {
     }
 
     if (editedEntries.length || newEntries.length) {
-      const url = `api/${userId}/index`;
-
 			try {
-				const body = await createOrUpdateEntries(url, newEntries, editedEntries);
+				const token = await user.getIdToken(true);
+				const body = await createOrUpdateEntries(url, token, newEntries, editedEntries);
 
 				updateMessages(body)
 				setEditedRowIndices([]);
@@ -281,10 +279,10 @@ export default function IndexTable(props) {
 		updateTableEntries(dataCopy, entriesCopy);
 		
     if (existingEntryIds.length) {
-      const url = `/api/${userId}/index`;
 
 			try {
-				const body = await deleteEntries(url, existingEntryIds);
+				const token = await user.getIdToken(true);
+				const body = await deleteEntries(url, token, existingEntryIds);
 				updateMessages(body);
 			} catch(err) {
           console.log(err);
@@ -297,8 +295,10 @@ export default function IndexTable(props) {
   }, [data])
 
   React.useEffect(() => {
-    fetchEntries();
-  }, [])
+		if (!isLoading) {
+			fetchEntries();
+		}
+  }, [isLoading])
 
   return (
     <>

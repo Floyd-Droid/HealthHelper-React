@@ -1,9 +1,11 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import 'dotenv/config';
 
 import * as logModel from './models/logModel.js';
 import * as indexModel from './models/indexModel.js';
+import { verifyFirebaseIdToken } from './firebase.js';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -32,12 +34,12 @@ const connectionErrorResult = {
 };
 
 // Log endpoints
-app.get('/api/:userId/log', async (req, res) => {
-  const userId = req.params.userId;
+app.get('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-    const dbResult = await logModel.getLogEntries(userId, date);
+		const decodedToken = await verifyFirebaseIdToken(req);
+    const dbResult = await logModel.getLogEntries(decodedToken.uid, date);
     const code = dbResult.errorMessages.length ? 500 : 200;
     res.status(code).json(dbResult); 
   } catch (err) {
@@ -46,13 +48,13 @@ app.get('/api/:userId/log', async (req, res) => {
   }
 });
 
-app.post('/api/:userId/log', async (req, res) => {
+app.post('/api/log', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
   const date = req.query.date;
 	
   try {
-    const dbResult = await logModel.createLogEntries(entries, userId, date);
+		const decodedToken = verifyFirebaseIdToken(req);
+    const dbResult = await logModel.createLogEntries(entries, decodedToken.uid, date);
 		const code = dbResult.successMessages.length ? 201 : 500;
 
 		if (dbResult.errorMessages.length) {
@@ -66,13 +68,13 @@ app.post('/api/:userId/log', async (req, res) => {
   }
 })
 
-app.put('/api/:userId/log', async (req, res) => {
+app.put('/api/log', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
   const date = req.query.date;
 
   try {
-    const dbResult = await logModel.updateLogEntries(entries, userId, date);
+		const decodedToken = verifyFirebaseIdToken(req);
+    const dbResult = await logModel.updateLogEntries(entries, decodedToken.uid, date);
 		const code = dbResult.successMessages.length ? 200 : 500;
 
 		if (dbResult.errorMessages.length) {
@@ -86,20 +88,20 @@ app.put('/api/:userId/log', async (req, res) => {
   } 
 })
 
-app.delete('/api/:userId/log', async (req, res) => {
+app.delete('/api/log', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
   const date = req.query.date;
 
   try {
-    const dbResult = await logModel.deleteLogEntries(entries, userId, date);
+		const decodedToken = verifyFirebaseIdToken(req);
+    const dbResult = await logModel.deleteLogEntries(entries, decodedToken.uid, date);
 		const code = dbResult.successMessages.length ? 200 : 500;
 
 		if (dbResult.errorMessages.length) {
 			dbResult.successMessages = [];
 		}
 
-    res.status(200).json(dbResult);
+    res.status(code).json(dbResult);
   } catch(err) {
     console.log(err);
     res.status(500).json(defaultErrorResult);
@@ -108,12 +110,12 @@ app.delete('/api/:userId/log', async (req, res) => {
 
 
 // Index endpoints
-app.get('/api/:userId/index', async (req, res) => {
-  const userId = req.params.userId;
-
+app.get('/api/index', async (req, res) => {
   try {
-    const dbResult = await indexModel.getIndexEntries(userId);
+		const decodedToken = await verifyFirebaseIdToken(req);
+    const dbResult = await indexModel.getIndexEntries(decodedToken.uid);
     const code = dbResult.errorMessages.length ? 500 : 200;
+
     res.status(code).json(dbResult);
   } catch (err) {
     console.log(err);
@@ -121,12 +123,12 @@ app.get('/api/:userId/index', async (req, res) => {
   }
 })
 
-app.post('/api/:userId/index', async (req, res) => {
+app.post('/api/index', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
 	
   try {
-    const dbResult = await indexModel.createIndexEntries(entries, userId);
+		const decodedToken = await verifyFirebaseIdToken(req);
+    const dbResult = await indexModel.createIndexEntries(entries, decodedToken.uid);
 		const code = dbResult.successMessages.length ? 201 : 500;
 
 		if (dbResult.errorMessages.length) {
@@ -140,12 +142,12 @@ app.post('/api/:userId/index', async (req, res) => {
   }
 })
 
-app.put('/api/:userId/index', async (req, res) => {
+app.put('/api/index', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
 
   try {
-    const dbResult = await indexModel.updateIndexEntries(entries, userId);
+		const decodedToken = await verifyFirebaseIdToken(req);
+    const dbResult = await indexModel.updateIndexEntries(entries, decodedToken.uid);
 		const code = dbResult.successMessages.length ? 200 : 500;
 
 		if (dbResult.errorMessages.length) {
@@ -159,12 +161,12 @@ app.put('/api/:userId/index', async (req, res) => {
   }
 })
 
-app.delete('/api/:userId/index', async (req, res) => {
+app.delete('/api/index', async (req, res) => {
 	const entries = req.body;
-  const userId = req.params.userId;
   
   try {
-    const dbResult = await indexModel.deleteIndexEntries(entries, userId);
+		const decodedToken = await verifyFirebaseIdToken(req);
+    const dbResult = await indexModel.deleteIndexEntries(entries, decodedToken.uid);
 		const code = dbResult.successMessages.length ? 200 : 500;
 
 		if (dbResult.errorMessages.length) {
@@ -176,7 +178,6 @@ app.delete('/api/:userId/index', async (req, res) => {
     console.log(err);
     res.status(500).json(defaultErrorResult);
   }
-
 })
 
 app.listen(PORT, () => {

@@ -16,9 +16,8 @@ import Index from './components/Index';
 
 const App = () => {
 	const [status, setStatus] = React.useState('log');
-	const [userId, setUserId] = React.useState(1);
 	const [date, setDate] = React.useState(new Date());
-	const [user, loading, error] = useAuthState(auth);
+	const [user, isLoading, error] = useAuthState(auth);
 	const navigate = useNavigate();
 
 	const updateDate = (newDate) => {
@@ -30,23 +29,23 @@ const App = () => {
 	}
 
 	React.useEffect(() => {
-		if (loading) return false;
+		if (isLoading) return false;
 		if (!user) navigate('/login');
-	}, [user, loading]);
+	}, [user, isLoading]);
 
 	return (
 		<UserProvider
-			value={user}>
+			value={{user, isLoading}}>
 			<div className='app-container vw-100 vh-100 p-3' >
 				<Routes>
 					<Route path='/login' element={<Login/>}/>
 					<Route path='/register' element={<Register/>}/>
 					<Route path='/' element={<Layout onNavigate={updateStatus}/>}>
 						<Route path='log' 
-							element={<Log status={status} userId={userId} date={date} onNavigate={updateStatus} onDateFormSubmit={updateDate}/>}
+							element={<Log status={status} date={date} onNavigate={updateStatus} onDateFormSubmit={updateDate}/>}
 						/>
 						<Route path='index' 
-							element={<Index status={status} userId={userId} onNavigate={updateStatus}/>}
+							element={<Index status={status} onNavigate={updateStatus}/>}
 						/>
 						<Route path='accounts/settings' 
 							element={<Settings user={user}/>}
