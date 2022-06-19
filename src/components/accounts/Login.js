@@ -1,27 +1,47 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../firebase';
+import { signInWithEmailAndPassword, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+
+import UserContext from '../../context/UserContext';
+import { auth,  googleProvider } from '../../firebase';
 
 export default function Login() {
+	const { user, isLoading } = useContext(UserContext);
 	const [username, setUsername] = React.useState();
 	const [email, setEmail] = React.useState();
 	const [password, setPassword] = React.useState();
 
 	const navigate = useNavigate();
 
-	const handleSubmit = async (method) => {
+	const handleLoginWithEmail = async (method) => {
 		try {
-			if (method === 'email') {
-				const res = await signInWithEmailAndPassword(auth, email, password);
-				if (res) navigate('/log');
-			} else if (method === 'google') {
-				console.log('placeholder')
-			}
+			await signInWithEmailAndPassword(auth, email, password);
+			navigate('/log');
 		} catch (err) {
 			console.log(err)
 		}
 	}
+
+	const handleLoginWithGoogle = async () => {
+		try {
+			await signInWithRedirect(auth, googleProvider);
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	React.useEffect(() => {
+		async function redirectAfterLogin() {
+			try {
+				const result = await getRedirectResult(auth);
+				if (result) navigate('/log');
+			} catch (err) {
+				console.log(err);
+			}
+		}
+
+		redirectAfterLogin();
+	})
 
 	return (
 		<div>    
@@ -40,10 +60,10 @@ export default function Login() {
 				/>
 				<br />
 				<div>
-					<button className='btn btn-primary' onClick={() => handleSubmit('email')}>
+					<button className='btn btn-primary' onClick={handleLoginWithEmail}>
 						Log in
 					</button>
-					<button className='btn btn-primary' onClick={() => handleSubmit('google')}>
+					<button className='btn btn-primary' onClick={handleLoginWithGoogle}>
 						Log in with Google
 					</button>
 				</div>

@@ -1,21 +1,47 @@
-import React from 'react';
+import React, { useContext } from 'react';
+import { getRedirectResult, signInWithRedirect } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { registerUserWithEmailAndPassword } from '../../firebase';
+
+import UserContext from '../../context/UserContext';
+import { auth, registerUserWithEmailAndPassword, googleProvider } from '../../firebase';
 
 export default function Register() {
-	const navigate = useNavigate();
+	const { user, isLoading } = useContext(UserContext);
 	const [username, setUsername] = React.useState()
 	const [email, setEmail] = React.useState();
 	const [password, setPassword] = React.useState();
 
-	const handleSubmit = async (method) => {
-		if (method === 'email') {
-			const res = await registerUserWithEmailAndPassword(username, email, password);
-			if (res.successMessages.length) navigate('/log');
-		} else if (method === 'google') {
-			console.log('placeholder');
+	const navigate = useNavigate();
+
+	const handleRegister = async (method) => {
+		try {
+			await registerUserWithEmailAndPassword(username, email, password);
+			navigate('/log');
+		} catch (err) {
+			console.log(err);
 		}
 	}
+
+	const handleRegisterWithGoogle = async () => {
+		try {
+			signInWithRedirect(auth, googleProvider);
+		} catch (err) {
+			console.log(err);
+		}
+	}
+
+	React.useEffect(() => {
+		async function redirectAfterLogin() {
+			try {
+				const result = await getRedirectResult(auth);
+				if (result) navigate('/log');
+			} catch (err) {
+				console.log(err);
+			}
+		}
+		
+		redirectAfterLogin();
+	})
 
 	return (
 		<div>
@@ -42,10 +68,10 @@ export default function Register() {
 				</div>
 				<br />
 				<div>
-					<button className='btn' onClick={() => handleSubmit('email')}>
+					<button className='btn' onClick={handleRegister}>
 						Register
 					</button>
-					<button className='btn' onClick={() => handleSubmit('google')}>
+					<button className='btn' onClick={handleRegisterWithGoogle}>
 						Register with Google
 					</button>
 				</div>
