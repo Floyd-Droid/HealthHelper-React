@@ -1,9 +1,10 @@
 import React, { useContext } from 'react';
+import { deleteUser, updateProfile, updateEmail, linkWithRedirect, getRedirectResult } from 'firebase/auth';
+import { useNavigate } from 'react-router-dom';
 
+import { auth, googleProvider, passwordReset } from '../../firebase';
 import UserContext from '../../context/UserContext';
 import Button from 'react-bootstrap/Button'
-import { deleteUser, updateProfile, updateEmail  } from 'firebase/auth';
-import { passwordReset } from '../../firebase';
 
 
 export default function Settings(props) {
@@ -12,6 +13,8 @@ export default function Settings(props) {
 	const [email, setEmail] = React.useState();
 	const [linkEmail, setLinkEmail] = React.useState();
 	const [linkPassword, setLinkPassword] = React.useState();
+
+	const navigate = useNavigate();
 
 	const handleUpdateUsername = async () => {
 		try {
@@ -41,8 +44,12 @@ export default function Settings(props) {
 		}
 	}
 	
-	const handleLinkAccount = async () => {
-		console.log('placeholder');
+	const handleLinkGoogleAccount = async () => {
+		try {
+			await linkWithRedirect(user, googleProvider);
+		} catch (err) {
+			console.log(err);
+		}
 	}
 
 	const handleDeleteAccount = async () => {
@@ -52,6 +59,19 @@ export default function Settings(props) {
 			console.log(err);
 		}
 	}
+
+	React.useEffect(() => {
+		async function redirectAfterLogin() {
+			try {
+				const result = await getRedirectResult(auth);
+				if (result) navigate('/log');
+			} catch (err) {
+				console.log(err);
+			}
+		}
+		
+		redirectAfterLogin();
+	})
 
 	return (
 		<div>
@@ -88,22 +108,10 @@ export default function Settings(props) {
 				<h2>Link accounts</h2>
 				<div>
 					<h4>Link with Google</h4>
-					<p>Email</p>
-					<input
-						type='text'
-						onChange={e => setLinkEmail(e.target.value)}
-						placeholder={props.email}
-					/>
-					<p>Password</p>
-					<input
-							type='text'
-							onChange={e => setLinkPassword(e.target.value)}
-							placeholder=''
-					/>
 					<Button 
 						variant='primary' 
-						onClick={handleLinkAccount}>
-						Link
+						onClick={handleLinkGoogleAccount}>
+						Link Google Account
 					</Button>
 				</div>
 				<div>
