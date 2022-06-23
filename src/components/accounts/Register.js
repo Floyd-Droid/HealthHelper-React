@@ -1,33 +1,43 @@
 import React, { useContext } from 'react';
-import { getRedirectResult, signInWithRedirect } from 'firebase/auth';
+import { getRedirectResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 import UserContext from '../../context/UserContext';
-import { auth, registerUserWithEmailAndPassword, googleProvider } from '../../firebase';
+import MessageContainer from '../Messages';
+import { 
+	auth, registerUserWithEmailAndPassword, 
+	googleProvider, logInWithGoogle 
+} from '../../firebase';
 
 export default function Register() {
 	const { user, isLoading } = useContext(UserContext);
-	const [username, setUsername] = React.useState()
-	const [email, setEmail] = React.useState();
-	const [password, setPassword] = React.useState();
+	const [username, setUsername] = React.useState('')
+	const [email, setEmail] = React.useState('');
+	const [password, setPassword] = React.useState('');
+	const [errorMessage, setErrorMessage] = React.useState('');
+	const [successMessage, setSuccessMessage] = React.useState('');
 
 	const navigate = useNavigate();
 
-	const handleRegister = async (method) => {
-		try {
-			await registerUserWithEmailAndPassword(username, email, password);
+	const updateError = async (res) => {
+		if (typeof res.errorMessage !== 'undefined') {
+			setErrorMessage(res.errorMessage);
+		} 
+
+		if (typeof res.successMessage !== 'undefined') {
+			setSuccessMessage(res.successMessage);
 			navigate('/log');
-		} catch (err) {
-			console.log(err);
 		}
 	}
 
+	const handleRegister = async (method) => {
+		const res = await registerUserWithEmailAndPassword(username, email, password);
+		updateError(res);
+	}
+
 	const handleRegisterWithGoogle = async () => {
-		try {
-			signInWithRedirect(auth, googleProvider);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await logInWithGoogle(auth, googleProvider);
+		updateError(res);
 	}
 
 	React.useEffect(() => {
@@ -45,6 +55,10 @@ export default function Register() {
 
 	return (
 		<div>
+			{successMessage && 
+        <MessageContainer messages={[successMessage]} variant='success' type='success'/>}
+			{errorMessage && 
+        <MessageContainer messages={[errorMessage]} variant='danger' type='error'/>}
 			<h2>Create an Account</h2>
 			<div>
 				<input

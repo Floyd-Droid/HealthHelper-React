@@ -1,73 +1,64 @@
 import React, { useContext } from 'react';
-import { deleteUser, updateProfile, updateEmail, linkWithRedirect, getRedirectResult, linkWithCredential, EmailAuthProvider } from 'firebase/auth';
+import { getRedirectResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
-import { auth, googleProvider, passwordReset } from '../../firebase';
 import UserContext from '../../context/UserContext';
-import Button from 'react-bootstrap/Button'
-
+import Button from 'react-bootstrap/Button';
+import MessageContainer from '../Messages';
+import { 
+	auth, googleProvider, logInWithGoogle, passwordReset, 
+	authEmailLink, updateUsername, updateUserEmail, deleteAccount
+} from '../../firebase';
 
 export default function Settings(props) {
 	const { user, loading } = useContext(UserContext);
-	const [username, setUsername] = React.useState();
-	const [email, setEmail] = React.useState();
+	const [username, setUsername] = React.useState('');
+	const [email, setEmail] = React.useState('');
 
-	const [emailLinkEmail, setEmailLinkEmail] = React.useState();
-	const [emailLinkPassword, setEmailLinkPassword] = React.useState();
+	const [emailLinkEmail, setEmailLinkEmail] = React.useState('');
+	const [emailLinkPassword, setEmailLinkPassword] = React.useState('');
+	const [errorMessage, setErrorMessage] = React.useState('');
+	const [successMessage, setSuccessMessage] = React.useState('');
+	const [validationMessage, setValidationMessage] = React.useState('');
 
 	const navigate = useNavigate();
 
-	const handleUpdateUsername = async () => {
-		try {
-			if (user.displayName !== username) {
-				await updateProfile(user, {displayName: username});
-			}
-		} catch (err) {
-			console.log(err);
+	const updateMessages = async (res) => {
+		if (typeof res.errorMessage !== 'undefined') {
+			setErrorMessage(res.errorMessage);
+		} else if (typeof res.successMessage !== 'undefined') {
+			setSuccessMessage(res.successMessage);
 		}
+	}
+
+	const handleUpdateUsername = async () => {
+		const res = await updateUsername(user.displayName, username);
+		updateMessages(res);
 	}
 
 	const handleUpdateEmail = async () => {
-		try {
-			if (user.email !== email) {
-				await updateEmail(user, email);
-			}
-		} catch (err) {
-			console.log(err)
-		}
+		const res = await updateUserEmail(user.email, email);
+		updateMessages(res);
 	}
 
 	const handlePasswordReset = async () => {
-		try {
-			await passwordReset(user.email);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await passwordReset(user.email);
+		updateMessages(res);
 	}
 
 	const handleLinkEmailAccount = async () => {
-		try {
-			const credential = EmailAuthProvider.credential(emailLinkEmail, emailLinkPassword);
-			await linkWithCredential(user, credential);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await authEmailLink(emailLinkEmail, emailLinkPassword);
+		updateMessages(res);
 	}
 	
 	const handleLinkGoogleAccount = async () => {
-		try {
-			await linkWithRedirect(user, googleProvider);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await logInWithGoogle(auth, googleProvider);
+		updateMessages(res);
 	}
 
 	const handleDeleteAccount = async () => {
-		try {
-			await deleteUser(user);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await deleteAccount();
+		updateMessages(res);
 	}
 
 	React.useEffect(() => {
@@ -86,6 +77,10 @@ export default function Settings(props) {
 	return (
 		<div>
 			<div>
+				{successMessage && 
+					<MessageContainer messages={[successMessage]} variant='success' type='success'/>}
+				{errorMessage && 
+					<MessageContainer messages={[errorMessage]} variant='danger' type='error'/>}
 				<h2>Account info</h2>
 				<p>Username</p>
 				<input

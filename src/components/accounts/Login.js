@@ -1,33 +1,36 @@
 import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { signInWithEmailAndPassword, signInWithRedirect, getRedirectResult } from 'firebase/auth';
+import { getRedirectResult } from 'firebase/auth';
 
+import { auth, logInWithEmailAndPassword, logInWithGoogle } from '../../firebase';
 import UserContext from '../../context/UserContext';
-import { auth,  googleProvider } from '../../firebase';
+import MessageContainer from '../Messages';
+
 
 export default function Login() {
 	const { user, isLoading } = useContext(UserContext);
-	const [username, setUsername] = React.useState();
-	const [email, setEmail] = React.useState();
-	const [password, setPassword] = React.useState();
+	const [email, setEmail] = React.useState('');
+	const [password, setPassword] = React.useState('');
+	const [errorMessage, setErrorMessage] = React.useState('');
 
 	const navigate = useNavigate();
 
-	const handleLoginWithEmail = async (method) => {
-		try {
-			await signInWithEmailAndPassword(auth, email, password);
+	const updateError = async (res) => {
+		if (typeof res.errorMessage !== 'undefined') {
+			setErrorMessage(res.errorMessage);
+		} else {
 			navigate('/log');
-		} catch (err) {
-			console.log(err)
 		}
 	}
 
+	const handleLoginWithEmail = async () => {
+		const res = await logInWithEmailAndPassword(email, password);
+		updateError(res);
+	}
+
 	const handleLoginWithGoogle = async () => {
-		try {
-			await signInWithRedirect(auth, googleProvider);
-		} catch (err) {
-			console.log(err);
-		}
+		const res = await logInWithGoogle();
+		updateError(res);
 	}
 
 	React.useEffect(() => {
@@ -44,7 +47,9 @@ export default function Login() {
 	})
 
 	return (
-		<div>    
+		<div>
+			{errorMessage && 
+        <MessageContainer messages={[errorMessage]} variant='danger' type='error'/>}
 			<h2>Login</h2>
 			<div>
 				<input
