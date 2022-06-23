@@ -324,7 +324,6 @@ export default function LogTable(props) {
 					status={status}
 					onDeleteRows={deleteRows}
 					onResetData={resetData}
-					onNavigate={props.onNavigate}
 					onSubmit={submitChanges}
 				/>
 			</div>

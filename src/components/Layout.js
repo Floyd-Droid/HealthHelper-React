@@ -5,12 +5,8 @@ import { Outlet, Link } from 'react-router-dom';
 import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import { logout } from '../firebase';
 
-export default function Layout(props) {
+export default function Layout() {
 	const { user, isLoading } = useContext(UserContext);
-
-	const handleNavigate = (e) => {
-		props.onNavigate(e.target.attributes.status.value);
-	}
 
 	React.useEffect(() => {
 		if (isLoading) {
@@ -26,17 +22,17 @@ export default function Layout(props) {
 					<Navbar.Toggle aria-controls="basic-navbar-nav" />
 					<Navbar.Collapse id="basic-navbar-nav">
 						<Nav className="me-auto">
-							<Link to='log' className='nav-link' onClick={handleNavigate} status='log'>Log</Link>
-							<Link to='index' className='nav-link' onClick={handleNavigate} status='index'>Index</Link>
+							<Link to='/log' className='nav-link'>Log</Link>
+							<Link to='/index' className='nav-link'>Index</Link>
 							<NavDropdown title={user ? user.displayName : 'User'} id="basic-nav-dropdown">
-								<NavDropdown.Item href="/accounts/settings">Settings</NavDropdown.Item>
+								<NavDropdown.Item href="/settings">Settings</NavDropdown.Item>
 								<NavDropdown.Item href="/login" onClick={logout}>Log out</NavDropdown.Item>
 							</NavDropdown>
 						</Nav>
 					</Navbar.Collapse>
 				</Container>
 			</Navbar>
-
+			
 			<Outlet />
 		</>
 	)

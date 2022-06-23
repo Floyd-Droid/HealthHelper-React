@@ -6,7 +6,6 @@ import { auth, logInWithEmailAndPassword, logInWithGoogle } from '../../firebase
 import UserContext from '../../context/UserContext';
 import MessageContainer from '../Messages';
 
-
 export default function Login() {
 	const { user, isLoading } = useContext(UserContext);
 	const [email, setEmail] = React.useState('');
@@ -19,7 +18,7 @@ export default function Login() {
 		if (typeof res.errorMessage !== 'undefined') {
 			setErrorMessage(res.errorMessage);
 		} else {
-			navigate('/log');
+			navigate('log');
 		}
 	}
 

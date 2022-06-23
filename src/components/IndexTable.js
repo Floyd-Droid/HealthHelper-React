@@ -324,7 +324,6 @@ export default function IndexTable(props) {
 					status={status}
           onAddNewRow={addNewRow}
           onDeleteRows={deleteRows}
-          onNavigate={props.onNavigate}
           onResetData={resetData}
           onSubmit={submitChanges}
         />

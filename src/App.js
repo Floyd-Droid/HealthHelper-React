@@ -15,17 +15,12 @@ import Index from './components/Index';
 
 
 const App = () => {
-	const [status, setStatus] = React.useState('auth');
 	const [date, setDate] = React.useState(new Date());
 	const [user, isLoading, error] = useAuthState(auth);
 	const navigate = useNavigate();
 
 	const updateDate = (newDate) => {
 		setDate(newDate);
-	}
-
-	const updateStatus = (newStatus) => {
-		setStatus(newStatus);
 	}
 
 	React.useEffect(() => {
@@ -38,21 +33,24 @@ const App = () => {
 			value={{user, isLoading}}>
 			<div className='app-container vw-100 vh-100 p-3' >
 				<Routes>
-					<Route path='/' element={<Layout onNavigate={updateStatus}/>}>
+					<Route path='/' element={<Layout/>}>
 						<Route path='login' 
-							element={<Login onNavigate={updateStatus}/>}
+							element={<Login/>}
 						/>
 						<Route path='register' 
-							element={<Register onNavigate={updateStatus}/>}
+							element={<Register/>}
 						/>
 						<Route path='settings' 
-							element={<Settings status={status} onNavigate={updateStatus}/>}
+							element={<Settings/>}
 						/>
 						<Route path='log' 
-							element={<Log status={status} date={date} onNavigate={updateStatus} onDateFormSubmit={updateDate}/>}
+							element={<Log status={'log'} date={date} onDateFormSubmit={updateDate}/>}
+						/>
+						<Route path='log/create' 
+							element={<Log status={'createLog'} date={date} onDateFormSubmit={updateDate}/>}
 						/>
 						<Route path='index' 
-							element={<Index status={status} onNavigate={updateStatus}/>}
+							element={<Index status={'index'}/>}
 						/>
 					</Route>
 				</Routes>

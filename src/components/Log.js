@@ -9,9 +9,8 @@ export default function Log(props) {
 				onDateFormSubmit={props.onDateFormSubmit}
 			/>
 			<LogTable
+				date={props.date}
 				status={props.status}
-				date={props.date} 
-				onNavigate={props.onNavigate}
 			/>
 	</>
 	)

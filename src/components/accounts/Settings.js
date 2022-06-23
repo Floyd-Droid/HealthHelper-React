@@ -10,7 +10,7 @@ import {
 	authEmailLink, updateUsername, updateUserEmail, deleteAccount
 } from '../../firebase';
 
-export default function Settings(props) {
+export default function Settings() {
 	const { user, loading } = useContext(UserContext);
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');

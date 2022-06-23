@@ -12,10 +12,6 @@ export default function TableButtons(props) {
     props.onDeleteRows();
 	}
 
-	const handleNavigate = (e) => {
-    props.onNavigate(e.target.value);
-  }
-
 	const handleResetData = () => {
     props.onResetData();
   }
@@ -28,10 +24,10 @@ export default function TableButtons(props) {
 		<form>
         <div className='d-flex justify-content-start'>
 					{status==='log' &&
-						<button type='button' className='btn bg-btn mx-3' onClick={handleNavigate} value='createLog'>Create entries</button>
+						<a href='/log/create' className='btn bg-btn mx-3'>Create Entries</a>
 					}
 					{status==='createLog' &&
-						<button type='button' className='btn bg-btn mx-3' onClick={handleNavigate} value='log'>Back to log</button>
+						<a href='/log' className='btn bg-btn mx-3'>Back to log</a>
 					}
           {status!=='createLog' &&
 						<button type='button' className='btn bg-btn mx-3' disabled={disableButton} onClick={handleDeleteEntries}>Delete selected entries</button>
