@@ -9,7 +9,7 @@ import {
 } from '../../firebase';
 
 export default function Register() {
-	const { user, isLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, updateMessages } = useContext(UserContext);
 	const [username, setUsername] = React.useState('')
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');

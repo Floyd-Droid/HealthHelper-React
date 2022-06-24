@@ -6,7 +6,7 @@ import { auth, logInWithEmailAndPassword, logInWithGoogle } from '../../firebase
 import UserContext from '../../context/UserContext';
 
 export default function Login() {
-	const { user, isLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, updateMessages } = useContext(UserContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
 

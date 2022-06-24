@@ -2,7 +2,7 @@ export default function TableButtons(props) {
 
 	const status = props.status;
 	const data = props.data
-	const disableButton = data.length === 1 && data[0].isPlaceholder;
+	const disableButton = (data.length === 1 && data[0].isPlaceholder) || props.isTableLoading;
 
 	const handleAddNewRow = () => {
 		props.onAddNewRow();

@@ -10,7 +10,7 @@ import {
 } from '../../firebase';
 
 export default function Settings() {
-	const { user, loading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, updateMessages } = useContext(UserContext);
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
 

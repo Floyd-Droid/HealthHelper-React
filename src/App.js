@@ -15,7 +15,7 @@ import TableSet from './components/TableSet';
 
 const App = () => {
 	const [date, setDate] = React.useState(new Date());
-	const [user, isLoading, error] = useAuthState(auth);
+	const [user, isUserLoading, error] = useAuthState(auth);
 	const [messages, setMessages] = React.useState({successMessages: [], errorMessages: [], validationMessages: []})
 	const navigate = useNavigate();
 
@@ -42,13 +42,13 @@ const App = () => {
 	}
 
 	React.useEffect(() => {
-		if (isLoading) return false;
+		if (isUserLoading) return false;
 		if (!user) navigate('/login');
-	}, [user, isLoading]);
+	}, [user, isUserLoading]);
 
 	return (
 		<UserProvider
-			value={{user, isLoading, updateMessages}}>
+			value={{user, isUserLoading, updateMessages}}>
 			<div className='app-container vw-100 vh-100 p-3' >
 				<Routes>
 					<Route path='/' element={<Layout messages={messages}/>}>
