@@ -1,14 +1,13 @@
 import React from 'react';
 import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 
-import MessageContainer from './Messages';
 import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
 export default function Table({ columns, data, date, defaultColumn, entries, 
-	errorMessages, skipSelectedRowsReset, status, successMessages,
-  updateEditedRowIndices, updateSelectedEntries, updateTableData, 
-	validationMessages }) {
+		skipSelectedRowsReset, status,updateEditedRowIndices, updateSelectedEntries,
+		updateTableData, 
+  }) {
 
   const {
     getTableProps,
@@ -74,13 +73,6 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 
   return (
     <>
-      {successMessages.length > 0 && 
-        <MessageContainer messages={successMessages} variant='success' type='success'/>}
-      {errorMessages.length > 0 && 
-        <MessageContainer messages={errorMessages} variant='danger' type='error'/>}
-      {validationMessages.length > 0 && 
-        <MessageContainer messages={validationMessages} variant='danger' type='validation'/>}
-    
       <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark'>
           {headerGroups.map(headerGroup => (

@@ -17,10 +17,29 @@ import Index from './components/Index';
 const App = () => {
 	const [date, setDate] = React.useState(new Date());
 	const [user, isLoading, error] = useAuthState(auth);
+	const [messages, setMessages] = React.useState({successMessages: [], errorMessages: [], validationMessages: []})
 	const navigate = useNavigate();
 
 	const updateDate = (newDate) => {
 		setDate(newDate);
+	}
+
+	const updateMessages = (newMessages, reset=true) => {
+		const messagesToSet = reset
+			? {successMessages: [], errorMessages: [], validationMessages: []}
+			: {...messages};
+		
+		if (typeof newMessages.successMessage !== 'undefined') {
+			messagesToSet.successMessages.push(newMessages.successMessage)
+		}
+		if (typeof newMessages.errorMessage !== 'undefined') {
+			messagesToSet.errorMessages.push(newMessages.errorMessage)
+		}
+		if (typeof newMessages.validationMessages !== 'undefined') {
+			messagesToSet.validationMessages = newMessages.validationMessages
+		}
+
+		setMessages(messagesToSet)
 	}
 
 	React.useEffect(() => {
@@ -30,10 +49,10 @@ const App = () => {
 
 	return (
 		<UserProvider
-			value={{user, isLoading}}>
+			value={{user, isLoading, updateMessages}}>
 			<div className='app-container vw-100 vh-100 p-3' >
 				<Routes>
-					<Route path='/' element={<Layout/>}>
+					<Route path='/' element={<Layout messages={messages}/>}>
 						<Route path='login' 
 							element={<Login/>}
 						/>

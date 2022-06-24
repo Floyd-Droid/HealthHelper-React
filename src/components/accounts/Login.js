@@ -4,19 +4,17 @@ import { getRedirectResult } from 'firebase/auth';
 
 import { auth, logInWithEmailAndPassword, logInWithGoogle } from '../../firebase';
 import UserContext from '../../context/UserContext';
-import MessageContainer from '../Messages';
 
 export default function Login() {
-	const { user, isLoading } = useContext(UserContext);
+	const { user, isLoading, updateMessages } = useContext(UserContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
-	const [errorMessage, setErrorMessage] = React.useState('');
 
 	const navigate = useNavigate();
 
-	const updateError = async (res) => {
+	const displayErrorOrNavigate = async (res) => {
 		if (typeof res.errorMessage !== 'undefined') {
-			setErrorMessage(res.errorMessage);
+			updateMessages(res)
 		} else {
 			navigate('log');
 		}
@@ -24,12 +22,12 @@ export default function Login() {
 
 	const handleLoginWithEmail = async () => {
 		const res = await logInWithEmailAndPassword(email, password);
-		updateError(res);
+		displayErrorOrNavigate(res);
 	}
 
 	const handleLoginWithGoogle = async () => {
 		const res = await logInWithGoogle();
-		updateError(res);
+		displayErrorOrNavigate(res);
 	}
 
 	React.useEffect(() => {
@@ -47,8 +45,6 @@ export default function Login() {
 
 	return (
 		<div>
-			{errorMessage && 
-        <MessageContainer messages={[errorMessage]} variant='danger' type='error'/>}
 			<h2>Login</h2>
 			<div>
 				<input

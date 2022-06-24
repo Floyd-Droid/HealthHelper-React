@@ -4,32 +4,20 @@ import { useNavigate } from 'react-router-dom';
 
 import UserContext from '../../context/UserContext';
 import Button from 'react-bootstrap/Button';
-import MessageContainer from '../Messages';
 import { 
 	auth, googleProvider, logInWithGoogle, passwordReset, 
 	authEmailLink, updateUsername, updateUserEmail, deleteAccount
 } from '../../firebase';
 
 export default function Settings() {
-	const { user, loading } = useContext(UserContext);
+	const { user, loading, updateMessages } = useContext(UserContext);
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
 
 	const [emailLinkEmail, setEmailLinkEmail] = React.useState('');
 	const [emailLinkPassword, setEmailLinkPassword] = React.useState('');
-	const [errorMessage, setErrorMessage] = React.useState('');
-	const [successMessage, setSuccessMessage] = React.useState('');
-	const [validationMessage, setValidationMessage] = React.useState('');
 
 	const navigate = useNavigate();
-
-	const updateMessages = async (res) => {
-		if (typeof res.errorMessage !== 'undefined') {
-			setErrorMessage(res.errorMessage);
-		} else if (typeof res.successMessage !== 'undefined') {
-			setSuccessMessage(res.successMessage);
-		}
-	}
 
 	const handleUpdateUsername = async () => {
 		const res = await updateUsername(user.displayName, username);
@@ -77,10 +65,6 @@ export default function Settings() {
 	return (
 		<div>
 			<div>
-				{successMessage && 
-					<MessageContainer messages={[successMessage]} variant='success' type='success'/>}
-				{errorMessage && 
-					<MessageContainer messages={[errorMessage]} variant='danger' type='error'/>}
 				<h2>Account info</h2>
 				<p>Username</p>
 				<input

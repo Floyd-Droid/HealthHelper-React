@@ -2,8 +2,6 @@ import { pool } from '../db.js';
 import { convertEmptyStringToNull, makeEntryNameList } from './dbData.js';
 
 export async function getLogEntries(userId, date) {
-	const result = {entries: [], errorMessages: [], successMessages: []};
-
   const q = `
     SELECT logs.id, logs.index_id, logs.amount, logs.amount_unit, logs.timestamp_added,
       food_index.name, food_index.serving_by_weight, food_index.weight_unit,
@@ -25,22 +23,20 @@ export async function getLogEntries(userId, date) {
 
     try {
       const dbResponse = await pool.query(q, [userId, date]);
-			result.entries = dbResponse.rows;
-      return result;
+			return {entries: dbResponse.rows}
     } catch (err) {
       console.log(err);
-			result.errorMessages.push('Please check your connection and try again.');
-      return result;
+      return {errorMessage: 'Please check your connection and try again.'};
     }
 }
 
 export async function createLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
+	const failedEntries = [];
 
   const preparedEntries = convertEmptyStringToNull(entries);
-  const failedEntries = [];
 
   const createLogsQuery = `
     INSERT INTO logs (index_id, user_id, timestamp_added, amount, amount_unit)
@@ -60,11 +56,11 @@ export async function createLogEntries(entries, userId, date) {
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not created: ' + entryNameList);
+		result.errorMessage = 'The following entries were not created: ' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully created');
+		result.successMessage = 'Entries successfully created';
 	}
 	
   return result;
@@ -73,11 +69,11 @@ export async function createLogEntries(entries, userId, date) {
 export async function updateLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
+	const failedEntries = [];
 
   const preparedEntries = convertEmptyStringToNull(entries);
-  const failedEntries = [];
-
+  
 	const updateLogsQuery = `
 		UPDATE logs
 		SET
@@ -101,11 +97,11 @@ export async function updateLogEntries(entries, userId, date) {
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not updated: ' + entryNameList);
+		result.errorMessage = 'The following entries were not updated: ' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully updated');
+		result.successMessage = 'Entries successfully updated';
 	}
 
   return result;
@@ -114,7 +110,7 @@ export async function updateLogEntries(entries, userId, date) {
 export async function deleteLogEntries(entries, userId, date) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
   const failedEntries = [];
 
   const deleteLogsQuery = `
@@ -137,11 +133,11 @@ export async function deleteLogEntries(entries, userId, date) {
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not deleted:' + entryNameList);
+		result.errorMessage = 'The following entries were not deleted:' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully deleted');
+		result.successMessage = 'Entries successfully deleted';
 	}
 
   return result;

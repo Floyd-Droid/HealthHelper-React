@@ -24,13 +24,11 @@ app.use((bodyParser.json()));
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const defaultErrorResult = {
-	successMessages: [], 
-	errorMessages: ['An error occurred. Please check that your changes were saved.']
+	errorMessage: 'An error occurred. Please check that your changes were saved.'
 };
 
 const connectionErrorResult = {
-	successMessages: [],
-	errorMessages: ['An error occurred. Please check your connection and try again.'],
+	errorMessage: 'An error occurred. Please check your connection and try again.'
 };
 
 // Log endpoints
@@ -40,7 +38,7 @@ app.get('/api/log', async (req, res) => {
   try {
 		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await logModel.getLogEntries(decodedToken.uid, date);
-    const code = dbResult.errorMessages.length ? 500 : 200;
+    const code = typeof dbResult.errorMessage === 'undefined' ? 200 :500;
     res.status(code).json(dbResult); 
   } catch (err) {
     console.log(err);
@@ -53,12 +51,12 @@ app.post('/api/log', async (req, res) => {
   const date = req.query.date;
 	
   try {
-		const decodedToken = verifyFirebaseIdToken(req);
+		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await logModel.createLogEntries(entries, decodedToken.uid, date);
-		const code = dbResult.successMessages.length ? 201 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 		
     res.status(code).json(dbResult);
@@ -73,12 +71,12 @@ app.put('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-		const decodedToken = verifyFirebaseIdToken(req);
+		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await logModel.updateLogEntries(entries, decodedToken.uid, date);
-		const code = dbResult.successMessages.length ? 200 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 
     res.status(code).json(dbResult);
@@ -93,12 +91,12 @@ app.delete('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-		const decodedToken = verifyFirebaseIdToken(req);
+		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await logModel.deleteLogEntries(entries, decodedToken.uid, date);
-		const code = dbResult.successMessages.length ? 200 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 
     res.status(code).json(dbResult);
@@ -114,7 +112,7 @@ app.get('/api/index', async (req, res) => {
   try {
 		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await indexModel.getIndexEntries(decodedToken.uid);
-    const code = dbResult.errorMessages.length ? 500 : 200;
+    const code = typeof dbResult.errorMessage !== 'undefined' ? 500 : 200;
 
     res.status(code).json(dbResult);
   } catch (err) {
@@ -129,10 +127,10 @@ app.post('/api/index', async (req, res) => {
   try {
 		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await indexModel.createIndexEntries(entries, decodedToken.uid);
-		const code = dbResult.successMessages.length ? 201 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 
     res.status(code).json(dbResult);
@@ -148,10 +146,10 @@ app.put('/api/index', async (req, res) => {
   try {
 		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await indexModel.updateIndexEntries(entries, decodedToken.uid);
-		const code = dbResult.successMessages.length ? 200 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 
     res.status(code).json(dbResult);
@@ -167,10 +165,10 @@ app.delete('/api/index', async (req, res) => {
   try {
 		const decodedToken = await verifyFirebaseIdToken(req);
     const dbResult = await indexModel.deleteIndexEntries(entries, decodedToken.uid);
-		const code = dbResult.successMessages.length ? 200 : 500;
+		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
 
-		if (dbResult.errorMessages.length) {
-			dbResult.successMessages = [];
+		if (typeof dbResult.errorMessage !== 'undefined') {
+			dbResult.successMessage = undefined;
 		}
 
     res.status(code).json(dbResult);

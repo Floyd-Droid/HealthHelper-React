@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 
 import UserContext from '../context/UserContext';
-import { createOrUpdateEntries, deleteEntries, getEntries } from '../services/EntryService';
+import { createEntries, updateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { newIndexRow, prepareEntries } from '../services/TableData';
 import { validateIndexSubmission} from '../services/Validation';
 
@@ -12,7 +12,7 @@ import { IndexCostCell, Input, NumberRangeFilter, Select,
 
 
 export default function IndexTable(props) {
-	const { user, isLoading } = useContext(UserContext);
+	const { user, isLoading, updateMessages } = useContext(UserContext);
   const status = props.status;
 	const url = '/api/index';
 
@@ -21,9 +21,6 @@ export default function IndexTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-  const [errorMessages, setErrorMessages] = React.useState([]);
-  const [successMessages, setSuccessMessages] = React.useState([]);
-  const [validationMessages, setValidationMessages] = React.useState([]);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -156,14 +153,6 @@ export default function IndexTable(props) {
 		}
 	}
 
-	const updateMessages = (messages) => {
-		const validationMessages = typeof messages.validationMessages === 'undefined' ? [] : messages.validationMessages;
-
-		setErrorMessages(messages.errorMessages);
-		setSuccessMessages(messages.successMessages);
-		setValidationMessages(validationMessages);
-	}
-
 	const updateTableData = (rowIndex, columnId, value) => {
     setData(old =>
       old.map((row, index) => {
@@ -198,7 +187,7 @@ export default function IndexTable(props) {
   
   const resetData = () => {
 		setEditedRowIndices([]);
-		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
+		updateMessages({}, true);
     setData(entries);
   }
 
@@ -207,7 +196,7 @@ export default function IndexTable(props) {
 			const token = await user.getIdToken(true);
 			const body = await getEntries(url, token);
 
-			if (body.errorMessages.length) {
+			if (typeof body.errorMessage !== 'undefined') {
 				updateMessages(body);
 			}
 			
@@ -221,10 +210,10 @@ export default function IndexTable(props) {
 	const submitChanges = async () => {
     const validationErrors = validateIndexSubmission(data);
 
-		const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []}
-		updateMessages(messages);
-
-		if (validationErrors.length) return false;
+		if (validationErrors.length) {
+			updateMessages({validationMessages: validationErrors});
+			return false;
+		}
 
     const editedEntries = [];
     const newEntries = [];
@@ -243,18 +232,22 @@ export default function IndexTable(props) {
       newEntries.push(newEntry);
     }
 
-    if (editedEntries.length || newEntries.length) {
-			try {
-				const token = await user.getIdToken(true);
-				const body = await createOrUpdateEntries(url, token, newEntries, editedEntries);
+		const token = await user.getIdToken(true);
 
-				updateMessages(body)
-				setEditedRowIndices([]);
-				fetchEntries();
-			} catch(err) {
-				console.log(err);
-    	}
+		if (editedEntries.length) {
+			const editBody = await updateEntries(url, token, editedEntries);
+			editBody.validationMessages = [];
+			updateMessages(editBody, false);
+		}
+
+    if (newEntries.length) {
+			const createBody = await createEntries(url, token, newEntries);
+			createBody.validationMessages = [];
+			updateMessages(createBody, false);
+			setEditedRowIndices([]);
   	}
+
+		fetchEntries();
 	}
 
 	const deleteRows = async () => {
@@ -308,14 +301,11 @@ export default function IndexTable(props) {
           data={data}
 					defaultColumn={defaultColumn}
           entries={entries}
-          errorMessages={errorMessages}
           skipSelectedRowsReset={skipSelectedRowsReset}
           status={status}
-          successMessages={successMessages}
           updateEditedRowIndices={updateEditedRowIndices}
           updateSelectedEntries={updateSelectedEntries}
           updateTableData={updateTableData}
-          validationMessages={validationMessages}
         />
       </div>
       <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>

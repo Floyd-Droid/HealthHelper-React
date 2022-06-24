@@ -12,21 +12,18 @@ import { CalculatedCell, Input, NumberRangeFilter, Select,
 
 
 export default function LogTable(props) {
-	const { user, isLoading } = useContext(UserContext);
+	const { user, isLoading, updateMessages } = useContext(UserContext);
   const status = props.status;
   const date = props.date;
   const formattedDate = getFormattedDate(date, 'url');
 
-	let url = `api/log?date=${formattedDate}`;
+	let url = `/api/log?date=${formattedDate}`;
 
 	const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);  
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-  const [errorMessages, setErrorMessages] = React.useState([]);
-	const [successMessages, setSuccessMessages] = React.useState([]);
-  const [validationMessages, setValidationMessages] = React.useState([]);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -137,14 +134,6 @@ export default function LogTable(props) {
 		}
 	}
 
-	const updateMessages = (messages) => {
-		const validationMessages = typeof messages.validationMessages === 'undefined' ? [] : messages.validationMessages;
-
-		setErrorMessages(messages.errorMessages);
-		setSuccessMessages(messages.successMessages);
-		setValidationMessages(validationMessages);
-	}
-
   const updateTableData = (rowIndex, columnId, value) => {
     setSkipSelectedRowsReset(true);
     setData(old =>
@@ -176,7 +165,7 @@ export default function LogTable(props) {
 
 	const resetData = () => {
     setEditedRowIndices([]);
-		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
+		updateMessages({});
 		setData(entries);
   }
 
@@ -189,7 +178,7 @@ export default function LogTable(props) {
 			const token = await user.getIdToken(true);
 			const body = await getEntries(url, token);
 
-			if (body.errorMessages.length) {
+			if (typeof body.errorMessage !== 'undefined') {
 				updateMessages(body);
 			}
 			
@@ -206,10 +195,10 @@ export default function LogTable(props) {
 
 		if (status === 'log') {
 			const validationErrors = validateLogSubmission(data);
-			const messages = {validationMessages: validationErrors, successMessages: [], errorMessages: []};
-			updateMessages(messages);
-	
-			if (validationErrors.length) return false;
+			if (validationErrors.length) {
+				updateMessages({validationMessages: validationErrors});
+				return false;
+			}
 
 			// remove duplicate indices in the case of multiple edits per entry
 			entryRowIndices = [...new Set(editedRowIndices)];
@@ -279,7 +268,7 @@ export default function LogTable(props) {
   }
 
   React.useEffect(() => {
-		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
+		updateMessages({});
 
 		if (status === 'log' && !isLoading) {
 			setSkipSelectedRowsReset(false);
@@ -288,7 +277,7 @@ export default function LogTable(props) {
   }, [date, isLoading])
 
 	React.useEffect(() => {
-		updateMessages({validationMessages: [], successMessages: [], errorMessages: []});
+		updateMessages({});
 
 		if (!isLoading) {
 			fetchEntries();
@@ -308,14 +297,11 @@ export default function LogTable(props) {
 					date={date}
 					defaultColumn={defaultColumn}
 					entries={entries}
-					errorMessages={errorMessages}
 					skipSelectedRowsReset={skipSelectedRowsReset}
 					status={status}
-					successMessages={successMessages}
 					updateEditedRowIndices={updateEditedRowIndices}
 					updateSelectedEntries={updateSelectedEntries}
 					updateTableData={updateTableData}
-					validationMessages={validationMessages}
 				/>
 			</div>
 			<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>

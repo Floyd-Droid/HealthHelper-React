@@ -33,7 +33,7 @@ export const googleProvider = new GoogleAuthProvider();
 
 const extractFirebaseErrorMessage = (err) => {
 	if (err.name === 'FirebaseError') {
-		return err.code.split('/')[1].replace('-',' ');
+		return err.code.split('/')[1].replaceAll('-',' ');
 	}	else {
 		return err;
 	}

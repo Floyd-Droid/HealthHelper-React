@@ -42,30 +42,9 @@ export async function createEntries(url, firebaseIdToken, entries) {
 			},
       body: JSON.stringify(entries)
     });
-		
+
     return res.json();
   } catch (err) {
-    console.log(err);
-  }
-}
-
-export async function createOrUpdateEntries(url, firebaseIdToken, newEntries, editedEntries) {
-  const result = {successMessages: [], errorMessages: []};
-
-  try {
-    if (newEntries.length) {
-      const createBody = await createEntries(url, firebaseIdToken, newEntries);
-			result.successMessages.push(...createBody.successMessages);
-			result.errorMessages.push(...createBody.errorMessages);
-    }
-    if (editedEntries.length) {
-      const updateBody = await updateEntries(url, firebaseIdToken, editedEntries);
-			result.successMessages.push(...updateBody.successMessages);
-			result.errorMessages.push(...updateBody.errorMessages);
-    }
-
-    return result;
-  } catch(err) {
     console.log(err);
   }
 }

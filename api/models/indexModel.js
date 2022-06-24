@@ -2,7 +2,6 @@ import { pool } from '../db.js';
 import { convertEmptyStringToNull, makeEntryNameList } from './dbData.js';
 
 export async function getIndexEntries(userId) {
-	const result = {entries: [], errorMessages: [], successMessages: []};
 
   const getEntriesQuery = `
     SELECT food_index.id, food_index.name, food_index.serving_by_weight, food_index.weight_unit, 
@@ -23,22 +22,20 @@ export async function getIndexEntries(userId) {
   try {
     const values = [userId];
     const dbResponse = await pool.query(getEntriesQuery, values);
-		result.entries = dbResponse.rows;
-    return result;
+		return {entries: dbResponse.rows};
   } catch (err) {
     console.log(err);
-		result.errorMessages.push('Please check your connection and try again.');
-    return result;
+		return {errorMessage: 'Please check your connection and try again.'};
   }
 }
 
 export async function createIndexEntries(entries, userId) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
+	const failedEntries = [];
 
   const preparedEntries = convertEmptyStringToNull(entries);
-  const failedEntries = [];
 
 	const createEntryQuery = `
 		WITH index_insert AS (
@@ -80,11 +77,11 @@ export async function createIndexEntries(entries, userId) {
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not created: ' + entryNameList);
+		result.errorMessage = 'The following entries were not created: ' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully created');
+		result.successMessage = 'Entries successfully created';
 	}
 
   return result;
@@ -93,11 +90,11 @@ export async function createIndexEntries(entries, userId) {
 export async function updateIndexEntries(entries, userId) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
+	const failedEntries = [];
 
   const preparedEntries = convertEmptyStringToNull(entries);
-  const failedEntries = [];
-
+  
 	const foodIndexQuery = `
 		UPDATE food_index
 		SET
@@ -171,11 +168,11 @@ export async function updateIndexEntries(entries, userId) {
   
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not updated: ' + entryNameList);
+		result.errorMessage = 'The following entries were not updated: ' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully updated');
+		result.successMessage = 'Entries successfully updated';
 	}
 
   return result;
@@ -184,7 +181,7 @@ export async function updateIndexEntries(entries, userId) {
 export async function deleteIndexEntries(entries, userId) {
   const client = await pool.connect();
 
-	const result = {errorMessages: [], successMessages: []};
+	const result = {};
   const failedEntries = [];
 
   const deleteQuery = `
@@ -206,11 +203,11 @@ export async function deleteIndexEntries(entries, userId) {
 
   if (failedEntries.length) {
 		const entryNameList = makeEntryNameList(failedEntries);
-		result.errorMessages.push('The following entries were not deleted: ' + entryNameList);
+		result.errorMessage = 'The following entries were not deleted: ' + entryNameList;
   }
 
 	if (failedEntries.length !== entries.length) {
-		result.successMessages.push('Entries successfully deleted');
+		result.successMessage = 'Entries successfully deleted';
 	}
 
   return result;
