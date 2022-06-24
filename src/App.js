@@ -10,8 +10,7 @@ import Layout from './components/Layout';
 import Login from './components/accounts/Login';
 import Register from './components/accounts/Register';
 import Settings from './components/accounts/Settings';
-import Log from './components/Log';
-import Index from './components/Index';
+import TableSet from './components/TableSet';
 
 
 const App = () => {
@@ -63,13 +62,13 @@ const App = () => {
 							element={<Settings/>}
 						/>
 						<Route path='log' 
-							element={<Log status={'log'} date={date} onDateFormSubmit={updateDate}/>}
+							element={<TableSet status={'log'} date={date} onDateFormSubmit={updateDate}/>}
 						/>
 						<Route path='log/create' 
-							element={<Log status={'createLog'} date={date} onDateFormSubmit={updateDate}/>}
+							element={<TableSet status={'createLog'} date={date} onDateFormSubmit={updateDate}/>}
 						/>
 						<Route path='index' 
-							element={<Index status={'index'}/>}
+							element={<TableSet status={'index'}/>}
 						/>
 					</Route>
 				</Routes>
