@@ -2,6 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
+import * as Sentry from "@sentry/node";
+import * as Tracing from "@sentry/tracing";
 
 import * as logModel from './models/logModel.js';
 import * as indexModel from './models/indexModel.js';
@@ -9,6 +11,19 @@ import { verifyFirebaseIdToken } from './firebase.js';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
+
+//process.env.NODE_ENV === 'production' && 
+Sentry.init({
+  dsn: "https://489968792d5f4ff59eea055d447e235e@o1298392.ingest.sentry.io/6528710",
+  integrations: [
+    new Sentry.Integrations.Http({ tracing: true }),
+    new Tracing.Integrations.Express({ app }),
+  ],
+  tracesSampleRate: 0,
+});
+
+app.use(Sentry.Handlers.requestHandler());
+app.use(Sentry.Handlers.tracingHandler());
 
 var corsOptions = {
   origin: "http://127.0.0.1:3001"
@@ -30,6 +45,7 @@ const defaultErrorResult = {
 const connectionErrorResult = {
 	errorMessage: 'An error occurred. Please check your connection and try again.'
 };
+
 
 // Log endpoints
 app.get('/api/log', async (req, res) => {
@@ -177,6 +193,22 @@ app.delete('/api/index', async (req, res) => {
     res.status(500).json(defaultErrorResult);
   }
 })
+
+app.use(
+	Sentry.Handlers.errorHandler({
+		shouldHandleError(error) {
+			if (error.status >= 400) {
+				return true;
+			}
+			return false;
+		},
+	})
+);
+
+app.use(function onError(err, req, res, next) {
+  res.statusCode = 500;
+  res.end(res.sentry + "\n");
+});
 
 app.listen(PORT, () => {
   console.log(`Server listening on ${PORT}`);
