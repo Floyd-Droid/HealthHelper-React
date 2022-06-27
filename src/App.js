@@ -49,9 +49,9 @@ const App = () => {
 	return (
 		<UserProvider
 			value={{user, isUserLoading, updateMessages}}>
-			<div className='app-container vw-100 vh-100 p-3' >
+			<div className='app-container vw-100 vh-100' >
 				<Routes>
-					<Route path='/' element={<Layout messages={messages}/>}>
+					<Route path='/' element={<Layout messages={messages} date={date} onDateFormSubmit={updateDate}/>}>
 						<Route path='login' 
 							element={<Login/>}
 						/>
