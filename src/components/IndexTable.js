@@ -7,13 +7,12 @@ import { validateIndexSubmission} from '../services/Validation';
 
 import Table from './Table';
 import TableButtons from './TableButtons';
-import Spinner from './Spinner';
 import { IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
 
 export default function IndexTable(props) {
-	const { user, isUserLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
   const status = props.status;
 	const url = '/api/index';
 
@@ -22,7 +21,6 @@ export default function IndexTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-	const [isTableLoading, setIsTableLoading] = React.useState(true);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -204,21 +202,24 @@ export default function IndexTable(props) {
 			
 			const preparedEntries = prepareEntries(body.entries, status);
 			updateTableEntries(preparedEntries, preparedEntries);
-			setIsTableLoading(false);
+			setIsBodyLoading(false);
 		} catch(err) {
       console.log(err);
     }
   }
 
 	const submitChanges = async () => {
+		//setIsBodyLoading(true);
     const validationErrors = validateIndexSubmission(data);
 
 		if (validationErrors.length) {
+			
 			updateMessages({validationMessages: validationErrors});
+			//setIsBodyLoading(false);
 			return false;
 		}
 
-		setIsTableLoading(true);
+		setIsBodyLoading(true);
 
     const editedEntries = [];
     const newEntries = [];
@@ -257,7 +258,7 @@ export default function IndexTable(props) {
 
 	const deleteRows = async () => {
 		if (!Object.values(selectedEntries).length)	return false;
-		setIsTableLoading(true);
+		setIsBodyLoading(true);
 
     const existingEntryIds = [];
     const dataCopy = [...data];
@@ -283,7 +284,7 @@ export default function IndexTable(props) {
 				const token = await user.getIdToken(true);
 				const body = await deleteEntries(url, token, existingEntryIds);
 				updateMessages(body);
-				setIsTableLoading(false);
+				setIsBodyLoading(false);
 			} catch(err) {
           console.log(err);
       }
@@ -300,34 +301,35 @@ export default function IndexTable(props) {
 		}
   }, [isUserLoading])
 
-  return (
-    <>
-      <div className='container-fluid p-3'>
-			{isTableLoading ? <Spinner /> : 
-        <Table
-          columns={columns}
-          data={data}
-					defaultColumn={defaultColumn}
-          entries={entries}
-          skipSelectedRowsReset={skipSelectedRowsReset}
-          status={status}
-          updateEditedRowIndices={updateEditedRowIndices}
-          updateSelectedEntries={updateSelectedEntries}
-          updateTableData={updateTableData}
-        />
-			}
-      </div>
-      <div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-        <TableButtons
-					data={data}
-					status={status}
-					isTableLoading={isTableLoading}
-          onAddNewRow={addNewRow}
-          onDeleteRows={deleteRows}
-          onResetData={resetData}
-          onSubmit={submitChanges}
-        />
-      </div>
-    </>
-  )
+
+	if (!isBodyLoading) {
+		return (
+			<>
+				<div className='container-fluid p-3'>
+					<Table
+						columns={columns}
+						data={data}
+						defaultColumn={defaultColumn}
+						entries={entries}
+						skipSelectedRowsReset={skipSelectedRowsReset}
+						status={status}
+						updateEditedRowIndices={updateEditedRowIndices}
+						updateSelectedEntries={updateSelectedEntries}
+						updateTableData={updateTableData}
+					/>
+				</div>
+				<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
+					<TableButtons
+						data={data}
+						status={status}
+						onAddNewRow={addNewRow}
+						onDeleteRows={deleteRows}
+						onResetData={resetData}
+						onSubmit={submitChanges}
+					/>
+				</div>
+			</>
+		)
+	}
+	return null;
 }

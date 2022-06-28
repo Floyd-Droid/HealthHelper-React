@@ -16,6 +16,7 @@ import TableSet from './components/TableSet';
 const App = () => {
 	const [date, setDate] = React.useState(new Date());
 	const [user, isUserLoading, error] = useAuthState(auth);
+	const [isBodyLoading, setIsBodyLoading] = React.useState(true);
 	const [messages, setMessages] = React.useState({successMessages: [], errorMessages: [], validationMessages: []})
 	const navigate = useNavigate();
 
@@ -46,9 +47,15 @@ const App = () => {
 		if (!user) navigate('/login');
 	}, [user, isUserLoading]);
 
+	React.useEffect(() => {
+		if (!isBodyLoading) {
+			window.scrollTo(0,0);
+		}
+	}, [messages, isBodyLoading]);
+
 	return (
 		<UserProvider
-			value={{user, isUserLoading, updateMessages}}>
+			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages}}>
 			<div className='app-container vw-100 vh-100' >
 				<Routes>
 					<Route path='/' element={<Layout messages={messages} date={date} onDateFormSubmit={updateDate}/>}>

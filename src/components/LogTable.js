@@ -7,13 +7,12 @@ import { validateLogSubmission } from '../services/Validation';
 
 import Table from './Table';
 import TableButtons from './TableButtons';
-import Spinner from './Spinner';
 import { CalculatedCell, Input, NumberRangeFilter, Select,
   SumFooter, TextFilter } from './SharedTableComponents';
 
 
 export default function LogTable(props) {
-	const { user, isUserLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
   const status = props.status;
   const date = props.date;
   const formattedDate = getFormattedDate(date, 'url');
@@ -25,7 +24,7 @@ export default function LogTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-	const [isTableLoading, setIsTableLoading] = React.useState(true);
+	//const [isTableLoading, setIsTableLoading] = React.useState(true);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -186,14 +185,14 @@ export default function LogTable(props) {
 			
 			const preparedEntries = prepareEntries(body.entries, status);
 			updateTableEntries(preparedEntries, preparedEntries);
-			setIsTableLoading(false);
+			setIsBodyLoading(false);
 		} catch(err) {
       console.log(err);
     }
   }
 
 	const submitChanges = async () => {
-		setIsTableLoading(true);
+		setIsBodyLoading(true);
 		const newOrEditedLogEntries = [];
 		let entryRowIndices = [];
 
@@ -201,7 +200,7 @@ export default function LogTable(props) {
 			const validationErrors = validateLogSubmission(data);
 			if (validationErrors.length) {
 				updateMessages({validationMessages: validationErrors});
-				setIsTableLoading(false);
+				setIsBodyLoading(false);
 				return false;
 			}
 
@@ -238,7 +237,7 @@ export default function LogTable(props) {
 				}
 				
 				updateMessages(body);
-				setIsTableLoading(false);
+				setIsBodyLoading(false);
 			} catch(err) {
 				console.log(err);
 			}
@@ -247,7 +246,7 @@ export default function LogTable(props) {
 
 	const deleteRows = async () => {
 		if (!Object.values(selectedEntries).length)	return false;
-		setIsTableLoading(true);
+		setIsBodyLoading(true);
 
     const entriesToDelete = [];
     const dataCopy = [...data];
@@ -269,14 +268,14 @@ export default function LogTable(props) {
 			const token = await user.getIdToken(true);
 			const body = await deleteEntries(url, token, entriesToDelete);
 			updateMessages(body);
-			setIsTableLoading(false);
+			setIsBodyLoading(false);
 		} catch(err) {
 			console.log(err);
 		}
   }
 
   React.useEffect(() => {
-		setIsTableLoading(true);
+		setIsBodyLoading(true);
 		updateMessages({});
 
 		if (status === 'log' && !isUserLoading) {
@@ -297,14 +296,9 @@ export default function LogTable(props) {
     setSkipSelectedRowsReset(true);
   }, [data])
   
-  return (
-		<>
-			{isTableLoading 
-				? 
-				<div className='container-fluid h-100 d-flex justify-content-center align-items-center'>
-					<Spinner /> 
-				</div>
-				: 
+	if (!isBodyLoading) {
+		return (
+			<>
 				<div>
 					<div className='container-fluid d-flex justify-content-center'>
 						<Table
@@ -324,14 +318,14 @@ export default function LogTable(props) {
 						<TableButtons
 							data={data}
 							status={status}
-							isTableLoading={isTableLoading}
 							onDeleteRows={deleteRows}
 							onResetData={resetData}
 							onSubmit={submitChanges}
 						/>
 					</div>
 				</div>
-			}
-		</>
-  )
+			</>
+		)
+	}
+	return null;
 }

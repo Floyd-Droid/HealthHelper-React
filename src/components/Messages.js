@@ -1,20 +1,28 @@
 import Alert from 'react-bootstrap/Alert';
-import React from 'react';
+import React, { useRef, useContext } from 'react';
+
+import UserContext from '../context/UserContext';
 
 export default function MessageContainer(props) {
+	const { isBodyLoading } = useContext(UserContext)
 	const messages = props.messages;
 	const type = props.type;
 	const variant = props.variant;
 
+	const alertEl = useRef(null);
+
 	const [show, setShow] = React.useState(true);
 
 	React.useEffect(() => {
-		setShow(true);
-	}, [messages])
+		if (!isBodyLoading) {
+			setShow(true);
+			alertEl.current.focus();
+		}
+	}, [messages, isBodyLoading])
 
 	if (show) {
 		return (
-			<Alert className='m-0 mt-2' variant={variant} show={show} onClose={() => setShow(false)} dismissible>
+			<Alert tabIndex='-1' ref={alertEl} className='mb-2 mt-2' variant={variant} show={show} onClose={() => setShow(false)} dismissible>
 				{type === 'validation' && 
 					<>
 						<div className='d-flex justify-content-start align-items-end'>
