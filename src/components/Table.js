@@ -78,7 +78,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-0 bg-header' 
+                <th className='text-center text-white position-sticky top-56 bg-header'
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   onClick={() => {
                     if (column.canSort) {

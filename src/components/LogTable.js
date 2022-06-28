@@ -298,33 +298,40 @@ export default function LogTable(props) {
   }, [data])
   
   return (
-    <>
-			<div className='container-fluid p-3'>
-				{isTableLoading ? <Spinner /> : 
-				<Table
-					columns={columns}
-					data={data}
-					date={date}
-					defaultColumn={defaultColumn}
-					entries={entries}
-					skipSelectedRowsReset={skipSelectedRowsReset}
-					status={status}
-					updateEditedRowIndices={updateEditedRowIndices}
-					updateSelectedEntries={updateSelectedEntries}
-					updateTableData={updateTableData}
-				/>
+		<>
+			{isTableLoading 
+				? 
+				<div className='container-fluid h-100 d-flex justify-content-center align-items-center'>
+					<Spinner /> 
+				</div>
+				: 
+				<div>
+					<div className='container-fluid d-flex justify-content-center'>
+						<Table
+							columns={columns}
+							data={data}
+							date={date}
+							defaultColumn={defaultColumn}
+							entries={entries}
+							skipSelectedRowsReset={skipSelectedRowsReset}
+							status={status}
+							updateEditedRowIndices={updateEditedRowIndices}
+							updateSelectedEntries={updateSelectedEntries}
+							updateTableData={updateTableData}
+						/>
+					</div>
+					<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
+						<TableButtons
+							data={data}
+							status={status}
+							isTableLoading={isTableLoading}
+							onDeleteRows={deleteRows}
+							onResetData={resetData}
+							onSubmit={submitChanges}
+						/>
+					</div>
+				</div>
 			}
-			</div>
-			<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-				<TableButtons
-					data={data}
-					status={status}
-					isTableLoading={isTableLoading}
-					onDeleteRows={deleteRows}
-					onResetData={resetData}
-					onSubmit={submitChanges}
-				/>
-			</div>
-    </>
+		</>
   )
 }
