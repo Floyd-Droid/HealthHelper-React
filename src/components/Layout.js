@@ -16,9 +16,9 @@ export default function Layout(props) {
 				<NavbarWrapper date={props.date} onDateFormSubmit={props.onDateFormSubmit}/>
 			</div>
 			
-			<div className='container-fluid body-container'>
+			<div className='container-fluid body-container p-0'>
 				{isBodyLoading &&
-					<div>
+					<div className='container spinner-container d-flex justify-content-center align-items-center vh-100'>
 						<Spinner />
 					</div>
 				}
@@ -34,7 +34,7 @@ export default function Layout(props) {
 						</div>
 					</div>
 
-					<div className='container-fluid mt-3'>
+					<div className='container-fluid p-0 mt-3'>
 						<Outlet />
 					</div>
 				</>
