@@ -396,11 +396,14 @@ export const SumFooter = ({
     }, [selectedRowIds, data]
   )
 
-	let selectedTotalDivClassName = 'py-2';
-  let totalDivClassName = 'py-2';
+	// let selectedTotalDivClassName = 'py-2';
+  // let totalDivClassName = 'py-2';
+
+	let selectedTotalDivClassName = 'footer-container py-2';
+  let totalDivClassName = 'footer-container py-2';
 
   if (status === 'log') {
-    selectedTotalDivClassName += ' border-bottom'
+    //selectedTotalDivClassName += ' border-bottom'
   }
 
   const emptyFooterIds = ['amount', 'amount_unit', 'name']

@@ -50,7 +50,19 @@ export default function Table({ columns, data, date, defaultColumn, entries,
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
           ),
-          Footer: () => null
+          Footer: () => {
+						return (
+							<>
+								<div className='footer-container text-footer py-2'>
+									{'Hi'}
+								</div>
+								{status === 'log' && 
+									<div className='footer-container text-footer py-2'>
+										{'Hi'}
+									</div>}
+							</>
+						)
+					}
         },
         ...columns
       ])
@@ -76,7 +88,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
       <table className='table table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark align-end'>
           {headerGroups.map(headerGroup => (
-            <tr className='' {...headerGroup.getHeaderGroupProps()}>
+            <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <th className='text-center text-white position-sticky top-56 bg-header'
                   {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -96,9 +108,9 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					{rows.map((row, i) => {
             prepareRow(row)
             return (
-              <tr className='border-0' {...row.getRowProps()}>
+              <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className='text-center align-middle p-0 m-0' {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='text-center align-middle p-0 ' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -106,13 +118,13 @@ export default function Table({ columns, data, date, defaultColumn, entries,
         </tbody>
 				{status !== 'index' &&
 					<tfoot>
-					{footerGroups.map(group => (
-						<tr {...group.getFooterGroupProps()}>
-							{group.headers.map(column => (
-								<td className='bg-white text-black text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
-							))}
-						</tr>
-					))}
+						{footerGroups.map(group => (
+							<tr {...group.getFooterGroupProps()}>
+								{group.headers.map(column => (
+									<td className='bg-footer text-white text-center p-0 m-0 position-sticky bottom-50' {...column.getFooterProps()}>{column.render('Footer')}</td>
+								))}
+							</tr>
+						))}
 					</tfoot>
 				}
       </table>

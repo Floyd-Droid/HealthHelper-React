@@ -56,7 +56,7 @@ const App = () => {
 	return (
 		<UserProvider
 			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages}}>
-			<div className='container-fluid p-0 app-container bg-app' >
+			<div className='container-fluid p-0 m-0 app-container bg-app' >
 				<Routes>
 					<Route path='/' element={<Layout messages={messages} date={date} onDateFormSubmit={updateDate}/>}>
 						<Route path='login' 
