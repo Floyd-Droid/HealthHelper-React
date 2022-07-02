@@ -46,7 +46,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             </div>
           ),
           Cell: ({ row }) => (
-            <div>
+            <div className='d-flex align-middle justify-content-center'>
               <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
             </div>
           ),
@@ -73,10 +73,10 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 
   return (
     <>
-      <table className='table table-bordered table-sm position-relative' {...getTableProps()}>
-        <thead className='thead-dark'>
+      <table className='table table-sm position-relative' {...getTableProps()}>
+        <thead className='thead-dark align-end'>
           {headerGroups.map(headerGroup => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr className='' {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <th className='text-center text-white position-sticky top-56 bg-header'
                   {...column.getHeaderProps(column.getSortByToggleProps())}
@@ -96,9 +96,9 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					{rows.map((row, i) => {
             prepareRow(row)
             return (
-              <tr {...row.getRowProps()}>
+              <tr className='border-0' {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className='p-0 m-0 text-center align-middle' {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='text-center align-middle p-0 m-0' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -109,7 +109,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					{footerGroups.map(group => (
 						<tr {...group.getFooterGroupProps()}>
 							{group.headers.map(column => (
-								<td className='bg-white text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
+								<td className='bg-white text-black text-center border-1 p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
 							))}
 						</tr>
 					))}

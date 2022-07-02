@@ -24,7 +24,6 @@ export default function LogTable(props) {
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-	//const [isTableLoading, setIsTableLoading] = React.useState(true);
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -39,20 +38,20 @@ export default function LogTable(props) {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Name',
+        Header: <div className='mb-4'>Name</div>,
         accessor: 'name',
         Filter: TextFilter,
         filter: 'basic',
-        Cell: ({value}) => value
+        Cell: ({value}) => <div className='text-white ms-2'>{value}</div>
       },
       {
-        Header: 'Amount',
+        Header: <div className='mb-5'>Amount</div>,
         accessor: 'amount',
         Cell: Input,
         disableFilters: true,
       },
       {
-        Header: 'Unit',
+        Header: <div className='mb-5'>Unit</div>,
         accessor: 'amount_unit',
         Cell: Select,
         disableFilters: true,
@@ -185,10 +184,10 @@ export default function LogTable(props) {
 			
 			const preparedEntries = prepareEntries(body.entries, status);
 			updateTableEntries(preparedEntries, preparedEntries);
-			setIsBodyLoading(false);
 		} catch(err) {
       console.log(err);
     }
+		setIsBodyLoading(false);
   }
 
 	const submitChanges = async () => {
@@ -237,11 +236,11 @@ export default function LogTable(props) {
 				}
 				
 				updateMessages(body);
-				setIsBodyLoading(false);
 			} catch(err) {
 				console.log(err);
 			}
     }
+		setIsBodyLoading(false);
   }
 
 	const deleteRows = async () => {
@@ -268,10 +267,10 @@ export default function LogTable(props) {
 			const token = await user.getIdToken(true);
 			const body = await deleteEntries(url, token, entriesToDelete);
 			updateMessages(body);
-			setIsBodyLoading(false);
 		} catch(err) {
 			console.log(err);
 		}
+		setIsBodyLoading(false);
   }
 
   React.useEffect(() => {
@@ -299,30 +298,28 @@ export default function LogTable(props) {
 	if (!isBodyLoading) {
 		return (
 			<>
-				<div>
-					<div className='container-fluid d-flex justify-content-center'>
-						<Table
-							columns={columns}
-							data={data}
-							date={date}
-							defaultColumn={defaultColumn}
-							entries={entries}
-							skipSelectedRowsReset={skipSelectedRowsReset}
-							status={status}
-							updateEditedRowIndices={updateEditedRowIndices}
-							updateSelectedEntries={updateSelectedEntries}
-							updateTableData={updateTableData}
-						/>
-					</div>
-					<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
-						<TableButtons
-							data={data}
-							status={status}
-							onDeleteRows={deleteRows}
-							onResetData={resetData}
-							onSubmit={submitChanges}
-						/>
-					</div>
+				<div className='container p-0'>
+					<Table
+						columns={columns}
+						data={data}
+						date={date}
+						defaultColumn={defaultColumn}
+						entries={entries}
+						skipSelectedRowsReset={skipSelectedRowsReset}
+						status={status}
+						updateEditedRowIndices={updateEditedRowIndices}
+						updateSelectedEntries={updateSelectedEntries}
+						updateTableData={updateTableData}
+					/>
+				</div>
+				<div className='container position-sticky bottom-0 bg-input-container p-2 rounded w-50'>
+					<TableButtons
+						data={data}
+						status={status}
+						onDeleteRows={deleteRows}
+						onResetData={resetData}
+						onSubmit={submitChanges}
+					/>
 				</div>
 			</>
 		)

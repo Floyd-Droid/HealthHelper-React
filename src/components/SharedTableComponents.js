@@ -63,10 +63,10 @@ export function NumberRangeFilter({
 
   return (
     <>
-      <div>
+      <div className='my-1'>
         <input
           className="bg-white" 
-          style={{width: '60px'}}
+          style={{width: '3em'}}
           value={minValue}
           onChange={e => {
             const val = e.target.value
@@ -80,10 +80,10 @@ export function NumberRangeFilter({
           placeholder={'Min'}
         />
       </div>
-      <div>
+      <div className='my-1'>
         <input
           className="bg-white"
-          style={{width: '60px'}}
+          style={{width: '3em'}}
           value={maxValue}
           onChange={e => {
             const val = e.target.value
@@ -151,10 +151,10 @@ export const CalculatedCell = ({
 		}
   }, [value, original])
 
-  return (
-    <div className='d-flex justify-content-center align-items-center'>
-      {value}
-    </div>
+  return ( 
+		<div className='d-flex justify-content-center align-items-center text-white'>
+			{value}
+		</div>
   );
 }
 
@@ -218,12 +218,15 @@ export const Input = ({
     }
   }, [original.isReset])
 
-  let divClassName = 'cell-container d-flex justify-content-center align-items-center';
+  let divClassName = 'cell-container input-container d-flex justify-content-center align-items-center';
+	let inputClassName ='table-cell-input border-0';
+
 	if (isEdited) {
 		divClassName += ' bg-cell-edit';
+		inputClassName += ' text-black';
+	} else {
+		inputClassName += ' text-white';
 	}
-
-  let inputClassName =`h-75 p-0 m-0 border-0`;
 
 	if (colId === 'name') {
 		inputClassName += ' text-left'
@@ -236,7 +239,7 @@ export const Input = ({
 			<div className={divClassName}>
 				{!original.isPlaceholder &&
 					<input className={inputClassName}
-						style={colId==='name' ? {} : {width: '40px'}}
+						style={colId==='name' ? {} : {width: '3em'}}
 						value={value} onChange={onChange} />
 				}
 			</div>
@@ -318,7 +321,7 @@ export const Select = ({
     }
   }
 
-	let divClassName = 'cell-container d-flex justify-content-center align-items-center p-2 m-0';
+	let divClassName = 'cell-container select-container d-flex justify-content-center align-items-center';
   if (isEdited) {
 		divClassName += ' bg-cell-edit'
 	}
@@ -327,8 +330,8 @@ export const Select = ({
 		<>
 			<div className={divClassName}>
 				{!original.isPlaceholder &&
-					<select className={ `${colId} p-0` } value={value} onChange={onChange}
-						style={(colId === 'amount_unit' ? {width: '85px'} : {...(colId==='weight_unit' ? {width: '50px'} : {width: '60px'})})}>
+					<select className={ `${colId}` } value={value} onChange={onChange}
+						style={(colId === 'amount_unit' ? {width: '6em'} : {...(colId==='weight_unit' ? {width: '4em'} : {width: '5em'})})}>
 						{(colId!=='amount_unit' || value==="---") ? <option key='0' value=''>---</option> : null}
 						{units.map((unit, i) => {
 							return <option key={i} value={unit}>{unit}</option>
@@ -349,6 +352,7 @@ export const IndexCostCell = ({
 
   const value = React.useMemo(() => {
     let result = '';
+
     if (costPerContainer && servingsPerContainer) {
       result = round((costPerContainer / servingsPerContainer), 2)
     }
@@ -356,7 +360,7 @@ export const IndexCostCell = ({
     return result;
   }, [servingsPerContainer, costPerContainer])
 
-	let divClassName = 'cell-container d-flex justify-content-center align-items-center';
+	let divClassName = 'cell-container input-container d-flex justify-content-center align-items-center';
 
 	if (original.isNew) {
 		divClassName += ' bg-cell-edit';
@@ -364,7 +368,9 @@ export const IndexCostCell = ({
 
   return (
     <div className={divClassName} >
-      {value}
+      <input className='table-cell-input border-0 text-white'
+				disabled value={value} style={{width: '3em'}}>
+			</input>
     </div>
   )
 }

@@ -10,7 +10,6 @@ import TableButtons from './TableButtons';
 import { IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
-
 export default function IndexTable(props) {
 	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
   const status = props.status;
@@ -34,35 +33,35 @@ export default function IndexTable(props) {
   const columns = React.useMemo(
     () => [
       {
-        Header: 'Name',
+        Header: () => <div className='mb-4'>Name</div>,
         accessor: 'name',
         Filter: TextFilter,
         filter: 'basic'
       },
       {
-        Header: 'Serving (Weight)',
+        Header: <div className='mb-5'>Serving (Weight)</div>,
         accessor: 'serving_by_weight',
         disableFilters: true
       },
       {
-        Header: 'Weight Unit',
+        Header: <div className='mb-5'>Weight Unit</div>,
         accessor: 'weight_unit',
         Cell: Select,
         disableFilters: true
       },
       {
-        Header: 'Serving (Volume)',
+        Header: <div className='mb-5'>Serving (Volume)</div>,
         accessor: 'serving_by_volume',
         disableFilters: true
       },
       {
-        Header: 'Volume Unit',
+        Header: <div className='mb-5'>Volume Unit</div>,
         accessor: 'volume_unit',
         Cell: Select,
         disableFilters: true
       },
       {
-        Header: 'Serving (Item)',
+        Header: <div className='mb-5'>Serving (Item)</div>,
         accessor: 'serving_by_item',
         disableFilters: true
       },
@@ -202,24 +201,22 @@ export default function IndexTable(props) {
 			
 			const preparedEntries = prepareEntries(body.entries, status);
 			updateTableEntries(preparedEntries, preparedEntries);
-			setIsBodyLoading(false);
 		} catch(err) {
       console.log(err);
     }
+		setIsBodyLoading(false);
   }
 
 	const submitChanges = async () => {
-		//setIsBodyLoading(true);
+		setIsBodyLoading(true);
     const validationErrors = validateIndexSubmission(data);
 
 		if (validationErrors.length) {
 			
 			updateMessages({validationMessages: validationErrors});
-			//setIsBodyLoading(false);
+			setIsBodyLoading(false);
 			return false;
 		}
-
-		setIsBodyLoading(true);
 
     const editedEntries = [];
     const newEntries = [];
@@ -257,9 +254,9 @@ export default function IndexTable(props) {
 	}
 
 	const deleteRows = async () => {
-		if (!Object.values(selectedEntries).length)	return false;
 		setIsBodyLoading(true);
-
+		if (!Object.values(selectedEntries).length)	return false;
+		
     const existingEntryIds = [];
     const dataCopy = [...data];
     const entriesCopy = [...entries];
@@ -284,11 +281,11 @@ export default function IndexTable(props) {
 				const token = await user.getIdToken(true);
 				const body = await deleteEntries(url, token, existingEntryIds);
 				updateMessages(body);
-				setIsBodyLoading(false);
 			} catch(err) {
           console.log(err);
       }
     }
+		setIsBodyLoading(false);
 	}
 
   React.useEffect(() => {
@@ -305,7 +302,7 @@ export default function IndexTable(props) {
 	if (!isBodyLoading) {
 		return (
 			<>
-				<div className='container-fluid p-3'>
+				<div className='container p-0'>
 					<Table
 						columns={columns}
 						data={data}
@@ -318,7 +315,7 @@ export default function IndexTable(props) {
 						updateTableData={updateTableData}
 					/>
 				</div>
-				<div className='container-fluid position-sticky bottom-0 bg-btn-container p-2'>
+				<div className='container w-50 position-sticky bottom-0 bg-input-container p-2 border rounded'>
 					<TableButtons
 						data={data}
 						status={status}
