@@ -10,7 +10,7 @@ export default function NavbarWrapper(props)  {
 	const location = window.location;
 
  	return (
-		<Navbar className='h-100' bg='dark' variant='dark' expand="sm" >
+		<Navbar className='h-100 bg-navbar-container'  variant='dark' expand="sm" >
 			<Navbar.Toggle aria-controls="basic-navbar-nav" />
 			<Navbar.Collapse id="basic-navbar-nav">
 				<Container fluid className='d-flex justify-content-between align-items-center p-0'>

@@ -16,15 +16,15 @@ export default function Layout(props) {
 				<NavbarWrapper date={props.date} onDateFormSubmit={props.onDateFormSubmit}/>
 			</div>
 			
-			<div className='body-container'>
+			<div className='container-fluid body-container'>
 				{isBodyLoading &&
 					<div>
 						<Spinner />
 					</div>
 				}
 				<>
-					<div className='container d-flex justify-content-center w-50'>
-						<div className='container px-0'>
+					<div className='d-flex justify-content-center px-1'>
+						<div className='message-container'>
 							{messages.successMessages.length > 0 && 
 								<MessageContainer messages={messages.successMessages} variant='success' type='success'/>}
 							{messages.errorMessages.length > 0 && 
@@ -34,7 +34,7 @@ export default function Layout(props) {
 						</div>
 					</div>
 
-					<div>
+					<div className='container-fluid mt-3'>
 						<Outlet />
 					</div>
 				</>

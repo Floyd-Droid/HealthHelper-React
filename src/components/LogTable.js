@@ -312,7 +312,7 @@ export default function LogTable(props) {
 						updateTableData={updateTableData}
 					/>
 				</div>
-				<div className='container position-sticky bottom-0 bg-input-container p-2 rounded w-50'>
+				<div className='container position-sticky bottom-0 d-flex justify-content-center'>
 					<TableButtons
 						data={data}
 						status={status}

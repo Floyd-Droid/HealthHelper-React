@@ -315,7 +315,7 @@ export default function IndexTable(props) {
 						updateTableData={updateTableData}
 					/>
 				</div>
-				<div className='container w-50 position-sticky bottom-0 bg-input-container p-2 border rounded'>
+				<div className='container position-sticky bottom-0 d-flex justify-content-center'>
 					<TableButtons
 						data={data}
 						status={status}

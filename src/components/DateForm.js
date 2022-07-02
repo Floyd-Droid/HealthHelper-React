@@ -20,7 +20,7 @@ export default function DateForm(props) {
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EE4B2B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevrons-left"><polyline points="11 17 6 12 11 7"></polyline><polyline points="18 17 13 12 18 7"></polyline></svg>
 			</Button>
 			<div>
-			<DatePicker className='date-input bg-gray text-white text-center' 
+			<DatePicker className='date-input text-black text-center'
 				selected={date} onChange={(date) => props.onDateFormSubmit(date)}/>
 			</div>
 			<Button variant='outline-light' className='date-btn px-2 py-0 ms-2' onClick={() => incrementDate(1)}>

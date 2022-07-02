@@ -59,6 +59,42 @@ input.date-input {
 .body-container {
   margin-top: 56px; }
 
+.message-container {
+  width: 80%; }
+
+.button-container {
+  width: 90%; }
+
+@media (min-width: 576px) {
+  .message-container {
+    width: 80%; }
+  .button-container {
+    width: 70%; } }
+
+@media (min-width: 768px) {
+  .message-container {
+    width: 80%; }
+  .button-container {
+    width: 50%; } }
+
+@media (min-width: 992px) {
+  .message-container {
+    width: 60%; }
+  .button-container {
+    width: 40%; } }
+
+@media (min-width: 1200px) {
+  .message-container {
+    width: 50%; }
+  .button-container {
+    width: 40%; } }
+
+@media (min-width: 1400px) {
+  .message-container {
+    width: 40%; }
+  .button-container {
+    width: 30%; } }
+
 /*!
  * Bootstrap v5.1.3 (https://getbootstrap.com/)
  * Copyright 2011-2021 The Bootstrap Authors
