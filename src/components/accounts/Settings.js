@@ -3,19 +3,18 @@ import { getRedirectResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 
 import UserContext from '../../context/UserContext';
-import Button from 'react-bootstrap/Button';
 import { 
 	auth, googleProvider, logInWithGoogle, passwordReset, 
 	authEmailLink, updateUsername, updateUserEmail, deleteAccount
 } from '../../firebase';
 
 export default function Settings() {
-	const { user, isUserLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
 
-	const [emailLinkEmail, setEmailLinkEmail] = React.useState('');
-	const [emailLinkPassword, setEmailLinkPassword] = React.useState('');
+	const [linkedEmail, setLinkedEmail] = React.useState('');
+	const [linkedPassword, setLinkedPassword] = React.useState('');
 
 	const navigate = useNavigate();
 
@@ -35,7 +34,7 @@ export default function Settings() {
 	}
 
 	const handleLinkEmailAccount = async () => {
-		const res = await authEmailLink(emailLinkEmail, emailLinkPassword);
+		const res = await authEmailLink(linkedEmail, linkedPassword);
 		updateMessages(res);
 	}
 	
@@ -52,89 +51,128 @@ export default function Settings() {
 	React.useEffect(() => {
 		async function redirectAfterLogin() {
 			try {
-				const result = await getRedirectResult(auth);
-				if (result) navigate('/log');
+				await getRedirectResult(auth);
 			} catch (err) {
 				console.log(err);
 			}
 		}
 		
 		redirectAfterLogin();
+		setIsBodyLoading(false);
 	})
 
 	return (
-		<div>
-			<div>
-				<h2>Account info</h2>
-				<p>Username</p>
-				<input
-						type="text"
-						onChange={e => setUsername(e.target.value)}
-						placeholder={user !== null ? user.displayName : ''}
-					/>
-				<Button 
-					variant='primary' 
-					onClick={handleUpdateUsername}>
-					Update
-				</Button>
-				<p>Email</p>
-				<input
-					type="text"
-					onChange={e => setEmail(e.target.value)}
-					placeholder={user !== null ? user.email : ''}
-				/>
-				<Button 
-					variant='primary' 
-					onClick={handleUpdateEmail}>
-					Update
-				</Button>
-			</div>
-			<div>
-				<h2>Reset Password</h2>
-				<p>Click <a href='#' onClick={handlePasswordReset}>here</a> to reset your password</p>
-			</div>
-			<div>
-				<h2>Link accounts</h2>
-				<div>
-					<h4>Link with Google</h4>
-					<Button 
-						variant='primary' 
-						onClick={handleLinkGoogleAccount}>
-						Link Google Account
-					</Button>
+		<div className='container d-flex justify-content-center mt-3 text-white'>
+			<div className='settings-container rounded bg-form'>
+				<div className='container-fluid title-container d-flex justify-content-center bg-title p-2'>
+					<h2 className='text-white'>
+						<span>Settings</span>
+					</h2>
 				</div>
-				<div>
-				<h4>Link with Email and password</h4>
-				<p>
-					If you created your account using Google or Github, and 
-					would like to use different credentials to log in, you can 
-					provide an email and password here. You will then be able 
-					to log in using either set of credentials.
-				</p>
-				<p>Email</p>
-				<input
-					type="text"
-					onChange={e => setEmailLinkEmail(e.target.value)}
-				/>
-				<p>Password</p>
-				<input
-					type="text"
-					onChange={e => setEmailLinkPassword(e.target.value)}
-				/>
-					<Button 
-						variant='primary' 
-						onClick={handleLinkEmailAccount}>
-						Add these credentials
-					</Button>
+
+				<div className='settings-section p-3'>
+					<div className='section-title'>
+						<h3 className='text-white'>
+							<span>Account info</span>
+						</h3>
+					</div>
+					<div className='d-flex justify-content-left align-items-end mt-3'>
+						<div className='d-flex flex-column justify-content-start'>
+							<span>Username</span>
+							<input
+								className='user-input rounded'
+								type="text"
+								onChange={e => setUsername(e.target.value)}
+								placeholder={user !== null ? user.displayName : ''}
+							/>
+						</div>
+						<button type='button' className='btn form-btn ms-5' onClick={handleUpdateUsername}>Update</button>
+					</div>
+
+					<div className='d-flex justify-content-left align-items-end mt-3'>
+						<div className='d-flex flex-column justify-content-start'>
+							<span>Email</span>
+							<input
+								className='user-input rounded'
+								type="text"
+								onChange={e => setEmail(e.target.value)}
+								placeholder={user !== null ? user.email : ''}
+							/>
+						</div>
+						<button type='button' className='btn form-btn ms-5' onClick={handleUpdateEmail}>Update</button>
+					</div>
 				</div>
-				<div>
-					<h2>Delete Account</h2>
-					<Button 
-						variant='Danger' 
-						onClick={handleDeleteAccount}>
-						Delete account
-					</Button>
+
+				<div className='settings-section p-3 mt-5'>
+					<div className='section-title'>
+						<h3 className='text-white'>
+							<span>Reset Password</span>
+						</h3>
+					</div>
+					<div className='mt-3'>
+						<span>Click <a href='#' onClick={handlePasswordReset}>here</a> to reset your password</span>
+					</div>
 				</div>
+
+				<div className='settings-section p-3 mt-5'>
+					<div className='section-title'>
+						<h3 className='text-white'>
+							<span>Link Accounts</span>
+						</h3>
+					</div>
+					<div className='mt-4'>
+						<button type='button' className='btn form-btn' onClick={handleLinkGoogleAccount}>
+							<svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 48 48" width="28px" height="28px">
+								<path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+								<path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+								<path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+								<path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+							</svg>
+							<span className='ms-2'>Link with Google</span>
+						</button>
+
+						<div className='mt-5'>
+							<h4>Link with Email and password</h4>
+							<p>
+								If you created your account using Google or Github, and 
+								would like to use different credentials to log in, you can 
+								provide an email and password here. You will then be able 
+								to log in using either set of credentials.
+							</p>
+						</div>
+						<div className='d-flex justify-content-left align-items-center'>
+							<div className='d-flex flex-column justify-content-start me-5'>
+								<span>Email</span>
+								<input
+									className='user-input rounded'
+									type="text"
+									onChange={e => setLinkedEmail(e.target.value)}
+								/>
+							</div>
+							<div className='d-flex flex-column justify-content-start'>
+								<span>Password</span>
+								<input
+									className='user-input rounded'
+									type="text"
+									onChange={e => setLinkedPassword(e.target.value)}
+								/>
+							</div>
+						</div>
+						<button type='button' className='btn form-btn mt-3' onClick={handleLinkEmailAccount}>Add these credentials</button>
+					</div>
+				</div>
+
+				<div className='settings-section p-3 mt-5'>
+					<div className='section-title'>
+						<h3 className='text-white'>
+							<span>Delete Account</span>
+						</h3>
+					</div>
+					<button type='button' className='btn form-btn mt-3' onClick={handleDeleteAccount}>
+						<span>Delete Account</span>
+					</button>
+				</div>
+
 			</div>
 		</div>
 	)

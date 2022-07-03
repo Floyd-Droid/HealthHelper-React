@@ -7,6 +7,12 @@ html {
 .body-container {
   margin-top: 56px; }
 
+.settings-container {
+  width: 800px; }
+
+.section-title {
+  border-bottom: 1px solid gray; }
+
 .button-container {
   height: 50px; }
 
