@@ -8,7 +8,6 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import Layout from './components/Layout';
 import Login from './components/accounts/Login';
-import Register from './components/accounts/Register';
 import Settings from './components/accounts/Settings';
 import TableSet from './components/TableSet';
 
@@ -55,15 +54,15 @@ const App = () => {
 
 	return (
 		<UserProvider
-			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages}}>
+			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages, messages}}>
 			<div className='container-fluid p-0 m-0 app-container bg-app' >
 				<Routes>
 					<Route path='/' element={<Layout messages={messages} date={date} onDateFormSubmit={updateDate}/>}>
 						<Route path='login' 
-							element={<Login/>}
+							element={<Login status={'login'}/>}
 						/>
 						<Route path='register' 
-							element={<Register/>}
+							element={<Login status={'register'}/>}
 						/>
 						<Route path='settings' 
 							element={<Settings/>}

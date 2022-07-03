@@ -45,7 +45,13 @@ export const registerUserWithEmailAndPassword = async (username, email, password
 		await updateProfile(userCredential.user, {
 			displayName: username
 		});
-		return {successMessage: 'Welcome aboard!'}
+
+		return {
+			successMessage: `Welcome aboard! To get started, head over to the index to create
+				food entries. You can then use those entries to build a daily log of foods to 
+				track total nutrition and cost.
+			`
+		};
 	} catch (err) {
 		return {errorMessage: `Login failed: ${extractFirebaseErrorMessage(err)}.`};
 	}

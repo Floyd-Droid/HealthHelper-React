@@ -25,11 +25,13 @@ html {
 
 .btn.form-btn {
   background-color: white;
-  color: black; }
+  color: black;
+  border: 1px solid black; }
 
 .btn.form-btn:hover {
   background-color: #41005a;
-  color: white; }
+  color: white;
+  border: 1px solid gray; }
 
 .btn:hover {
   background-color: white; }
