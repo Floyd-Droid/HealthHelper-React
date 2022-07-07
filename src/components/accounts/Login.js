@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getRedirectResult } from 'firebase/auth';
 
-import { auth, logInWithEmailAndPassword, logInWithGoogle, registerUserWithEmailAndPassword, } from '../../firebase';
+import { auth, logInWithEmailAndPassword, logInWithGoogle, registerUserWithEmailAndPassword, welcomeMessage } from '../../firebase';
 import UserContext from '../../context/UserContext';
 
 export default function Login(props) {
@@ -10,9 +10,19 @@ export default function Login(props) {
 	const { isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
-	const [username, setUsername] = React.useState('')
+	const [username, setUsername] = React.useState('');
 
 	const navigate = useNavigate();
+
+	const navigateAfterLogin = (res) => {
+		if (typeof res.errorMessage === 'undefined') {
+			if (status === 'register' || (typeof res.isAccountNew !== 'undefined' && res.isAccountNew === true)) {
+				navigate('/index');
+			} else if (status === 'login') {
+				navigate('/log');
+			}
+		}
+	}
 
 	const handleLoginOrRegisterWithEmail = async () => {
 		setIsBodyLoading(true);
@@ -23,11 +33,9 @@ export default function Login(props) {
 		} else if (status === 'register') {
 			res = await registerUserWithEmailAndPassword(username, email, password);
 		}
-		
+
 		updateMessages(res);
-		if (typeof res.errorMessage === 'undefined') {
-			navigate('/log');
-		}
+		navigateAfterLogin(res);
 	}
 
 	const handleLoginWithGoogle = async () => {
@@ -36,18 +44,30 @@ export default function Login(props) {
 		updateMessages(res);
 	}
 
+	const checkIfNewAccount = (result) => {
+		const accountCreationTime = Number(result.user.metadata.createdAt);
+		const now = new Date();
+		const minute = 60000;
+
+		const isAccountNew = (now.getTime() - minute) < accountCreationTime;
+		return isAccountNew;
+	}
+
 	React.useEffect(() => {
 		async function redirectAfterLogin() {
 			try {
 				const result = await getRedirectResult(auth);
 				if (result) {
-					navigate('/log');
-				} else {
-					setIsBodyLoading(false);
+					const isAccountNew = checkIfNewAccount(result)
+					if (isAccountNew) {
+						updateMessages({successMessage: welcomeMessage});
+					}
+					navigateAfterLogin({isAccountNew: isAccountNew});
 				}
 			} catch (err) {
 				console.log(err);
 			}
+			setIsBodyLoading(false);
 		}
 
 		redirectAfterLogin();
@@ -116,10 +136,10 @@ export default function Login(props) {
 					</div>
 					<div className='d-flex justify-content-center text-white my-3'>
 						{status === 'login' &&
-							<span>Don't have an account? <Link className='text-white' to='/register'>Register here</Link></span>
+							<span>Don't have an account? <Link className='text-white' to='/register' onClick={() => updateMessages({}, true)}>Register here</Link></span>
 						}
 						{status === 'register' &&
-							<span>Already have an account? <Link className='text-white' to='/login'>Log in</Link></span>
+							<span>Already have an account? <Link className='text-white' to='/login' onClick={() => updateMessages({}, true)}>Log in</Link></span>
 						}
 					</div>
 				</div>

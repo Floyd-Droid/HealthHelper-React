@@ -31,6 +31,11 @@ export const auth = getAuth(app);
 export const emailProvider = new EmailAuthProvider();
 export const googleProvider = new GoogleAuthProvider();
 
+export const welcomeMessage = `Welcome aboard! This is the Index, where food entries are stored. 
+	After creating a few entries, you can head over to the Log section and use them as the basis 
+	to build a daily log of foods to track total nutrition and cost.
+`;
+
 const extractFirebaseErrorMessage = (err) => {
 	if (err.name === 'FirebaseError') {
 		return err.code.split('/')[1].replaceAll('-',' ');
@@ -46,12 +51,7 @@ export const registerUserWithEmailAndPassword = async (username, email, password
 			displayName: username
 		});
 
-		return {
-			successMessage: `Welcome aboard! To get started, head over to the index to create
-				food entries. You can then use those entries to build a daily log of foods to 
-				track total nutrition and cost.
-			`
-		};
+		return {successMessage: welcomeMessage};
 	} catch (err) {
 		return {errorMessage: `Login failed: ${extractFirebaseErrorMessage(err)}.`};
 	}
