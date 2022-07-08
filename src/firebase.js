@@ -36,7 +36,7 @@ export const welcomeMessage = `Welcome aboard! This is the Index, where food ent
 	to build a daily log of foods to track total nutrition and cost.
 `;
 
-const extractFirebaseErrorMessage = (err) => {
+export const extractFirebaseErrorMessage = (err) => {
 	if (err.name === 'FirebaseError') {
 		return err.code.split('/')[1].replaceAll('-',' ');
 	}	else {

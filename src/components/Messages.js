@@ -16,9 +16,14 @@ export default function MessageContainer(props) {
 	React.useEffect(() => {
 		if (!isBodyLoading) {
 			setShow(true);
-			alertEl.current.focus();
 		}
 	}, [messages, isBodyLoading])
+
+	React.useEffect(() => {
+		if (show) {
+			alertEl.current.focus();
+		}
+	}, [show])
 
 	if (show) {
 		return (

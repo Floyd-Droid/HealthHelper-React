@@ -232,12 +232,13 @@ export default function LogTable(props) {
 			} else if (status === 'createLog') {
 				body = await createEntries(url, tokenResult, newOrEditedLogEntries);
 				setData(entries);
+				setIsBodyLoading(false);
 			}
 			
 			updateMessages(body);
-
-    }
-		setIsBodyLoading(false);
+    } else {
+			setIsBodyLoading(false);
+		}
   }
 
 	const deleteRows = async () => {

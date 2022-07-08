@@ -2,7 +2,10 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getRedirectResult } from 'firebase/auth';
 
-import { auth, logInWithEmailAndPassword, logInWithGoogle, registerUserWithEmailAndPassword, welcomeMessage } from '../../firebase';
+import { auth, logInWithEmailAndPassword, logInWithGoogle, 
+	registerUserWithEmailAndPassword, welcomeMessage, 
+	extractFirebaseErrorMessage
+} from '../../firebase';
 import UserContext from '../../context/UserContext';
 
 export default function Login(props) {
@@ -65,7 +68,8 @@ export default function Login(props) {
 					navigateAfterLogin({isAccountNew: isAccountNew});
 				}
 			} catch (err) {
-				console.log(err);
+				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;
+				updateMessages({errorMessage: message})
 			}
 			setIsBodyLoading(false);
 		}
