@@ -192,13 +192,6 @@ export default function IndexTable(props) {
 
   const fetchEntries = async () => {
 		const tokenResult = await user.getIdToken(true);
-
-		if (typeof tokenResult.errorMessage !== 'undefined') {
-			updateMessages(tokenResult);
-			setIsBodyLoading(false);
-			return false;
-		}
-
 		const body = await getEntries(url, tokenResult);
 
 		if (typeof body.errorMessage !== 'undefined') {
@@ -212,17 +205,19 @@ export default function IndexTable(props) {
 
 	const submitChanges = async () => {
 		setIsBodyLoading(true);
+
+		const editedEntries = [];
+    const newEntries = [];
+
     const validationErrors = validateIndexSubmission(data);
 
 		if (validationErrors.length) {
-			
 			updateMessages({validationMessages: validationErrors});
 			setIsBodyLoading(false);
 			return false;
+		} else {
+			updateMessages({validationMessages: []})
 		}
-
-    const editedEntries = [];
-    const newEntries = [];
 
     // remove duplicate ids in the case of multiple edits per entry
     const dedupedRowIds = [...new Set(editedRowIndices)];
@@ -242,17 +237,16 @@ export default function IndexTable(props) {
 
 		if (editedEntries.length) {
 			const editBody = await updateEntries(url, token, editedEntries);
-			editBody.validationMessages = [];
-			updateMessages(editBody, false);
+			updateMessages(editBody, true);
 		}
 
     if (newEntries.length) {
 			const createBody = await createEntries(url, token, newEntries);
-			createBody.validationMessages = [];
-			updateMessages(createBody, false);
-			setEditedRowIndices([]);
+			const resetMessages = !Boolean(editedEntries.length)
+			updateMessages(createBody, resetMessages);
   	}
 
+		setEditedRowIndices([]);
 		fetchEntries();
 	}
 
@@ -279,15 +273,11 @@ export default function IndexTable(props) {
 		updateTableEntries(dataCopy, entriesCopy);
 		
     if (existingEntryIds.length) {
+			const tokenResult = await user.getIdToken(true);
+			const body = await deleteEntries(url, tokenResult, existingEntryIds);
+			updateMessages(body);
+		}
 
-			try {
-				const token = await user.getIdToken(true);
-				const body = await deleteEntries(url, token, existingEntryIds);
-				updateMessages(body);
-			} catch(err) {
-          console.log(err);
-      }
-    }
 		setIsBodyLoading(false);
 	}
 

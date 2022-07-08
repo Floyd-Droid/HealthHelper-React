@@ -1,6 +1,11 @@
 const defaultError = {errorMessage: 'Something went wrong. Please check your connection and try again.'}
+const authError = {errorMessage: 'You must log in before attempting to create or alter entries.'}
 
 export async function getEntries(url, firebaseIdToken) {
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
   try {
     const res = await fetch(url, {
 			method: 'GET',
@@ -17,6 +22,10 @@ export async function getEntries(url, firebaseIdToken) {
 }
 
 export async function updateEntries(url, firebaseIdToken, entries) {
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
   try {
     const res = await fetch(url, {
       method: 'PUT',
@@ -33,8 +42,11 @@ export async function updateEntries(url, firebaseIdToken, entries) {
   }
 } 
 
-
 export async function createEntries(url, firebaseIdToken, entries) {
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -52,6 +64,10 @@ export async function createEntries(url, firebaseIdToken, entries) {
 }
 
 export async function deleteEntries(url, firebaseIdToken, entries) {
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
   try {
     const res = await fetch(url, {
       method: 'DELETE',
@@ -66,13 +82,4 @@ export async function deleteEntries(url, firebaseIdToken, entries) {
   } catch(err) {
     return defaultError;
   }
-}
-
-export async function getFireBaseToken(user) {
-	try {
-		const token = await user.getIdToken(true);
-		return token;
-	} catch (err) {
-		return ({errorMessage: 'You must log in before attempting to create or alter entries.'})
-	}
 }

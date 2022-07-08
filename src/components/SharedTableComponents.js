@@ -206,7 +206,7 @@ export const Input = ({
 		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
 			setIsEdited(true);
 		} else {
-			setIsEdited(false)
+			setIsEdited(false);
 		}
   }, [initialCellValue, originalValue, original.isNew, original.isReset]);
 
@@ -214,7 +214,7 @@ export const Input = ({
     // In the case of user removal of corresponding index unit
     if (colId === 'amount' && original.isReset) {
       updateEditedRowIndices(index, 'add');
-      updateTableData(index, colId, '')
+      updateTableData(index, colId, '');
     }
   }, [original.isReset])
 
@@ -298,7 +298,7 @@ export const Select = ({
       updateTableData(index, colId, "---");
 			updateTableData(index, 'isReset', true);
     }
-  }, [entries])
+  }, [entries, initialCellValue])
 
   const onChange = e => {
     const newValue = e.target.value;
@@ -396,15 +396,8 @@ export const SumFooter = ({
     }, [selectedRowIds, data]
   )
 
-	// let selectedTotalDivClassName = 'py-2';
-  // let totalDivClassName = 'py-2';
-
 	let selectedTotalDivClassName = 'footer-container py-2';
   let totalDivClassName = 'footer-container py-2';
-
-  if (status === 'log') {
-    //selectedTotalDivClassName += ' border-bottom'
-  }
 
   const emptyFooterIds = ['amount', 'amount_unit', 'name']
   const showTotal = !emptyFooterIds.includes(colId)

@@ -175,13 +175,6 @@ export default function LogTable(props) {
 		}
 		
 		const tokenResult = await user.getIdToken(true);
-
-		if (typeof tokenResult.errorMessage !== 'undefined') {
-			updateMessages(tokenResult);
-			setIsBodyLoading(false);
-			return false;
-		}
-
 		const body = await getEntries(url, tokenResult);
 
 		if (typeof body.errorMessage !== 'undefined') {
@@ -195,15 +188,19 @@ export default function LogTable(props) {
 
 	const submitChanges = async () => {
 		setIsBodyLoading(true);
+
 		const newOrEditedLogEntries = [];
 		let entryRowIndices = [];
 
 		if (status === 'log') {
 			const validationErrors = validateLogSubmission(data);
+
 			if (validationErrors.length) {
 				updateMessages({validationMessages: validationErrors});
 				setIsBodyLoading(false);
 				return false;
+			} else {
+				updateMessages({validationMessages: []})
 			}
 
 			// remove duplicate indices in the case of multiple edits per entry
@@ -225,23 +222,20 @@ export default function LogTable(props) {
     if (newOrEditedLogEntries.length) {
 			let body = {};
 
-			try {
-				const token = await user.getIdToken(true);
+			const tokenResult = await user.getIdToken(true);
 
-				if (status === 'log') {
-					body = await updateEntries(url, token, newOrEditedLogEntries);
+			if (status === 'log') {
+				body = await updateEntries(url, tokenResult, newOrEditedLogEntries);
 
-					setEditedRowIndices([]);
-					fetchEntries();
-				} else if (status === 'createLog') {
-					body = await createEntries(url, token, newOrEditedLogEntries);
-					setData(entries);
-				}
-				
-				updateMessages(body);
-			} catch(err) {
-				console.log(err);
+				setEditedRowIndices([]);
+				fetchEntries();
+			} else if (status === 'createLog') {
+				body = await createEntries(url, tokenResult, newOrEditedLogEntries);
+				setData(entries);
 			}
+			
+			updateMessages(body);
+
     }
 		setIsBodyLoading(false);
   }
@@ -266,13 +260,10 @@ export default function LogTable(props) {
     setSkipSelectedRowsReset(false);
 		updateTableEntries(dataCopy, entriesCopy);
 		
-		try {
-			const token = await user.getIdToken(true);
-			const body = await deleteEntries(url, token, entriesToDelete);
-			updateMessages(body);
-		} catch(err) {
-			console.log(err);
-		}
+		const tokenResult = await user.getIdToken(true);
+		const body = await deleteEntries(url, tokenResult, entriesToDelete);
+
+		updateMessages(body);
 		setIsBodyLoading(false);
   }
 
