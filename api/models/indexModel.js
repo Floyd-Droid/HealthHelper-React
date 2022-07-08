@@ -24,8 +24,7 @@ export async function getIndexEntries(userId) {
     const dbResponse = await pool.query(getEntriesQuery, values);
 		return {entries: dbResponse.rows};
   } catch (err) {
-    console.log(err);
-		return {errorMessage: 'Please check your connection and try again.'};
+		return {errorMessage: 'Something went wrong. Please check your connection and try again.'};
   }
 }
 
@@ -69,7 +68,6 @@ export async function createIndexEntries(entries, userId) {
       
       await client.query(createEntryQuery, values);
     } catch (err) {
-      console.log(err);
       failedEntries.push(entry.name);
     }
   }
@@ -161,7 +159,6 @@ export async function updateIndexEntries(entries, userId) {
     } catch (err) {
       await client.query('ROLLBACK');
       failedEntries.push(entry.name);
-      console.log(err);
     } 
   }
   client.release();
@@ -195,7 +192,6 @@ export async function deleteIndexEntries(entries, userId) {
       const values = [entry.id, userId];
       await client.query(deleteQuery, values);
     } catch(err) {
-      console.log(err);
       failedEntries.push(entry.name);
     }
   }

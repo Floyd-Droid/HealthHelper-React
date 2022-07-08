@@ -18,7 +18,7 @@ export async function verifyFirebaseIdToken(req) {
 			const decodedToken = await admin.auth().verifyIdToken(idToken);
 			return decodedToken;
 		} catch (err) {
-			console.log(err);
+			return {errorMessage: 'You must log in before attempting to create or alter entries.'};
 		}
 	}
 }

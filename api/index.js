@@ -8,6 +8,7 @@ import * as Tracing from "@sentry/tracing";
 import * as logModel from './models/logModel.js';
 import * as indexModel from './models/indexModel.js';
 import { verifyFirebaseIdToken } from './firebase.js';
+import { decode } from '@firebase/util';
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -52,12 +53,16 @@ app.get('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await logModel.getLogEntries(decodedToken.uid, date);
-    const code = typeof dbResult.errorMessage === 'undefined' ? 200 :500;
-    res.status(code).json(dbResult); 
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult); 
+		} else {
+			const dbResult = await logModel.getLogEntries(decodedTokenResult.uid, date);
+			const code = typeof dbResult.errorMessage === 'undefined' ? 200 :500;
+			
+			res.status(code).json(dbResult); 
+		}
   } catch (err) {
-    console.log(err);
     res.status(500).json(connectionErrorResult);
   }
 });
@@ -67,17 +72,21 @@ app.post('/api/log', async (req, res) => {
   const date = req.query.date;
 	
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await logModel.createLogEntries(entries, decodedToken.uid, date);
-		const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-		if (typeof dbResult.errorMessage !== 'undefined') {
-			dbResult.successMessage = undefined;
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await logModel.createLogEntries(entries, decodedTokenResult.uid, date);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
+	
+			if (typeof dbResult.errorMessage !== 'undefined') {
+				dbResult.successMessage = undefined;
+			}
+			
+			res.status(code).json(dbResult);
 		}
-		
-    res.status(code).json(dbResult);
   } catch(err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   }
 })
@@ -87,8 +96,12 @@ app.put('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await logModel.updateLogEntries(entries, decodedToken.uid, date);
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
+
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+    const dbResult = await logModel.updateLogEntries(entries, decodedTokenResult.uid, date);
 		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
 
 		if (typeof dbResult.errorMessage !== 'undefined') {
@@ -96,8 +109,8 @@ app.put('/api/log', async (req, res) => {
 		}
 
     res.status(code).json(dbResult);
+		}
   } catch (err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   } 
 })
@@ -107,17 +120,21 @@ app.delete('/api/log', async (req, res) => {
   const date = req.query.date;
 
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await logModel.deleteLogEntries(entries, decodedToken.uid, date);
-		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-		if (typeof dbResult.errorMessage !== 'undefined') {
-			dbResult.successMessage = undefined;
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await logModel.deleteLogEntries(entries, decodedTokenResult.uid, date);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+	
+			if (typeof dbResult.errorMessage !== 'undefined') {
+				dbResult.successMessage = undefined;
+			}
+	
+			res.status(code).json(dbResult);
 		}
-
-    res.status(code).json(dbResult);
   } catch(err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   }
 })
@@ -126,13 +143,17 @@ app.delete('/api/log', async (req, res) => {
 // Index endpoints
 app.get('/api/index', async (req, res) => {
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await indexModel.getIndexEntries(decodedToken.uid);
-    const code = typeof dbResult.errorMessage !== 'undefined' ? 500 : 200;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-    res.status(code).json(dbResult);
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.getIndexEntries(decodedTokenResult.uid);
+			const code = typeof dbResult.errorMessage !== 'undefined' ? 500 : 200;
+	
+			res.status(code).json(dbResult);
+		}
   } catch (err) {
-    console.log(err);
     res.status(500).json(connectionErrorResult);
   }
 })
@@ -141,17 +162,21 @@ app.post('/api/index', async (req, res) => {
 	const entries = req.body;
 	
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await indexModel.createIndexEntries(entries, decodedToken.uid);
-		const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-		if (typeof dbResult.errorMessage !== 'undefined') {
-			dbResult.successMessage = undefined;
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.createIndexEntries(entries, decodedTokenResult.uid);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
+	
+			if (typeof dbResult.errorMessage !== 'undefined') {
+				dbResult.successMessage = undefined;
+			}
+	
+			res.status(code).json(dbResult);
 		}
-
-    res.status(code).json(dbResult);
   } catch (err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   }
 })
@@ -160,17 +185,21 @@ app.put('/api/index', async (req, res) => {
 	const entries = req.body;
 
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await indexModel.updateIndexEntries(entries, decodedToken.uid);
-		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-		if (typeof dbResult.errorMessage !== 'undefined') {
-			dbResult.successMessage = undefined;
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.updateIndexEntries(entries, decodedTokenResult.uid);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+	
+			if (typeof dbResult.errorMessage !== 'undefined') {
+				dbResult.successMessage = undefined;
+			}
+	
+			res.status(code).json(dbResult);
 		}
-
-    res.status(code).json(dbResult);
   } catch (err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   }
 })
@@ -179,17 +208,21 @@ app.delete('/api/index', async (req, res) => {
 	const entries = req.body;
   
   try {
-		const decodedToken = await verifyFirebaseIdToken(req);
-    const dbResult = await indexModel.deleteIndexEntries(entries, decodedToken.uid);
-		const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
 
-		if (typeof dbResult.errorMessage !== 'undefined') {
-			dbResult.successMessage = undefined;
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.deleteIndexEntries(entries, decodedTokenResult.uid);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+	
+			if (typeof dbResult.errorMessage !== 'undefined') {
+				dbResult.successMessage = undefined;
+			}
+	
+			res.status(code).json(dbResult);
 		}
-
-    res.status(code).json(dbResult);
   } catch(err) {
-    console.log(err);
     res.status(500).json(defaultErrorResult);
   }
 })

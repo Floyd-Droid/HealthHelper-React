@@ -174,19 +174,22 @@ export default function LogTable(props) {
 			url = '/api/index';
 		}
 		
-		try {
-			const token = await user.getIdToken(true);
-			const body = await getEntries(url, token);
+		const tokenResult = await user.getIdToken(true);
 
-			if (typeof body.errorMessage !== 'undefined') {
-				updateMessages(body);
-			}
-			
-			const preparedEntries = prepareEntries(body.entries, status);
-			updateTableEntries(preparedEntries, preparedEntries);
-		} catch(err) {
-      console.log(err);
-    }
+		if (typeof tokenResult.errorMessage !== 'undefined') {
+			updateMessages(tokenResult);
+			setIsBodyLoading(false);
+			return false;
+		}
+
+		const body = await getEntries(url, tokenResult);
+
+		if (typeof body.errorMessage !== 'undefined') {
+			updateMessages(body);
+		}
+		
+		const preparedEntries = prepareEntries(body.entries || [], status);
+		updateTableEntries(preparedEntries, preparedEntries);
 		setIsBodyLoading(false);
   }
 

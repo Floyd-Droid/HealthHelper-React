@@ -25,8 +25,7 @@ export async function getLogEntries(userId, date) {
       const dbResponse = await pool.query(q, [userId, date]);
 			return {entries: dbResponse.rows}
     } catch (err) {
-      console.log(err);
-      return {errorMessage: 'Please check your connection and try again.'};
+      return {errorMessage: 'Something went wrong. Please check your connection and try again.'};
     }
 }
 
@@ -48,7 +47,6 @@ export async function createLogEntries(entries, userId, date) {
       const values = [entry.id, userId, date, entry.amount, entry.amount_unit];
       await client.query(createLogsQuery, values);
     } catch(err) {
-      console.log(err);
       failedEntries.push(entry.name);
     }
   }
@@ -89,7 +87,6 @@ export async function updateLogEntries(entries, userId, date) {
       const values = [entry.amount, entry.amount_unit, entry.id, userId, date];
       await client.query(updateLogsQuery, values);
     } catch (err) {
-      console.log(err);
       failedEntries.push(entry.name);
     } 
   }
@@ -125,7 +122,6 @@ export async function deleteLogEntries(entries, userId, date) {
       const values = [entry.id, userId, date];
       await client.query(deleteLogsQuery, values);
     } catch(err) {
-      console.log(err);
       failedEntries.push(entry.name);
     }
   }

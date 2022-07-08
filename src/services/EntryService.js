@@ -1,3 +1,5 @@
+const defaultError = {errorMessage: 'Something went wrong. Please check your connection and try again.'}
+
 export async function getEntries(url, firebaseIdToken) {
   try {
     const res = await fetch(url, {
@@ -10,7 +12,7 @@ export async function getEntries(url, firebaseIdToken) {
 
     return res.json();
   } catch (err) {
-    console.log(err);
+    return defaultError;
   }
 }
 
@@ -27,7 +29,7 @@ export async function updateEntries(url, firebaseIdToken, entries) {
 
     return res.json();
   } catch (err) {
-    console.log(err);
+    return defaultError;
   }
 } 
 
@@ -45,7 +47,7 @@ export async function createEntries(url, firebaseIdToken, entries) {
 
     return res.json();
   } catch (err) {
-    console.log(err);
+    return defaultError;
   }
 }
 
@@ -62,6 +64,15 @@ export async function deleteEntries(url, firebaseIdToken, entries) {
 
     return res.json();
   } catch(err) {
-    console.log(err);
+    return defaultError;
   }
+}
+
+export async function getFireBaseToken(user) {
+	try {
+		const token = await user.getIdToken(true);
+		return token;
+	} catch (err) {
+		return ({errorMessage: 'You must log in before attempting to create or alter entries.'})
+	}
 }
