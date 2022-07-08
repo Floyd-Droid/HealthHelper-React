@@ -24,6 +24,9 @@ html {
 .brand {
   font-size: 1.5rem; }
 
+.active {
+  background-color: #232323; }
+
 /* forms */
 .login-container {
   width: 300px;

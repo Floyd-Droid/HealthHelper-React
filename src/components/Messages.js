@@ -54,13 +54,13 @@ export default function MessageContainer(props) {
 						<div className='d-flex justify-content-start align-items-start'>
 							<div>
 								{type === 'error' &&
-									<svg height='20' width='20' enable-background="new 0 0 48 48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+									<svg height='20' width='20' enableBackground="new 0 0 48 48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
 										<path d="m21.2 44.8-18-18c-1.6-1.6-1.6-4.1 0-5.7l18-18c1.6-1.6 4.1-1.6 5.7 0l18 18c1.6 1.6 1.6 4.1 0 5.7l-18 18c-1.6 1.6-4.2 1.6-5.7 0z" fill="#f44336"/>
 										<path d="m21.6 32.7c0-.3.1-.6.2-.9s.3-.5.5-.7.5-.4.8-.5.6-.2 1-.2.7.1 1 .2.6.3.8.5.4.4.5.7.2.6.2.9-.1.6-.2.9-.3.5-.5.7-.5.4-.8.5-.6.2-1 .2-.7-.1-1-.2-.5-.3-.8-.5c-.2-.2-.4-.4-.5-.7s-.2-.5-.2-.9zm4.2-4.6h-3.6l-.5-15.1h4.6z" fill="#fff"/>
 									</svg>
 								}
 								{type === 'success' &&
-									<svg height='20' width='20' enable-background="new 0 0 48 48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+									<svg height='20' width='20' enableBackground="new 0 0 48 48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
 										<path d="m40.6 12.1-23.6 23.6-9.6-9.6-2.8 2.9 12.4 12.3 26.4-26.4z" fill="#43a047"/>
 									</svg>
 								}

@@ -5,7 +5,7 @@ import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
 export default function Table({ columns, data, date, defaultColumn, entries, 
-		skipSelectedRowsReset, status,updateEditedRowIndices, updateSelectedEntries,
+		skipSelectedRowsReset, status, updateEditedRowIndices, updateSelectedEntries,
 		updateTableData, 
   }) {
 
@@ -85,6 +85,13 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 
   return (
     <>
+			{status === 'createLog' &&
+				<p className='text-white'>
+					Select some entries, and give each an amount. 
+					Then submit your changes to add the entries to 
+					the log associated with the date above.
+				</p>
+			}
       <table className='table table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark align-end'>
           {headerGroups.map(headerGroup => (
@@ -128,6 +135,6 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					</tfoot>
 				}
       </table>
-    </>
+		</>
   )
 }

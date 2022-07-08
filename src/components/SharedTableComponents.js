@@ -401,15 +401,16 @@ export const SumFooter = ({
 
   const emptyFooterIds = ['amount', 'amount_unit', 'name']
   const showTotal = !emptyFooterIds.includes(colId)
+	const precision = colId === 'cost_per_serving' ? 2 : 1;
 
   return (
     <>
       <div className={selectedTotalDivClassName}>
-        {(showTotal && String(round(selectedTotal, 1))) || (colId==='name' && 'Selected Total') || '---'}
+        {(showTotal && String(round(selectedTotal, precision))) || (colId==='name' && 'Selected Total') || '---'}
       </div>
       {status === 'log' && 
         <div className={totalDivClassName}>
-          {(showTotal && String(round(total, 1))) || (colId==='name' && 'Total') || '---'}
+          {(showTotal && String(round(total, precision))) || (colId==='name' && 'Total') || '---'}
         </div>}
     </>
   )
