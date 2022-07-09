@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 
 import { weightUnits, volumeUnits, round } from '../services/TableData';
 import { validateInput, validateSelect } from '../services/Validation';
@@ -171,6 +171,9 @@ export const Input = ({
   const [value, setValue] = React.useState(initialCellValue);
   const [isEdited, setIsEdited] = React.useState(false);
 
+	let autoFocus = false;
+	const inputEl = useRef(null);
+
   const [originalEntry, originalValue] = React.useMemo(
     () => {
       if (entries?.[index]) {
@@ -229,16 +232,27 @@ export const Input = ({
 	}
 
 	if (colId === 'name') {
-		inputClassName += ' text-left'
+		inputClassName += ' text-left';
+		if (original.isNew) {
+			autoFocus = true;
+		}
 	} else {
-		inputClassName += ' text-center'
+		inputClassName += ' text-center';
 	}
+
+	React.useEffect(() => {
+		if (colId === 'name' && original.isNew) {
+			inputEl.current.scrollIntoView({block: 'center'});
+		}
+	}, [original.isNew])
 
   return (
 		<>
 			<div className={divClassName}>
 				{!original.isPlaceholder &&
 					<input className={inputClassName}
+						ref={inputEl}
+						autoFocus={autoFocus}
 						style={colId==='name' ? {} : {width: '3em'}}
 						value={value} onChange={onChange} />
 				}
@@ -403,15 +417,15 @@ export const SumFooter = ({
   const showTotal = !emptyFooterIds.includes(colId)
 	const precision = colId === 'cost_per_serving' ? 2 : 1;
 
-  return (
-    <>
-      <div className={selectedTotalDivClassName}>
-        {(showTotal && String(round(selectedTotal, precision))) || (colId==='name' && 'Selected Total') || '---'}
-      </div>
-      {status === 'log' && 
-        <div className={totalDivClassName}>
-          {(showTotal && String(round(total, precision))) || (colId==='name' && 'Total') || '---'}
-        </div>}
-    </>
-  )
+	return (
+		<>
+			<div className={selectedTotalDivClassName}>
+				{(showTotal && String(round(selectedTotal, precision))) || (colId==='name' && 'Selected Total') || '---'}
+			</div>
+			{status === 'log' && 
+				<div className={totalDivClassName}>
+					{(showTotal && String(round(total, precision))) || (colId==='name' && 'Total') || '---'}
+				</div>}
+		</>
+	)
 }

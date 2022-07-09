@@ -181,6 +181,7 @@ export default function IndexTable(props) {
   }
 
 	const addNewRow = () => {
+		updateMessages({}, true)
 		setData(old => [...old, newIndexRow]);
   }
   
@@ -204,8 +205,6 @@ export default function IndexTable(props) {
   }
 
 	const submitChanges = async () => {
-		setIsBodyLoading(true);
-
 		const editedEntries = [];
     const newEntries = [];
 
@@ -215,8 +214,6 @@ export default function IndexTable(props) {
 			updateMessages({validationMessages: validationErrors});
 			setIsBodyLoading(false);
 			return false;
-		} else {
-			updateMessages({validationMessages: []})
 		}
 
     // remove duplicate ids in the case of multiple edits per entry
@@ -233,26 +230,39 @@ export default function IndexTable(props) {
       newEntries.push(newEntry);
     }
 
+		if (!(newEntries.length || editedEntries.length)) {
+			updateMessages({}, true);
+			return false;
+		}
+		
+		setIsBodyLoading(true);
+
 		const token = await user.getIdToken(true);
 
 		if (editedEntries.length) {
 			const editBody = await updateEntries(url, token, editedEntries);
+			editBody.validationMessages = [];
 			updateMessages(editBody, true);
+			setEditedRowIndices([]);
 		}
 
     if (newEntries.length) {
 			const createBody = await createEntries(url, token, newEntries);
+			createBody.validationMessages = [];
 			const resetMessages = !Boolean(editedEntries.length)
-			updateMessages(createBody, resetMessages);
+			updateMessages(createBody, !resetMessages);
   	}
 
-		setEditedRowIndices([]);
 		fetchEntries();
 	}
 
 	const deleteRows = async () => {
+		if (!Object.values(selectedEntries).length)	{
+			updateMessages({}, true);
+			return false;
+		}
+
 		setIsBodyLoading(true);
-		if (!Object.values(selectedEntries).length)	return false;
 		
     const existingEntryIds = [];
     const dataCopy = [...data];

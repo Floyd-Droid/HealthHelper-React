@@ -165,7 +165,7 @@ export default function LogTable(props) {
 
 	const resetData = () => {
     setEditedRowIndices([]);
-		updateMessages({});
+		updateMessages({}, true);
 		setData(entries);
   }
 
@@ -242,7 +242,11 @@ export default function LogTable(props) {
   }
 
 	const deleteRows = async () => {
-		if (!Object.values(selectedEntries).length)	return false;
+		if (!Object.values(selectedEntries).length)	{
+			updateMessages({}, true);
+			return false;
+		}
+
 		setIsBodyLoading(true);
 
     const entriesToDelete = [];

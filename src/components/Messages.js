@@ -16,14 +16,16 @@ export default function MessageContainer(props) {
 	React.useEffect(() => {
 		if (!isBodyLoading) {
 			setShow(true);
+		} else {
+			setShow(false)
 		}
 	}, [messages, isBodyLoading])
 
 	React.useEffect(() => {
 		if (show) {
-			alertEl.current.focus();
+			alertEl.current.scrollIntoView({block: 'center'});
 		}
-	}, [show])
+	}, [show, messages])
 
 	if (show) {
 		return (

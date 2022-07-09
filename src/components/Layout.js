@@ -24,17 +24,17 @@ export default function Layout(props) {
 				}
 				<>
 					<div className='d-flex justify-content-center px-1'>
-						<div className='message-container'>
-							{messages.successMessages.length > 0 && 
-								<MessageContainer messages={messages.successMessages} variant='success' type='success'/>}
-							{messages.errorMessages.length > 0 && 
-								<MessageContainer messages={messages.errorMessages} variant='danger' type='error'/>}
-							{messages.validationMessages.length > 0 && 
-								<MessageContainer messages={messages.validationMessages} variant='warning' type='validation'/>}
+							<div className='message-container mt-2'>
+								{messages.successMessages.length > 0 && 
+									<MessageContainer messages={messages.successMessages} variant='success' type='success'/>}
+								{messages.errorMessages.length > 0 && 
+									<MessageContainer messages={messages.errorMessages} variant='danger' type='error'/>}
+								{messages.validationMessages.length > 0 && 
+									<MessageContainer messages={messages.validationMessages} variant='warning' type='validation'/>}
+							</div>
 						</div>
-					</div>
 
-					<div className='container-fluid p-0 mt-3'>
+					<div className='container-fluid p-0 mt-2'>
 						<Outlet />
 					</div>
 				</>

@@ -27,15 +27,15 @@ const App = () => {
 		const messagesToSet = reset
 			? {successMessages: [], errorMessages: [], validationMessages: []}
 			: {...messages};
-		
+
 		if (typeof newMessages.successMessage !== 'undefined') {
-			messagesToSet.successMessages.push(newMessages.successMessage)
+			messagesToSet.successMessages.push(newMessages.successMessage);
 		}
 		if (typeof newMessages.errorMessage !== 'undefined') {
-			messagesToSet.errorMessages.push(newMessages.errorMessage)
+			messagesToSet.errorMessages.push(newMessages.errorMessage);
 		}
 		if (typeof newMessages.validationMessages !== 'undefined') {
-			messagesToSet.validationMessages = newMessages.validationMessages
+			messagesToSet.validationMessages = newMessages.validationMessages;
 		}
 
 		setMessages(messagesToSet)
@@ -45,12 +45,6 @@ const App = () => {
 		if (isUserLoading) return false;
 		if (!user) navigate('/login');
 	}, [user, isUserLoading]);
-
-	React.useEffect(() => {
-		if (!isBodyLoading) {
-			window.scrollTo(0,0);
-		}
-	}, [messages, isBodyLoading]);
 
 	return (
 		<UserProvider
