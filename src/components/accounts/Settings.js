@@ -169,7 +169,7 @@ export default function Settings() {
 									<span>Password</span>
 									<input
 										className='user-input rounded'
-										type="text"
+										type="password"
 										onChange={e => setLinkedPassword(e.target.value)}
 									/>
 								</div>

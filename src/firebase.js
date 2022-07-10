@@ -15,6 +15,8 @@ import {
 	updateEmail
 } from "firebase/auth";
 
+import { validate } from 'react-email-validator';
+
 const config = {
   apiKey: "AIzaSyBXdXg6cS2diYHfF4qaLJmkpR3lgDybkmE",
   authDomain: "healthhelper-floyddroid.firebaseapp.com",
@@ -36,6 +38,10 @@ export const welcomeMessage = `Welcome aboard! This is the Index, where food ent
 	to build a daily log of foods to track total nutrition and cost.
 `;
 
+const validateEmail = (email) => {
+	return validate(email);
+}
+
 export const extractFirebaseErrorMessage = (err) => {
 	if (err.name === 'FirebaseError') {
 		return err.code.split('/')[1].replaceAll('-',' ');
@@ -45,6 +51,10 @@ export const extractFirebaseErrorMessage = (err) => {
 }
 
 export const registerUserWithEmailAndPassword = async (username, email, password) => {
+	if (!validateEmail(email)) {
+		return ({errorMessage: 'Invalid email'});
+	}
+
 	try {
 		const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 		await updateProfile(userCredential.user, {
@@ -58,6 +68,10 @@ export const registerUserWithEmailAndPassword = async (username, email, password
 }
 
 export const logInWithEmailAndPassword = async (email, password) => {
+	if (!validateEmail(email)) {
+		return ({errorMessage: 'Invalid email'});
+	}
+
 	try {
 		const res = await signInWithEmailAndPassword(auth, email, password);
 		return res;
@@ -106,6 +120,10 @@ export const authProviderLink = async () => {
 }
 
 export const authEmailLink = async (linkEmail, linkPassword) => {
+	if (!validateEmail(linkEmail)) {
+		return ({errorMessage: 'Invalid email'});
+	}
+
 	try {
 		const credential = EmailAuthProvider.credential(linkEmail, linkPassword);
 		await linkWithCredential(auth.currentUser, credential);
@@ -127,6 +145,10 @@ export const updateUsername = async (currentUsername, newUsername) => {
 }
 
 export const updateUserEmail = async (currentEmail, newEmail) => {
+	if (!validateEmail(newEmail)) {
+		return ({errorMessage: 'Invalid email'});
+	}
+
 	try {
 		if (newEmail !== currentEmail) {
 			await updateEmail(auth.currentUser, newEmail);
