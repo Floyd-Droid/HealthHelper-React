@@ -1,17 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import DatePicker from 'react-datepicker';
+
+import GlobalContext from '../context/GlobalContext';
 import Button from 'react-bootstrap/Button';
 import 'react-datepicker/dist/react-datepicker.css';
 
-export default function DateForm(props) {
 
-	const date = props.date;
+export default function DateForm() {
+	const { date, updateDate } = useContext(GlobalContext);
 
   const incrementDate = (num) => {
     const newDay = date.getDate() + num;
     const newDate = new Date(date.setDate(newDay));
 
-    props.onDateFormSubmit(newDate)
+    updateDate(newDate);
   }
   
 	return (
@@ -24,7 +26,7 @@ export default function DateForm(props) {
 			</Button>
 			<div>
 			<DatePicker className='date-input text-black text-center'
-				selected={date} onChange={(date) => props.onDateFormSubmit(date)}/>
+				selected={date} onChange={(date) => updateDate(date)}/>
 			</div>
 			<Button variant='outline-light' className='date-btn px-2 py-0 ms-2' onClick={() => incrementDate(1)}>
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EE4B2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevrons-right">

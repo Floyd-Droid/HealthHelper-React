@@ -1,7 +1,7 @@
 import React from 'react';
 import './index.css';
 
-import { UserProvider } from './context/UserContext';
+import { GlobalProvider } from './context/GlobalContext';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
@@ -47,11 +47,11 @@ const App = () => {
 	}, [user, isUserLoading]);
 
 	return (
-		<UserProvider
-			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages, messages}}>
+		<GlobalProvider
+			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, updateMessages}}>
 			<div className='container-fluid p-0 m-0 app-container bg-app' >
 				<Routes>
-					<Route path='/' element={<Layout messages={messages} date={date} onDateFormSubmit={updateDate}/>}>
+					<Route path='/' element={<Layout messages={messages}/>}>
 						<Route path='login' 
 							element={<Login status={'login'}/>}
 						/>
@@ -62,10 +62,10 @@ const App = () => {
 							element={<Settings/>}
 						/>
 						<Route path='log' 
-							element={<TableSet status={'log'} date={date} onDateFormSubmit={updateDate}/>}
+							element={<TableSet status={'log'}/>}
 						/>
 						<Route path='log/create' 
-							element={<TableSet status={'createLog'} date={date} onDateFormSubmit={updateDate}/>}
+							element={<TableSet status={'createLog'}/>}
 						/>
 						<Route path='index' 
 							element={<TableSet status={'index'}/>}
@@ -73,7 +73,7 @@ const App = () => {
 					</Route>
 				</Routes>
 			</div>
-		</UserProvider>
+		</GlobalProvider>
 	)
 }
 

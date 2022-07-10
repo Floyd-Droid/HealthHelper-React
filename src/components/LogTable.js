@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 
-import UserContext from '../context/UserContext';
 import { createEntries, deleteEntries, getEntries, updateEntries } from '../services/EntryService';
 import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
 import { validateLogSubmission } from '../services/Validation';
 
+import GlobalContext from '../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
 import { CalculatedCell, Input, NumberRangeFilter, Select,
@@ -12,9 +12,8 @@ import { CalculatedCell, Input, NumberRangeFilter, Select,
 
 
 export default function LogTable(props) {
-	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages, date } = useContext(GlobalContext);
   const status = props.status;
-  const date = props.date;
   const formattedDate = getFormattedDate(date, 'url');
 
 	let url = `/api/log?date=${formattedDate}`;

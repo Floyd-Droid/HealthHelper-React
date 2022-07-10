@@ -1,17 +1,17 @@
 import React, { useContext } from 'react';
 
-import UserContext from '../context/UserContext';
 import { createEntries, updateEntries, deleteEntries, getEntries } from '../services/EntryService';
 import { newIndexRow, prepareEntries } from '../services/TableData';
 import { validateIndexSubmission} from '../services/Validation';
 
+import GlobalContext from '../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
 import { IndexCostCell, Input, NumberRangeFilter, Select,
   TextFilter } from './SharedTableComponents';
 
 export default function IndexTable(props) {
-	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
   const status = props.status;
 	const url = '/api/index';
 

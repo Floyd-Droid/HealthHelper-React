@@ -27,6 +27,12 @@ html {
 .active {
   background-color: #232323; }
 
+.drop-down {
+  color: #c8c8c8 !important; }
+
+.drop-down:hover {
+  color: white !important; }
+
 /* forms */
 .login-container {
   width: 300px;

@@ -1,19 +1,19 @@
 import React, { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
-import UserContext from '../context/UserContext';
 
+import GlobalContext from '../context/GlobalContext';
 import NavbarWrapper from './NavbarWrapper.js';
 import MessageContainer from './Messages';
 import Spinner from './Spinner';
 
 export default function Layout(props) {
-	const { isBodyLoading } = useContext(UserContext)
+	const { isBodyLoading } = useContext(GlobalContext);
 	const messages = props.messages;
 
 	return (
 		<>
 			<div className='container-fluid navbar-container position-fixed top-0 p-0'>
-				<NavbarWrapper date={props.date} onDateFormSubmit={props.onDateFormSubmit}/>
+				<NavbarWrapper/>
 			</div>
 			
 			<div className='container-fluid body-container p-0'>

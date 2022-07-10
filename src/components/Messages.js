@@ -1,10 +1,10 @@
 import Alert from 'react-bootstrap/Alert';
 import React, { useRef, useContext } from 'react';
 
-import UserContext from '../context/UserContext';
+import GlobalContext from '../context/GlobalContext';
 
 export default function MessageContainer(props) {
-	const { isBodyLoading } = useContext(UserContext)
+	const { isBodyLoading } = useContext(GlobalContext)
 	const messages = props.messages;
 	const type = props.type;
 	const variant = props.variant;

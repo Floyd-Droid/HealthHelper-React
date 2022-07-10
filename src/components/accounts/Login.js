@@ -2,15 +2,16 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getRedirectResult } from 'firebase/auth';
 
+import GlobalContext from '../../context/GlobalContext';
 import { auth, logInWithEmailAndPassword, logInWithGoogle, 
 	registerUserWithEmailAndPassword, welcomeMessage, 
 	extractFirebaseErrorMessage
 } from '../../firebase';
-import UserContext from '../../context/UserContext';
+
 
 export default function Login(props) {
 	const status = props.status;
-	const { isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
+	const { isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');

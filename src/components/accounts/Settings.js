@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { getRedirectResult } from 'firebase/auth';
 
-import UserContext from '../../context/UserContext';
+import GlobalContext from '../../context/GlobalContext';
 import DeleteAccountModal from './DeleteAccountModal';
 import { 
 	auth, googleProvider, logInWithGoogle, passwordReset, 
@@ -11,7 +11,7 @@ import {
 
 
 export default function Settings() {
-	const { user, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(UserContext);
+	const { user, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
 
