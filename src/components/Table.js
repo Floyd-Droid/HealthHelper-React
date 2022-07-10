@@ -22,7 +22,6 @@ export default function Table({ columns, data, date, defaultColumn, entries,
     {
       columns,
       data,
-      date,
       defaultColumn,
       autoResetFilters: false,
       autoResetSortBy: false,

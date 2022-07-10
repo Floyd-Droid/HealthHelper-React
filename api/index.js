@@ -8,7 +8,6 @@ import * as Tracing from "@sentry/tracing";
 import * as logModel from './models/logModel.js';
 import * as indexModel from './models/indexModel.js';
 import { verifyFirebaseIdToken } from './firebase.js';
-import { decode } from '@firebase/util';
 
 const PORT = process.env.PORT || 3001;
 const app = express();

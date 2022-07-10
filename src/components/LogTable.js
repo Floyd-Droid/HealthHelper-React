@@ -273,10 +273,10 @@ export default function LogTable(props) {
   }
 
   React.useEffect(() => {
-		setIsBodyLoading(true);
 		updateMessages({});
 
 		if (status === 'log' && !isUserLoading) {
+			setIsBodyLoading(true);
 			setSkipSelectedRowsReset(false);
 			fetchEntries();
 		}
