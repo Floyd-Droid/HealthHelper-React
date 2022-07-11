@@ -398,15 +398,16 @@ export const SumFooter = ({
 }) => {
 
   const total = React.useMemo(
-    () =>
-      data.reduce((sum, row) => Number(row[colId]) + sum, 0),
-      [data]
+    () => 
+			data.reduce((sum, row) => Number(row[colId]) + sum, 0),
+		  [data]
   )
+
   const selectedTotal = React.useMemo(
     () => {
-      let selectedRows = preFilteredFlatRows.filter((row) => Object.keys(selectedRowIds).includes(row.id));
-      let selectedTotal = selectedRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0);
-      return selectedTotal;
+			let selectedRows = preFilteredFlatRows.filter((row) => Object.keys(selectedRowIds).includes(row.id));
+			let selectedTotal = selectedRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0);
+			return selectedTotal;
     }, [selectedRowIds, data]
   )
 

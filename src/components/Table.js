@@ -5,7 +5,7 @@ import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
 export default function Table({ columns, data, date, defaultColumn, entries, 
-		skipSelectedRowsReset, status, updateEditedRowIndices, updateSelectedEntries,
+		showFooter, skipSelectedRowsReset, status, updateEditedRowIndices, updateSelectedEntries,
 		updateTableData, 
   }) {
 
@@ -122,7 +122,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             )
           })}
         </tbody>
-				{status !== 'index' &&
+				{(status !== 'index' && showFooter) &&
 					<tfoot>
 						{footerGroups.map(group => (
 							<tr {...group.getFooterGroupProps()}>
