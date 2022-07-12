@@ -22,6 +22,7 @@ export default function LogTable(props) {
   const [entries, setEntries] = React.useState([]);  
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
+	const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
 	const [showFooter, setShowFooter] = React.useState(false);
 
@@ -167,6 +168,7 @@ export default function LogTable(props) {
 		setShowFooter(false);
     setEditedRowIndices([]);
 		updateMessages({}, true);
+		setSkipFiltersReset(false);
 		setData(entries);
   }
 
@@ -248,7 +250,7 @@ export default function LogTable(props) {
 			updateMessages({}, true);
 			return false;
 		}
-
+		
 		setIsBodyLoading(true);
 
     const entriesToDelete = [];
@@ -294,9 +296,10 @@ export default function LogTable(props) {
 
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
+		setSkipFiltersReset(true);
 		setShowFooter(true);
   }, [data])
-  
+
 	if (!isBodyLoading) {
 		return (
 			<>
@@ -308,6 +311,7 @@ export default function LogTable(props) {
 						defaultColumn={defaultColumn}
 						entries={entries}
 						showFooter={showFooter}
+						skipFiltersReset={skipFiltersReset}
 						skipSelectedRowsReset={skipSelectedRowsReset}
 						status={status}
 						updateEditedRowIndices={updateEditedRowIndices}

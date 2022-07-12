@@ -46,20 +46,18 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter, 
 }
 
 export function NumberRangeFilter({
-  column: { filterValue = [], preFilteredRows, setFilter, id: colId },
+  column: { filterValue = [], setFilter, id: colId },
+	autoResetFilters
 }) {
-  const [min, max] = React.useMemo(() => {
-    let min = preFilteredRows.length ? preFilteredRows[0].values[colId] : 0
-    let max = preFilteredRows.length ? preFilteredRows[0].values[colId] : 0
-    preFilteredRows.forEach(row => {
-      min = Math.min(row.values[colId], min);
-      max = Math.max(row.values[colId], max);
-    })
-    return [min, max];
-  }, [colId, preFilteredRows])
-
   const [minValue, setMinValue] = React.useState('');
   const [maxValue, setMaxValue] = React.useState('');
+
+	React.useEffect(() => {
+		if (autoResetFilters) {
+			setMinValue('');
+			setMaxValue('');
+		}
+	}, [autoResetFilters])
 
   return (
     <>
@@ -73,7 +71,11 @@ export function NumberRangeFilter({
             const validated = validateInput(val, colId)
             if (validated) {
               setMinValue(val)
-              setFilter((old = []) => [val ? parseFloat(val, 10) : undefined, old[1]])
+							if (Number(val) <= Number(maxValue) || Number(maxValue) === 0) {
+								setFilter((old = []) => [val ? parseFloat(val, 10) : undefined, old[1]])
+							} else if (Number(val) > Number(maxValue)) {
+								setFilter((old = []) => [undefined, old[1]])
+							}
             }
           }}
           onClick={e => e.stopPropagation()}
@@ -90,7 +92,11 @@ export function NumberRangeFilter({
             const validated = validateInput(val, colId)
             if (validated) {
               setMaxValue(val)
-              setFilter((old = []) => [old[0], val ? parseFloat(val, 10) : undefined])
+							if (Number(val) >= Number(minValue) || Number(minValue) === 0) {
+								setFilter((old = []) => [old[0], val ? parseFloat(val, 10) : undefined])
+							} else if (Number(val) < Number(minValue)) {
+								setFilter((old = []) => [old[0], undefined])
+							}
             }
           }}
           onClick={e => e.stopPropagation()}
@@ -358,7 +364,9 @@ export const Select = ({
 }
 
 export const IndexCostCell = ({
-  row: { original }
+	column: { id: colId },
+  row: { original, index },
+	updateTableData
 }) => {
 
   let servingsPerContainer = original.servings_per_container
@@ -379,6 +387,12 @@ export const IndexCostCell = ({
 	if (original.isNew) {
 		divClassName += ' bg-cell-edit';
 	}
+
+	React.useEffect(() => {
+		if (original[colId] !== value) {
+			updateTableData(index, colId, value);
+		}
+  }, [value, original])
 
   return (
     <div className={divClassName} >

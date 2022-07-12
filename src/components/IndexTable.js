@@ -19,6 +19,7 @@ export default function IndexTable(props) {
   const [entries, setEntries] = React.useState([]);
   const [editedRowIndices, setEditedRowIndices] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
+  const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
 
 	const defaultColumn = React.useMemo(
@@ -188,6 +189,7 @@ export default function IndexTable(props) {
   const resetData = () => {
 		setEditedRowIndices([]);
 		updateMessages({}, true);
+		setSkipFiltersReset(false);
     setData(entries);
   }
 
@@ -293,6 +295,7 @@ export default function IndexTable(props) {
 
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
+		setSkipFiltersReset(true);
   }, [data])
 
   React.useEffect(() => {
@@ -300,7 +303,6 @@ export default function IndexTable(props) {
 			fetchEntries();
 		}
   }, [isUserLoading])
-
 
 	if (!isBodyLoading) {
 		return (
@@ -311,6 +313,7 @@ export default function IndexTable(props) {
 						data={data}
 						defaultColumn={defaultColumn}
 						entries={entries}
+						skipFiltersReset={skipFiltersReset}
 						skipSelectedRowsReset={skipSelectedRowsReset}
 						status={status}
 						updateEditedRowIndices={updateEditedRowIndices}

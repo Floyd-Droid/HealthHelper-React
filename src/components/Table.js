@@ -4,9 +4,9 @@ import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
 import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
-export default function Table({ columns, data, date, defaultColumn, entries, 
-		showFooter, skipSelectedRowsReset, status, updateEditedRowIndices, updateSelectedEntries,
-		updateTableData, 
+export default function Table({ columns, data, date, defaultColumn, entries,
+		showFooter, skipFiltersReset, skipSelectedRowsReset, status, updateEditedRowIndices, 
+		updateSelectedEntries, updateTableData, 
   }) {
 
   const {
@@ -23,7 +23,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
       columns,
       data,
       defaultColumn,
-      autoResetFilters: false,
+      autoResetFilters: !skipFiltersReset,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
       entries,
