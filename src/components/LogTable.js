@@ -127,6 +127,10 @@ export default function LogTable(props) {
 
 	const updateTableEntries = (potentialData, potentialEntries) => {
 		if (potentialData.length) {
+			// const tableEntries = [...potentialData];
+			// for (const entry of potentialData) {
+			// 	const val = entry
+			// }
 			setEntries(potentialEntries);
 			setData(potentialData);
 		} else {
@@ -276,6 +280,32 @@ export default function LogTable(props) {
 		setIsBodyLoading(false);
   }
 
+	const sortData = (colId) => {
+		const dataCopy = [...data]
+
+		if (colId === 'name') {
+			dataCopy.sort((a, b) => (a[colId] > b[colId]) ? 1 : -1);
+		} else {
+			dataCopy.sort((a, b) => (parseFloat(a[colId]) - parseFloat(b[colId])));
+		}
+		
+		const sortedEntries = [];
+
+		for (const dataRow of dataCopy) {
+			const dataId = dataRow.id
+
+			for (const entry of entries) {
+				if (entry.id === dataId) {
+					sortedEntries.push(entry);
+					break;
+				}
+			}
+		}
+
+		setEntries(sortedEntries)
+		setData(dataCopy)
+	}
+
   React.useEffect(() => {
 		updateMessages({});
 
@@ -313,6 +343,7 @@ export default function LogTable(props) {
 						showFooter={showFooter}
 						skipFiltersReset={skipFiltersReset}
 						skipSelectedRowsReset={skipSelectedRowsReset}
+						sortData={sortData}
 						status={status}
 						updateEditedRowIndices={updateEditedRowIndices}
 						updateSelectedEntries={updateSelectedEntries}

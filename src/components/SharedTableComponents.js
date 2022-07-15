@@ -110,6 +110,7 @@ export function NumberRangeFilter({
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
+	data,
   entries,
   updateTableData
 }) => {
@@ -168,6 +169,7 @@ export const Input = ({
   value: initialCellValue,
   column: { id: colId },
   row: { index, original },
+	data,
   entries,
   status,
   updateEditedRowIndices,
@@ -210,6 +212,7 @@ export const Input = ({
   }
 
 	React.useEffect(() => {
+		console.log(initialCellValue, originalValue)
     setValue(initialCellValue);
 
 		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
@@ -250,7 +253,7 @@ export const Input = ({
 		if (colId === 'name' && original.isNew) {
 			inputEl.current.scrollIntoView({block: 'center'});
 		}
-	}, [original.isNew])
+	}, [original.isNew]) 
 
   return (
 		<>
@@ -260,7 +263,7 @@ export const Input = ({
 						ref={inputEl}
 						autoFocus={autoFocus}
 						style={colId==='name' ? {} : {width: '3em'}}
-						value={value} onChange={onChange} />
+						value={value} onChange={onChange}/>
 				}
 			</div>
 		</>

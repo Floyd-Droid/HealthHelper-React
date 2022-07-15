@@ -5,8 +5,8 @@ import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
 export default function Table({ columns, data, date, defaultColumn, entries,
-		showFooter, skipFiltersReset, skipSelectedRowsReset, status, updateEditedRowIndices, 
-		updateSelectedEntries, updateTableData, 
+		showFooter, skipFiltersReset, skipSelectedRowsReset, sortData, status, updateEditedRowIndices, 
+		updateSelectedEntries, updateTableData, isEditing, setIsEditing
   }) {
 
   const {
@@ -26,6 +26,8 @@ export default function Table({ columns, data, date, defaultColumn, entries,
       autoResetFilters: !skipFiltersReset,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
+			isEditing,
+			setIsEditing,
       entries,
       status,
       updateEditedRowIndices,
@@ -97,12 +99,12 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <th className='text-center text-white position-sticky top-56 bg-header'
-                  {...column.getHeaderProps(column.getSortByToggleProps())}
-                  onClick={() => {
-                    if (column.canSort) {
-                      column.toggleSortBy(!column.isSortedDesc)
-                    }
-                  }}>
+									{...column.getHeaderProps(column.getSortByToggleProps())}
+										onClick={() => {
+											if (column.canSort) {
+												sortData(column.id)
+											}
+										}}>
                   {column.render('Header')}
                   <div>{column.canFilter ? column.render('Filter') : null}</div>
                 </th>
