@@ -25,6 +25,7 @@ export default function LogTable(props) {
 	const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
 	const [showFooter, setShowFooter] = React.useState(false);
+	const [sortState, setSortState] = React.useState({colId: '', desc: false});
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -127,10 +128,6 @@ export default function LogTable(props) {
 
 	const updateTableEntries = (potentialData, potentialEntries) => {
 		if (potentialData.length) {
-			// const tableEntries = [...potentialData];
-			// for (const entry of potentialData) {
-			// 	const val = entry
-			// }
 			setEntries(potentialEntries);
 			setData(potentialData);
 		} else {
@@ -282,14 +279,26 @@ export default function LogTable(props) {
 
 	const sortData = (colId) => {
 		const dataCopy = [...data]
+		const sortedEntries = [];
+
+		const descending = sortState.colId === colId ? !sortState.desc : false;
+		setSortState({colId: colId, desc: descending})
 
 		if (colId === 'name') {
-			dataCopy.sort((a, b) => (a[colId] > b[colId]) ? 1 : -1);
+			dataCopy.sort((a, b) => {
+				const comp = a[colId] > b[colId];
+				return (comp && !descending) ? 1 : -1;
+			})
 		} else {
-			dataCopy.sort((a, b) => (parseFloat(a[colId]) - parseFloat(b[colId])));
+			dataCopy.sort((a, b) => {
+				// empty values will go to the end regardless of asc/desc
+				if (a[colId] === '') return 1;
+				if (b[colId] === '') return -1;
+
+				const comp = parseFloat(a[colId]) - parseFloat(b[colId]);
+				return descending ? (comp * -1) : comp;
+			})
 		}
-		
-		const sortedEntries = [];
 
 		for (const dataRow of dataCopy) {
 			const dataId = dataRow.id
