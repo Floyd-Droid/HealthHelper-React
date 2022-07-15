@@ -7,7 +7,7 @@ import GlobalContext from '../context/GlobalContext';
 import DateForm from './DateForm';
 
 export default function NavbarWrapper()  {
-	const { user, isUserLoading, setIsBodyLoading } = useContext(GlobalContext);
+	const { user, isUserLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
 	const location = window.location;
 
 	const updateIsBodyLoading = (e) => {
@@ -16,6 +16,7 @@ export default function NavbarWrapper()  {
 
 		if (nextLocation !== currentLocation) {
 			setIsBodyLoading(true);
+			updateMessages({}, true);
 		}
 	}
 

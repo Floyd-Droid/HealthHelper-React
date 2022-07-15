@@ -183,8 +183,10 @@ export default function IndexTable(props) {
   }
 
 	const addNewRow = () => {
-		updateMessages({}, true)
-		setData(old => [...old, newIndexRow]);
+		updateMessages({}, true);
+		const newRow = newIndexRow;
+		setData(old => [...old, newRow]);
+		setEntries(old => [...old, newRow]);
   }
   
   const resetData = () => {
