@@ -21,6 +21,7 @@ export default function IndexTable(props) {
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
+	const [sortState, setSortState] = React.useState({colId: '', desc: false});
 
 	const defaultColumn = React.useMemo(
     () => ({
@@ -293,6 +294,43 @@ export default function IndexTable(props) {
 		setIsBodyLoading(false);
 	}
 
+	const sortData = (colId) => {
+		const dataCopy = [...data]
+		const sortedEntries = [];
+
+		const descending = sortState.colId === colId ? !sortState.desc : false;
+		setSortState({colId: colId, desc: descending})
+
+		if (colId === 'name') {
+			dataCopy.sort((a, b) => {
+				const comp = a[colId] > b[colId];
+				return (comp && !descending) ? 1 : -1;
+			})
+		} else {
+			dataCopy.sort((a, b) => {
+				if (a[colId] === '') return 1;
+				if (b[colId] === '') return -1;
+
+				const comp = parseFloat(a[colId]) - parseFloat(b[colId]);
+				return descending ? (comp * -1) : comp;
+			})
+		}
+
+		for (const dataRow of dataCopy) {
+			const dataId = dataRow.id
+
+			for (const entry of entries) {
+				if (entry.id === dataId) {
+					sortedEntries.push(entry);
+					break;
+				}
+			}
+		}
+
+		setEntries(sortedEntries)
+		setData(dataCopy)
+	}
+
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
 		setSkipFiltersReset(true);
@@ -315,6 +353,7 @@ export default function IndexTable(props) {
 						entries={entries}
 						skipFiltersReset={skipFiltersReset}
 						skipSelectedRowsReset={skipSelectedRowsReset}
+						sortData={sortData}
 						status={status}
 						updateEditedRowIndices={updateEditedRowIndices}
 						updateSelectedEntries={updateSelectedEntries}

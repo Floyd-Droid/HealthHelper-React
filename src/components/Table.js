@@ -5,8 +5,8 @@ import { IndeterminateCheckbox } from './SharedTableComponents';
 
 
 export default function Table({ columns, data, date, defaultColumn, entries,
-		showFooter, skipFiltersReset, skipSelectedRowsReset, sortData, status, updateEditedRowIndices, 
-		updateSelectedEntries, updateTableData, isEditing, setIsEditing
+		showFooter, skipFiltersReset, skipSelectedRowsReset, sortData, status, 
+		updateEditedRowIndices, updateSelectedEntries, updateTableData
   }) {
 
   const {
@@ -26,8 +26,6 @@ export default function Table({ columns, data, date, defaultColumn, entries,
       autoResetFilters: !skipFiltersReset,
       autoResetSortBy: false,
       autoResetSelectedRows: !skipSelectedRowsReset,
-			isEditing,
-			setIsEditing,
       entries,
       status,
       updateEditedRowIndices,

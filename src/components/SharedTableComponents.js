@@ -212,7 +212,6 @@ export const Input = ({
   }
 
 	React.useEffect(() => {
-		console.log(initialCellValue, originalValue)
     setValue(initialCellValue);
 
 		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
