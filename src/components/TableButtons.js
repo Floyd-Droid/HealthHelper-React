@@ -27,7 +27,7 @@ export default function TableButtons(props) {
   }
 
 	return (
-		<div className='button-container d-flex justify-content-center bg-input-container p-2 rounded p-0 bg-primary'>
+		<div className='button-container d-flex justify-content-center bg-button-container rounded p-2'>
 			{status==='createLog' &&
 				<Link to='/log' className='btn mx-4' onClick={() => setIsBodyLoading(true)}>
 					<svg height='24' width='24' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">

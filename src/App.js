@@ -49,30 +49,28 @@ const App = () => {
 	return (
 		<GlobalProvider
 			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, updateMessages}}>
-			<div className='container-fluid p-0 m-0 app-container bg-app' >
-				<Routes>
-					<Route path='/' element={<Layout messages={messages}/>}>
-						<Route path='login' 
-							element={<Login status={'login'}/>}
-						/>
-						<Route path='register' 
-							element={<Login status={'register'}/>}
-						/>
-						<Route path='settings' 
-							element={<Settings/>}
-						/>
-						<Route path='log' 
-							element={<TableSet status={'log'}/>}
-						/>
-						<Route path='log/create' 
-							element={<TableSet status={'createLog'}/>}
-						/>
-						<Route path='index' 
-							element={<TableSet status={'index'}/>}
-						/>
-					</Route>
-				</Routes>
-			</div>
+			<Routes>
+				<Route path='/' element={<Layout messages={messages}/>}>
+					<Route path='login' 
+						element={<Login status={'login'}/>}
+					/>
+					<Route path='register' 
+						element={<Login status={'register'}/>}
+					/>
+					<Route path='settings' 
+						element={<Settings/>}
+					/>
+					<Route path='log' 
+						element={<TableSet status={'log'}/>}
+					/>
+					<Route path='log/create' 
+						element={<TableSet status={'createLog'}/>}
+					/>
+					<Route path='index' 
+						element={<TableSet status={'index'}/>}
+					/>
+				</Route>
+			</Routes>
 		</GlobalProvider>
 	)
 }
