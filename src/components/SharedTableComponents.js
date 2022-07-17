@@ -229,8 +229,8 @@ export const Input = ({
     }
   }, [original.isReset])
 
-  let divClassName = 'cell-container input-container d-flex justify-content-center align-items-center';
-	let inputClassName ='table-cell-input border-0';
+  let divClassName = 'cell-container d-flex justify-content-center align-items-center';
+	let inputClassName ='table-cell-input';
 
 	if (isEdited) {
 		divClassName += ' bg-cell-edit';
@@ -259,10 +259,10 @@ export const Input = ({
 			<div className={divClassName}>
 				{!original.isPlaceholder &&
 					<input className={inputClassName}
-						ref={inputEl}
-						autoFocus={autoFocus}
-						style={colId==='name' ? {} : {width: '3em'}}
-						value={value} onChange={onChange}/>
+					ref={inputEl}
+					autoFocus={autoFocus}
+					style={colId==='name' ? {} : {width: '3em'}}
+					value={value} onChange={onChange}/>
 				}
 			</div>
 		</>
@@ -273,7 +273,6 @@ export const Select = ({
   value: initialCellValue,
   row: { index, original },
   column: { id: colId },
-  data,
   entries,
   status,
   updateEditedRowIndices,
@@ -353,7 +352,7 @@ export const Select = ({
 			<div className={divClassName}>
 				{!original.isPlaceholder &&
 					<select className={ `${colId}` } value={value} onChange={onChange}
-						style={(colId === 'amount_unit' ? {width: '6em'} : {...(colId==='weight_unit' ? {width: '4em'} : {width: '5em'})})}>
+						style={(colId === 'amount_unit' ? {width: '7em'} : {...(colId==='weight_unit' ? {width: '4em'} : {width: '5em'})})}>
 						{(colId!=='amount_unit' || value==="---") ? <option key='0' value=''>---</option> : null}
 						{units.map((unit, i) => {
 							return <option key={i} value={unit}>{unit}</option>

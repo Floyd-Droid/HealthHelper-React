@@ -44,7 +44,7 @@ export default function MessageContainer(props) {
 							</div>
 							<p className='ms-3'>Your changes were not submitted. Each entry should have:</p>
 						</div>
-						<ul className='mt-3 ps-5'>
+						<ul className='ps-5'>
 							{messages.map((message, i) => <li key={i}>{message}</li>)}
 						</ul>
 					</>

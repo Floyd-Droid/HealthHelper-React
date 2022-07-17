@@ -26,7 +26,7 @@ export default function NavbarWrapper()  {
 	}
 
  	return (
-		<Navbar className='h-100 bg-navbar-container'  variant='dark' expand="sm" >
+		<Navbar className='bg-navbar-container h-100'  variant='dark' expand="sm" >
 			<Navbar.Toggle aria-controls="basic-navbar-nav" />
 			<Navbar.Collapse id="basic-navbar-nav">
 				<Container fluid className='d-flex justify-content-between align-items-center p-0'>

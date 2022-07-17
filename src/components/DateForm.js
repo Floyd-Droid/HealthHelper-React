@@ -17,7 +17,7 @@ export default function DateForm() {
   }
   
 	return (
-		<div className='container d-flex justify-content-center align-items-center'>
+		<div className='d-flex justify-content-center align-items-center'>
 			<Button variant='outline-light' className='date-btn px-2 py-0 me-2' onClick={() => incrementDate(-1)}>
 				<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#EE4B2B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-chevrons-left">
 					<polyline points="11 17 6 12 11 7"></polyline>

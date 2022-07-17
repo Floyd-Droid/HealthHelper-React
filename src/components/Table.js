@@ -53,11 +53,11 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 						return (
 							<>
 								<div className='footer-container text-footer py-2'>
-									{'Hi'}
+								{'-'}
 								</div>
 								{status === 'log' && 
 									<div className='footer-container text-footer py-2'>
-										{'Hi'}
+										{'-'}
 									</div>}
 							</>
 						)
