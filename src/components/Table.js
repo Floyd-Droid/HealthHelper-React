@@ -91,7 +91,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					the log associated with the date above.
 				</p>
 			}
-      <table className='table table-sm position-relative' {...getTableProps()}>
+      <table className='table table-sm  position-relative' {...getTableProps()}>
         <thead className='thead-dark align-end'>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>

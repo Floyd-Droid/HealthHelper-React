@@ -20,8 +20,7 @@ export const IndeterminateCheckbox = React.forwardRef(
   }
 )
 
-export function TextFilter({ column: { filterValue, preFilteredRows, setFilter, id: colId } }) {
-  const count = preFilteredRows.length;
+export function TextFilter({ column: { filterValue, setFilter, id: colId } }) {
 
   return (
     <div className="text-filter">
@@ -34,7 +33,6 @@ export function TextFilter({ column: { filterValue, preFilteredRows, setFilter, 
           if (validated) {
             setFilter(val || undefined)
           }
-          
         }}
         onClick={e => {
           e.stopPropagation()
@@ -110,7 +108,6 @@ export function NumberRangeFilter({
 export const CalculatedCell = ({
   column: { id: colId },
   row: { index, original },
-	data,
   entries,
   updateTableData
 }) => {
@@ -169,7 +166,6 @@ export const Input = ({
   value: initialCellValue,
   column: { id: colId },
   row: { index, original },
-	data,
   entries,
   status,
   updateEditedRowIndices,
