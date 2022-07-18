@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 
-import { createEntries, updateEntries, deleteEntries, getEntries } from '../services/EntryService';
-import { newIndexRow, prepareEntries } from '../services/TableData';
-import { validateIndexSubmission} from '../services/Validation';
+import { createEntries, updateEntries, deleteEntries, getEntries } from '../../services/EntryService';
+import { newIndexRow, prepareEntries } from '../../services/TableData';
+import { validateIndexSubmission} from '../../services/Validation';
 
-import GlobalContext from '../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
 import { IndexCostCell, Input, NumberRangeFilter, Select,

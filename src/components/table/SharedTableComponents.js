@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 
-import { weightUnits, volumeUnits, round } from '../services/TableData';
-import { validateInput, validateSelect } from '../services/Validation';
+import { weightUnits, volumeUnits, round } from '../../services/TableData';
+import { validateInput, validateSelect } from '../../services/Validation';
 
 export const IndeterminateCheckbox = React.forwardRef(
   ({ indeterminate, ...rest }, ref) => {

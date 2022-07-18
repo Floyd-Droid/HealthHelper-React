@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import { Outlet } from 'react-router-dom';
 
-import GlobalContext from '../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 import NavbarWrapper from './NavbarWrapper.js';
-import MessageContainer from './Messages';
-import Spinner from './Spinner';
+import MessageContainer from '../feedback/Messages';
+import Spinner from '../feedback/Spinner';
 
 export default function Layout(props) {
 	const { isBodyLoading } = useContext(GlobalContext);

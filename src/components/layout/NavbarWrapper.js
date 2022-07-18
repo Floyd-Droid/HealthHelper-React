@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { Nav, Navbar, NavDropdown, Container } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { logout } from '../firebase';
+import { logout } from '../../firebase';
 
-import GlobalContext from '../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 import DateForm from './DateForm';
 
 export default function NavbarWrapper()  {

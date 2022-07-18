@@ -1,7 +1,7 @@
 import Alert from 'react-bootstrap/Alert';
 import React, { useRef, useContext } from 'react';
 
-import GlobalContext from '../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 
 export default function MessageContainer(props) {
 	const { isBodyLoading } = useContext(GlobalContext)

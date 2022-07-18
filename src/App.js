@@ -6,10 +6,10 @@ import { Routes, Route, useNavigate } from 'react-router-dom';
 import { auth } from './firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
 
-import Layout from './components/Layout';
+import Layout from './components/layout/Layout';
 import Login from './components/accounts/Login';
 import Settings from './components/accounts/Settings';
-import TableSet from './components/TableSet';
+import TableSet from './components/table/TableSet';
 
 
 const App = () => {

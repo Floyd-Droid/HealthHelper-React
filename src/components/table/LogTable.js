@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 
-import { createEntries, deleteEntries, getEntries, updateEntries } from '../services/EntryService';
-import { getFormattedDate, placeholderLogRow, prepareEntries } from '../services/TableData';
-import { validateLogSubmission } from '../services/Validation';
+import { createEntries, deleteEntries, getEntries, updateEntries } from '../../services/EntryService';
+import { getFormattedDate, placeholderLogRow, prepareEntries } from '../../services/TableData';
+import { validateLogSubmission } from '../../services/Validation';
 
-import GlobalContext from '../context/GlobalContext';
+import GlobalContext from '../../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
 import { CalculatedCell, Input, NumberRangeFilter, Select,
