@@ -10,6 +10,7 @@ import Layout from './components/layout/Layout';
 import Login from './components/accounts/Login';
 import Settings from './components/accounts/Settings';
 import TableSet from './components/table/TableSet';
+import NotFoundPage from './components/pages/NotFoundPage';
 
 
 const App = () => {
@@ -69,6 +70,7 @@ const App = () => {
 					<Route path='index' 
 						element={<TableSet status={'index'}/>}
 					/>
+					<Route path='*' element={<NotFoundPage />}/>
 				</Route>
 			</Routes>
 		</GlobalProvider>
