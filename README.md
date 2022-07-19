@@ -1,6 +1,6 @@
 # HealthHelper-React
 
-Healthhelper-React is a complete revision of a project I completed a few 
+HealthHelper-React is a complete revision of a project I completed a few 
 years ago. It is a simple web application that allows the user to keep 
 track of the foods they eat along with associated calories, macro 
 nutrients, and expenses. Whether your goal is to lose, gain, or maintain 

@@ -23,7 +23,7 @@ export async function getLogEntries(userId, date) {
 
     try {
       const dbResponse = await pool.query(q, [userId, date]);
-			return {entries: dbResponse.rows}
+			return {entries: dbResponse.rows};
     } catch (err) {
       return {errorMessage: 'Something went wrong. Please check your connection and try again.'};
     }

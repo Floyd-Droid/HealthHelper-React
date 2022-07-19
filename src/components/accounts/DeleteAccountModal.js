@@ -20,5 +20,5 @@ export default function DeleteAccountModal(props) {
 			</button>
 			</Modal.Footer>
 	</Modal>
-	)
+	);
 }

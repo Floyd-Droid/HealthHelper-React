@@ -7,7 +7,7 @@ admin.initializeApp({
 		privateKey: process.env.PRIVATE_KEY?.replace(/\\n/g, '\n'),
 		clientEmail: process.env.CLIENT_EMAIL,
 	})
-})
+});
 
 export async function verifyFirebaseIdToken(req) {
 	const authHeader = req.headers.authorization;

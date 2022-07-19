@@ -2,7 +2,7 @@ export function convertEmptyStringToNull(entries) {
   for (let entry of entries) {
     Object.keys(entry).forEach((key) => {
         entry[key] = entry[key] === '' ? null : entry[key];
-    })
+    });
   }
   
   return entries;
@@ -17,7 +17,7 @@ export function makeEntryNameList(entryNames) {
 		} else {
 			result += `${entryName}, `;
 		}
-	})
+	});
 
 	return result;
 }

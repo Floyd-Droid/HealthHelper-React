@@ -31,11 +31,11 @@ export function TextFilter({ column: { filterValue, setFilter, id: colId } }) {
           const val = e.target.value;
           const validated = validateInput(val, colId);
           if (validated) {
-            setFilter(val || undefined)
+            setFilter(val || undefined);
           }
         }}
         onClick={e => {
-          e.stopPropagation()
+          e.stopPropagation();
         }}
         placeholder={'Search...'}
       />
@@ -65,14 +65,14 @@ export function NumberRangeFilter({
           style={{width: '3em'}}
           value={minValue}
           onChange={e => {
-            const val = e.target.value
-            const validated = validateInput(val, colId)
+            const val = e.target.value;
+            const validated = validateInput(val, colId);
             if (validated) {
               setMinValue(val)
 							if (Number(val) <= Number(maxValue) || Number(maxValue) === 0) {
-								setFilter((old = []) => [val ? parseFloat(val, 10) : undefined, old[1]])
+								setFilter((old = []) => [val ? parseFloat(val, 10) : undefined, old[1]]);
 							} else if (Number(val) > Number(maxValue)) {
-								setFilter((old = []) => [undefined, old[1]])
+								setFilter((old = []) => [undefined, old[1]]);
 							}
             }
           }}
@@ -86,14 +86,14 @@ export function NumberRangeFilter({
           style={{width: '3em'}}
           value={maxValue}
           onChange={e => {
-            const val = e.target.value
-            const validated = validateInput(val, colId)
+            const val = e.target.value;
+            const validated = validateInput(val, colId);
             if (validated) {
-              setMaxValue(val)
+              setMaxValue(val);
 							if (Number(val) >= Number(minValue) || Number(minValue) === 0) {
-								setFilter((old = []) => [old[0], val ? parseFloat(val, 10) : undefined])
+								setFilter((old = []) => [old[0], val ? parseFloat(val, 10) : undefined]);
 							} else if (Number(val) < Number(minValue)) {
-								setFilter((old = []) => [old[0], undefined])
+								setFilter((old = []) => [old[0], undefined]);
 							}
             }
           }}
@@ -118,9 +118,9 @@ export const CalculatedCell = ({
   const [originalEntry, originalValue] = React.useMemo(
     () => {
       if (entries?.[index]) {
-        return [entries[index], entries[index][colId]]
+        return [entries[index], entries[index][colId]];
       }
-      return [{}, '']
+      return [{}, ''];
     }, [entries]
   )
 
@@ -181,9 +181,9 @@ export const Input = ({
   const [originalEntry, originalValue] = React.useMemo(
     () => {
       if (entries?.[index]) {
-        return [entries[index], entries[index][colId]]
+        return [entries[index], entries[index][colId]];
       }
-      return [{}, '']
+      return [{}, ''];
     }, [entries]
   )
 
@@ -293,9 +293,9 @@ export const Select = ({
   const [originalEntry, originalValue] = React.useMemo(
     () => {
       if (entries?.[index]) {
-        return [entries[index], entries[index][colId]]
+        return [entries[index], entries[index][colId]];
       }
-      return [{}, '']
+      return [{}, ''];
     }, [entries]
   )
 
@@ -305,7 +305,7 @@ export const Select = ({
 		if ((String(initialCellValue) !== String(originalValue) || original.isNew || original.isReset) && status !== 'createLog') {
 			setIsEdited(true);
 		} else {
-			setIsEdited(false)
+			setIsEdited(false);
 		}
   }, [initialCellValue, originalValue, original.isNew, original.isReset])
 
@@ -340,7 +340,7 @@ export const Select = ({
 
 	let divClassName = 'cell-container select-container d-flex justify-content-center align-items-center';
   if (isEdited) {
-		divClassName += ' bg-cell-edit'
+		divClassName += ' bg-cell-edit';
 	}
 
 	return (
@@ -366,14 +366,14 @@ export const IndexCostCell = ({
 	updateTableData
 }) => {
 
-  let servingsPerContainer = original.servings_per_container
-  let costPerContainer = original.cost_per_container
+  let servingsPerContainer = original.servings_per_container;
+  let costPerContainer = original.cost_per_container;
 
   const value = React.useMemo(() => {
     let result = '';
 
     if (costPerContainer && servingsPerContainer) {
-      result = round((costPerContainer / servingsPerContainer), 2)
+      result = round((costPerContainer / servingsPerContainer), 2);
     }
 
     return result;
@@ -397,7 +397,7 @@ export const IndexCostCell = ({
 				disabled value={value} style={{width: '3em'}}>
 			</input>
     </div>
-  )
+  );
 }
 
 export const SumFooter = ({
@@ -425,8 +425,8 @@ export const SumFooter = ({
 	let selectedTotalDivClassName = 'footer-container py-2';
   let totalDivClassName = 'footer-container py-2';
 
-  const emptyFooterIds = ['amount', 'amount_unit', 'name']
-  const showTotal = !emptyFooterIds.includes(colId)
+  const emptyFooterIds = ['amount', 'amount_unit', 'name'];
+  const showTotal = !emptyFooterIds.includes(colId);
 	const precision = colId === 'cost_per_serving' ? 2 : 1;
 
 	return (
@@ -439,5 +439,5 @@ export const SumFooter = ({
 					{(showTotal && String(round(total, precision))) || (colId==='name' && 'Total') || '---'}
 				</div>}
 		</>
-	)
+	);
 }

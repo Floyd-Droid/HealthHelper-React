@@ -62,7 +62,7 @@ export default function Login(props) {
 			try {
 				const result = await getRedirectResult(auth);
 				if (result) {
-					const isAccountNew = checkIfNewAccount(result)
+					const isAccountNew = checkIfNewAccount(result);
 					if (isAccountNew) {
 						updateMessages({successMessage: welcomeMessage});
 					}
@@ -70,7 +70,7 @@ export default function Login(props) {
 				}
 			} catch (err) {
 				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;
-				updateMessages({errorMessage: message})
+				updateMessages({errorMessage: message});
 			}
 			setIsBodyLoading(false);
 		}
@@ -154,7 +154,7 @@ export default function Login(props) {
 					</div>
 				</div>
 			</div>
-		)
+		);
 	}
 	return null;
 };

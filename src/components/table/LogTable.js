@@ -205,7 +205,7 @@ export default function LogTable(props) {
 				setIsBodyLoading(false);
 				return false;
 			} else {
-				updateMessages({validationMessages: []})
+				updateMessages({validationMessages: []});
 			}
 
 			// remove duplicate indices in the case of multiple edits per entry
@@ -278,11 +278,11 @@ export default function LogTable(props) {
   }
 
 	const sortData = (colId) => {
-		const dataCopy = [...data]
+		const dataCopy = [...data];
 		const sortedEntries = [];
 
 		const descending = sortState.colId === colId ? !sortState.desc : false;
-		setSortState({colId: colId, desc: descending})
+		setSortState({colId: colId, desc: descending});
 
 		if (colId === 'name') {
 			dataCopy.sort((a, b) => {
@@ -311,8 +311,8 @@ export default function LogTable(props) {
 			}
 		}
 
-		setEntries(sortedEntries)
-		setData(dataCopy)
+		setEntries(sortedEntries);
+		setData(dataCopy);
 	}
 
   React.useEffect(() => {
@@ -369,7 +369,7 @@ export default function LogTable(props) {
 					/>
 				</div>
 			</>
-		)
+		);
 	}
 	return null;
 }

@@ -41,7 +41,7 @@ export const validateSelect = (value, colId, amountUnits) => {
     if (!amountUnits.includes(value)) return false;
   } else {
     const tmpUnits = colId === 'weight_unit' ? [...weightUnits] : [...volumeUnits];
-    tmpUnits.push('')
+    tmpUnits.push('');
     if (!tmpUnits.includes(value)) return false;
   }
 
@@ -66,7 +66,7 @@ export const validateUniqueNames = (entries) => {
     if (names.includes(entry.name)) {
       return 'A unique name';
     }
-    names.push(entry.name)
+    names.push(entry.name);
   }
 
   return '';
@@ -97,11 +97,11 @@ export const validateRequiredAmountUnit = (entries) => {
 }
 
 export const validateLogSubmission = (entries) => {
-  const requiredAmountUnitMessage = validateRequiredAmountUnit(entries)
+  const requiredAmountUnitMessage = validateRequiredAmountUnit(entries);
 
   const messages = [
     ...(requiredAmountUnitMessage ? [requiredAmountUnitMessage] : [])
-  ]
+  ];
 
   return messages;
 }
@@ -109,13 +109,13 @@ export const validateLogSubmission = (entries) => {
 export const validateIndexSubmission = (entries) => {
   const requiredNameMessage = validateRequiredName(entries);
   const uniqueNameMessage = validateUniqueNames(entries);
-  const requiredServingSizeMessage = validateRequiredServingSize(entries)
+  const requiredServingSizeMessage = validateRequiredServingSize(entries);
 
   const messages = [
     ...( requiredNameMessage ? [requiredNameMessage] : []),
     ...( uniqueNameMessage ? [uniqueNameMessage] : []),
     ...( requiredServingSizeMessage ? [requiredServingSizeMessage] : []),
-  ]
+  ];
 
   return messages;
 }

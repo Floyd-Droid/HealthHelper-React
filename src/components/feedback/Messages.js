@@ -4,7 +4,7 @@ import React, { useRef, useContext } from 'react';
 import GlobalContext from '../../context/GlobalContext';
 
 export default function MessageContainer(props) {
-	const { isBodyLoading } = useContext(GlobalContext)
+	const { isBodyLoading } = useContext(GlobalContext);
 	const messages = props.messages;
 	const type = props.type;
 	const variant = props.variant;
@@ -17,7 +17,7 @@ export default function MessageContainer(props) {
 		if (!isBodyLoading) {
 			setShow(true);
 		} else {
-			setShow(false)
+			setShow(false);
 		}
 	}, [messages, isBodyLoading])
 
@@ -73,7 +73,7 @@ export default function MessageContainer(props) {
 					</>
 				}
 			</Alert>
-		)
+		);
 	}
 	return null;
 }

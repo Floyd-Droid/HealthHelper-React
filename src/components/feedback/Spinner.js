@@ -1,7 +1,7 @@
 import { Oval } from 'react-loader-spinner';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 
-export default function Spinner(props) {
+export default function Spinner() {
 	return (
 		<Oval
 			height='40'
@@ -9,5 +9,5 @@ export default function Spinner(props) {
 			color='green'
 			ariaLabel='loading'
 		/>
-	)
+	);
 }

@@ -2,11 +2,11 @@ import React, { useContext } from "react";
 import GlobalContext from "../../context/GlobalContext";
 
 export default function NotFoundPage() {
-	const { setIsBodyLoading } = useContext(GlobalContext)
+	const { setIsBodyLoading } = useContext(GlobalContext);
 
 	React.useEffect(() => {
 		setIsBodyLoading(false)
-	}, [])
+	}, []);
 
 	return (
 		<div className='container d-flex justify-content-center mt-5'>
@@ -32,5 +32,5 @@ export default function NotFoundPage() {
 				</div>
 			</div>
 		</div>
-	)
+	);
 }

@@ -79,7 +79,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
   }, [status])
 
   React.useEffect(() => {
-    updateSelectedEntries(selectedRowIds)
+    updateSelectedEntries(selectedRowIds);
   }, [selectedRowIds])
 
   return (
@@ -135,5 +135,5 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 				}
       </table>
 		</>
-  )
+  );
 }

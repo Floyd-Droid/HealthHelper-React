@@ -62,7 +62,7 @@ export default function Settings() {
 				await getRedirectResult(auth);
 			} catch (err) {
 				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;
-				updateMessages({errorMessage: message})
+				updateMessages({errorMessage: message});
 			}
 		}
 
@@ -191,7 +191,7 @@ export default function Settings() {
 
 				</div>
 			</div>
-		)
+		);
 	}
 	return null;
 }

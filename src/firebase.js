@@ -101,9 +101,9 @@ export const passwordReset = async (email) => {
 export const deleteAccount = async () => {
 	try {
 		await deleteUser(auth.currentUser);
-		return {successMessage: 'Your account has been deleted.'}
+		return {successMessage: 'Your account has been deleted.'};
 	} catch (err) {
-		return {errorMessage: `Could not delete account: ${extractFirebaseErrorMessage(err)}`}; // change
+		return {errorMessage: `Could not delete account: ${extractFirebaseErrorMessage(err)}`};
 	}
 }
 
@@ -127,7 +127,7 @@ export const authEmailLink = async (linkEmail, linkPassword) => {
 	try {
 		const credential = EmailAuthProvider.credential(linkEmail, linkPassword);
 		await linkWithCredential(auth.currentUser, credential);
-		return {successMessage: 'Accounts have been successfully linked'}
+		return {successMessage: 'Accounts have been successfully linked'};
 	} catch (err) {
 		return {errorMessage: `Could not link accounts: ${extractFirebaseErrorMessage(err)}`};
 	}
@@ -137,7 +137,7 @@ export const updateUsername = async (currentUsername, newUsername) => {
 	try {
 		if (currentUsername !== newUsername) {
 			await updateProfile(auth.currentUser, {displayName: newUsername});
-			return {successMessage: 'Username updated'}
+			return {successMessage: 'Username updated'};
 		}
 	} catch(err) {
 		return {errorMessage: `Could not update username: ${extractFirebaseErrorMessage(err)}`};

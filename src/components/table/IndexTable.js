@@ -142,7 +142,7 @@ export default function IndexTable(props) {
       },
     ],
     []
-  )
+  );
 
 	const updateTableEntries = (potentialData, potentialEntries) => {
 		if (potentialData.length) {
@@ -165,7 +165,7 @@ export default function IndexTable(props) {
         }
         return row;
       })
-    )
+    );
   }
 
   const updateEditedRowIndices = (rowId, action) => {
@@ -254,7 +254,7 @@ export default function IndexTable(props) {
     if (newEntries.length) {
 			const createBody = await createEntries(url, token, newEntries);
 			createBody.validationMessages = [];
-			const resetMessages = !Boolean(editedEntries.length)
+			const resetMessages = !Boolean(editedEntries.length);
 			updateMessages(createBody, !resetMessages);
   	}
 
@@ -297,7 +297,7 @@ export default function IndexTable(props) {
 	}
 
 	const sortData = (colId) => {
-		const dataCopy = [...data]
+		const dataCopy = [...data];
 		const sortedEntries = [];
 
 		const descending = sortState.colId === colId ? !sortState.desc : false;
@@ -319,7 +319,7 @@ export default function IndexTable(props) {
 		}
 
 		for (const dataRow of dataCopy) {
-			const dataId = dataRow.id
+			const dataId = dataRow.id;
 
 			for (const entry of entries) {
 				if (entry.id === dataId) {
@@ -329,8 +329,8 @@ export default function IndexTable(props) {
 			}
 		}
 
-		setEntries(sortedEntries)
-		setData(dataCopy)
+		setEntries(sortedEntries);
+		setData(dataCopy);
 	}
 
   React.useEffect(() => {
@@ -373,7 +373,7 @@ export default function IndexTable(props) {
 					/>
 				</div>
 			</>
-		)
+		);
 	}
 	return null;
 }
