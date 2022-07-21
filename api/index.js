@@ -2,8 +2,10 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import 'dotenv/config';
-import * as Sentry from "@sentry/node";
-import * as Tracing from "@sentry/tracing";
+import * as Sentry from '@sentry/node';
+import * as Tracing from '@sentry/tracing';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 import * as logModel from './models/logModel.js';
 import * as indexModel from './models/indexModel.js';
@@ -12,15 +14,20 @@ import { verifyFirebaseIdToken } from './firebase.js';
 const PORT = process.env.PORT || 3001;
 const app = express();
 
-//process.env.NODE_ENV === 'production' && 
-Sentry.init({
-  dsn: "https://489968792d5f4ff59eea055d447e235e@o1298392.ingest.sentry.io/6528710",
-  integrations: [
-    new Sentry.Integrations.Http({ tracing: true }),
-    new Tracing.Integrations.Express({ app }),
-  ],
-  tracesSampleRate: 0,
-});
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+app.use(express.static(path.resolve(__dirname, '../client/build')));
+
+process.env.NODE_ENV === 'production' && 
+	Sentry.init({
+		dsn: "https://489968792d5f4ff59eea055d447e235e@o1298392.ingest.sentry.io/6528710",
+		integrations: [
+			new Sentry.Integrations.Http({ tracing: true }),
+			new Tracing.Integrations.Express({ app }),
+		],
+		tracesSampleRate: 0,
+	});
 
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
@@ -34,9 +41,6 @@ app.use(cors(corsOptions));
 
 // For requests of content-type application/json
 app.use((bodyParser.json()));
-
-// For requests of content-type application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: true }));
 
 const defaultErrorResult = {
 	errorMessage: 'An error occurred. Please check that your changes were saved.'
@@ -224,7 +228,13 @@ app.delete('/api/index', async (req, res) => {
   } catch(err) {
     res.status(500).json(defaultErrorResult);
   }
-})
+});
+
+app.get("*", (req, res) => {
+	res.sendFile(
+		path.join(__dirname, "../client/build/index.html")
+	);
+});
 
 app.use(
 	Sentry.Handlers.errorHandler({

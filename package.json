@@ -1,6 +1,7 @@
 {
   "name": "healthhelper-react",
   "version": "0.1.0",
+	"description": "A health oriented web app designed to track macronutrient consumption such as calories, fats, and sugars to provide a better understanding how the foods you eat contribute to your health goals as well as financial goals.",
   "private": true,
   "dependencies": {
     "@sentry/react": "^7.3.0",
