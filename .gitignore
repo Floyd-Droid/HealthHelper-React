@@ -7,10 +7,10 @@
 /coverage
 
 # production
-/build
+/client/build
 
 # misc
-/src/scss/
+/client/src/scss/
 .DS_Store
 *.env
 .env.local

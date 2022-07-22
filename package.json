@@ -1,53 +1,31 @@
 {
-  "name": "healthhelper-react",
-  "version": "0.1.0",
-	"description": "A health oriented web app designed to track macronutrient consumption such as calories, fats, and sugars to provide a better understanding how the foods you eat contribute to your health goals as well as financial goals.",
-  "private": true,
-  "dependencies": {
-    "@sentry/react": "^7.3.0",
-    "@sentry/tracing": "^7.3.0",
-    "@testing-library/jest-dom": "^5.16.2",
-    "@testing-library/react": "^12.1.3",
-    "@testing-library/user-event": "^13.5.0",
-    "bootstrap": "^5.1.3",
-    "firebase": "^9.8.3",
-    "node-sass": "^7.0.1",
-    "react": "^17.0.2",
-    "react-bootstrap": "^2.2.3",
-    "react-datepicker": "^4.8.0",
-    "react-dom": "^17.0.2",
-    "react-email-validator": "^1.0.2",
-    "react-firebase-hooks": "^5.0.3",
-    "react-loader-spinner": "^5.1.5",
-    "react-router-dom": "^6.3.0",
-    "react-scripts": "5.0.0",
-    "react-table": "^7.7.0",
-    "web-vitals": "^2.1.4"
-  },
+  "name": "api",
+  "version": "1.0.0",
+  "description": "A health-oriented web app for tracking nutritional and financial info of the foods you eat.",
+  "main": "api/index.js",
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "sass": "node-sass -w src/scss/ -o src/css/"
+    "start": "node api/index.js",
+    "dev": "nodemon api/index.js",
+    "client": "npm start --prefix client",
+    "build": "npm run build --prefix client",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@sentry/node": "^7.3.0",
+    "@sentry/tracing": "^7.3.0",
+    "body-parser": "^1.19.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.1",
+    "express": "^4.17.3",
+    "firebase-admin": "^11.0.0",
+    "path": "^0.12.7",
+    "pg": "^8.7.3"
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+  "devDependencies": {
+    "nodemon": "^2.0.15"
   },
-  "proxy": "http://localhost:3001"
+  "type": "module"
 }
