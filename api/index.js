@@ -32,8 +32,8 @@ process.env.NODE_ENV === 'production' &&
 app.use(Sentry.Handlers.requestHandler());
 app.use(Sentry.Handlers.tracingHandler());
 
-var corsOptions = {
-  origin: "http://127.0.0.1:3001"
+const corsOptions = {
+	origin: ['https://health-helper-react.herokuapp.com', 'localhost:3001']
 };
 
 // Apply CORS options to Express App

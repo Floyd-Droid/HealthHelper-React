@@ -1,5 +1,5 @@
 {
-  "name": "api",
+  "name": "HealthHelper-React",
   "version": "1.0.0",
   "description": "A health-oriented web app for tracking nutritional and financial info of the foods you eat.",
   "main": "api/index.js",
