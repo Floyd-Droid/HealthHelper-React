@@ -56,8 +56,6 @@ export const placeholderLogRow = {
 	cost_per_serving: '',
 };
 
-
-
 export function round(num, precision) {
   const round = Math.round(num + "e+" + precision) + ("e-" + precision);
   const result = precision === 2 ? Number(round).toFixed(2) : Number(round);

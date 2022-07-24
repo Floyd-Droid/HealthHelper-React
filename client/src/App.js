@@ -24,19 +24,19 @@ const App = () => {
 		setDate(newDate);
 	}
 
-	const updateMessages = (newMessages, reset=true) => {
-		const messagesToSet = reset
-			? {successMessages: [], errorMessages: [], validationMessages: []}
-			: {...messages};
+	const updateMessages = (...newMessages) => {
+		const messagesToSet = {successMessages: [], errorMessages: [], validationMessages: []};
 
-		if (typeof newMessages.successMessage !== 'undefined') {
-			messagesToSet.successMessages.push(newMessages.successMessage);
-		}
-		if (typeof newMessages.errorMessage !== 'undefined') {
-			messagesToSet.errorMessages.push(newMessages.errorMessage);
-		}
-		if (typeof newMessages.validationMessages !== 'undefined') {
-			messagesToSet.validationMessages = newMessages.validationMessages;
+		for (const messageSet of newMessages) {
+			if (typeof messageSet.successMessage !== 'undefined') {
+				messagesToSet.successMessages.push(messageSet.successMessage);
+			}
+			if (typeof messageSet.errorMessage !== 'undefined') {
+				messagesToSet.errorMessages.push(messageSet.errorMessage);
+			}
+			if (typeof messageSet.validationMessages !== 'undefined') {
+				messagesToSet.validationMessages = messageSet.validationMessages;
+			}
 		}
 
 		setMessages(messagesToSet);

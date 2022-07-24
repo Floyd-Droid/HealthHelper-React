@@ -183,7 +183,7 @@ export default function IndexTable(props) {
   }
 
 	const addNewRow = () => {
-		updateMessages({}, true);
+		updateMessages({});
 		const newRow = newIndexRow;
 		setData(old => [...old, newRow]);
 		setEntries(old => [...old, newRow]);
@@ -191,7 +191,7 @@ export default function IndexTable(props) {
   
   const resetData = () => {
 		setEditedRowIndices([]);
-		updateMessages({}, true);
+		updateMessages({});
 		setSkipFiltersReset(false);
     setData(entries);
   }
@@ -236,7 +236,7 @@ export default function IndexTable(props) {
     }
 
 		if (!(newEntries.length || editedEntries.length)) {
-			updateMessages({}, true);
+			updateMessages({});
 			return false;
 		}
 		
@@ -244,26 +244,17 @@ export default function IndexTable(props) {
 
 		const token = await user.getIdToken(true);
 
-		if (editedEntries.length) {
-			const editBody = await updateEntries(url, token, editedEntries);
-			editBody.validationMessages = [];
-			updateMessages(editBody, true);
-			setEditedRowIndices([]);
-		}
+		const editBody = editedEntries.length ? await updateEntries(url, token, editedEntries) : {};
+		const createBody = newEntries.length ? await createEntries(url, token, newEntries) : {};
 
-    if (newEntries.length) {
-			const createBody = await createEntries(url, token, newEntries);
-			createBody.validationMessages = [];
-			const resetMessages = !Boolean(editedEntries.length);
-			updateMessages(createBody, !resetMessages);
-  	}
+		updateMessages(editBody, createBody);
 
 		fetchEntries();
 	}
 
 	const deleteRows = async () => {
 		if (!Object.values(selectedEntries).length)	{
-			updateMessages({}, true);
+			updateMessages({});
 			return false;
 		}
 

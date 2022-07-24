@@ -16,7 +16,7 @@ export default function NavbarWrapper()  {
 
 		if (nextLocation !== currentLocation) {
 			setIsBodyLoading(true);
-			updateMessages({}, true);
+			updateMessages({});
 		}
 	}
 

@@ -168,7 +168,7 @@ export default function LogTable(props) {
 	const resetData = () => {
 		setShowFooter(false);
     setEditedRowIndices([]);
-		updateMessages({}, true);
+		updateMessages({});
 		setSkipFiltersReset(false);
 		setData(entries);
   }
@@ -248,7 +248,7 @@ export default function LogTable(props) {
 
 	const deleteRows = async () => {
 		if (!Object.values(selectedEntries).length)	{
-			updateMessages({}, true);
+			updateMessages({});
 			return false;
 		}
 		
