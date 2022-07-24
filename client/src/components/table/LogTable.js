@@ -318,7 +318,7 @@ export default function LogTable(props) {
   React.useEffect(() => {
 		updateMessages({});
 
-		if (status === 'log' && !isUserLoading) {
+		if (status === 'log' && !isUserLoading && user) {
 			setIsBodyLoading(true);
 			setSkipSelectedRowsReset(false);
 			fetchEntries();
@@ -328,7 +328,7 @@ export default function LogTable(props) {
 	React.useEffect(() => {
 		updateMessages({});
 
-		if (!isUserLoading) {
+		if (!isUserLoading && user) {
 			fetchEntries();
 		}
   }, [status, isUserLoading])

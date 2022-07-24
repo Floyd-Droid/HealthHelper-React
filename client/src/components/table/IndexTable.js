@@ -330,7 +330,7 @@ export default function IndexTable(props) {
   }, [data])
 
   React.useEffect(() => {
-		if (!isUserLoading) {
+		if (!isUserLoading && user) {
 			fetchEntries();
 		}
   }, [isUserLoading])

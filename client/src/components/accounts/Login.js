@@ -146,10 +146,10 @@ export default function Login(props) {
 					</div>
 					<div className='d-flex justify-content-center text-white my-3'>
 						{status === 'login' &&
-							<span>Don't have an account? <Link className='text-white' to='/register' onClick={() => updateMessages({}, true)}>Register here</Link></span>
+							<span>Don't have an account? <Link className='text-white' to='/register' onClick={() => updateMessages({})}>Register here</Link></span>
 						}
 						{status === 'register' &&
-							<span>Already have an account? <Link className='text-white' to='/login' onClick={() => updateMessages({}, true)}>Log in</Link></span>
+							<span>Already have an account? <Link className='text-white' to='/' onClick={() => updateMessages({})}>Log in</Link></span>
 						}
 					</div>
 				</div>

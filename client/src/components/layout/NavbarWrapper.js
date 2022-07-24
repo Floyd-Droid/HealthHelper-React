@@ -10,7 +10,7 @@ export default function NavbarWrapper()  {
 	const { user, isUserLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
 	const location = window.location;
 
-	const updateIsBodyLoading = (e) => {
+	const navigate = (e) => {
 		const currentLocation = window.location.href;
 		const nextLocation = e.target.closest('a').href;
 
@@ -34,13 +34,17 @@ export default function NavbarWrapper()  {
 						<Nav activeKey={location.pathname}>
 							
 							<Nav.Link className='d-flex justify-content-center align-items-center me-5 text-white disabled'>
-								<svg className='mx-2' height="44" viewBox="0 0 64 64" width="44" xmlns="http://www.w3.org/2000/svg"><g fill="none" fillRule="evenodd">
-									<path d="m19.1821589 8c-8.9371596 0-16.1821589 4.3893242-16.1821589 16.1821589 0 11.7928346 29.0326968 33.283923 29.0326968 33.283923s29.0326967-21.4910884 29.0326967-33.283923c0-11.7928347-7.2449993-16.1821589-16.1821588-16.1821589-5.2369705 0-9.8929055 2.487709-12.8505379 6.3458602-2.9576325-3.8581512-7.6135674-6.3458602-12.8505379-6.3458602z" fill="#e43535"/><path d="m8 37.395h11.786l2.792-9.197 3.285 13.911 3.769-24.109 3.917 30.143 4.342-25.133 2.562 14.844h20.993" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/></g></svg>
+								<svg className='mx-2' height="44" viewBox="0 0 64 64" width="44" xmlns="http://www.w3.org/2000/svg">
+									<g fill="none" fillRule="evenodd">
+										<path d="m19.1821589 8c-8.9371596 0-16.1821589 4.3893242-16.1821589 16.1821589 0 11.7928346 29.0326968 33.283923 29.0326968 33.283923s29.0326967-21.4910884 29.0326967-33.283923c0-11.7928347-7.2449993-16.1821589-16.1821588-16.1821589-5.2369705 0-9.8929055 2.487709-12.8505379 6.3458602-2.9576325-3.8581512-7.6135674-6.3458602-12.8505379-6.3458602z" fill="#e43535"/>
+										<path d="m8 37.395h11.786l2.792-9.197 3.285 13.911 3.769-24.109 3.917 30.143 4.342-25.133 2.562 14.844h20.993" stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"/>
+									</g>
+								</svg>
 								<span className='brand mx-1'>HealthHelper</span>
 							</Nav.Link>
 
 							<Link to='/log' className={`nav-link d-flex justify-content-center align-items-center ${(location.pathname === '/log') ? 'active' : 'inactive'}`}
-								onClick={updateIsBodyLoading}>
+								onClick={navigate}>
 							<svg height='20' width='20' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36">
 									<path fill="#66757F" d="M28.815 4h1.996v1h-1.996z"/>
 									<path fill="#CCD6DD" d="M2 12v20c0 2.209 1.791 4 4 4h24c2.209 0 4-1.791 4-4V12H2z"/>
@@ -52,7 +56,7 @@ export default function NavbarWrapper()  {
 							</Link>
 
 							<Link to='/log/create' className={`nav-link d-flex justify-content-center align-items-center ${(location.pathname === '/log/create') ? 'active' : 'inactive'}`} 
-								onClick={updateIsBodyLoading}>
+								onClick={navigate}>
 							<svg height="20" viewBox="0 0 64 64" width="20" xmlns="http://www.w3.org/2000/svg">
 									<g fill="none" fillRule="evenodd">
 										<path d="m24.7228694.96294543h11.9246212l.0102509 51.32721297c.0005513 2.7606143-2.2419318 4.9985343-5.0042839 4.9985343h-1.9140569c-2.764341 0-5.00573-2.2427944-5.0062804-4.9985343z" fill="#6b6b6b" transform="matrix(-.70710678 .70710678 -.70710678 -.70710678 72.986299 28.020085)"/>
@@ -69,7 +73,7 @@ export default function NavbarWrapper()  {
 							</Link>
 
 							<Link to='/index' className={`nav-link d-flex justify-content-center align-items-center ${(location.pathname === '/index') ? 'active' : 'inactive'}`} 
-								onClick={updateIsBodyLoading}>
+								onClick={navigate}>
 								<svg height="20" viewBox="0 0 64 64" width="20" xmlns="http://www.w3.org/2000/svg">
 										<g fill="none" fillRule="evenodd">
 											<path d="m28 55.779h8v5h-8z" fill="#595959"/>
@@ -85,7 +89,6 @@ export default function NavbarWrapper()  {
 									</svg>
 									<span className='mx-1'>Index</span>
 							</Link>
-
 						</Nav>
 					</Container>
 					<Container fluid className='d-flex justify-content-center align-items-center'>
@@ -102,8 +105,8 @@ export default function NavbarWrapper()  {
 										<path d="M33.9015 38.8673C37.7294 40.8336 42.2706 40.8336 46.0985 38.8673C49.6611 37.0373 52.2136 33.7042 53.0516 29.7878L53.2752 28.7425C54.1322 24.7375 53.2168 20.5576 50.7644 17.2774L50.4053 16.797C47.9525 13.5163 44.0962 11.5845 40 11.5845C35.9038 11.5845 32.0475 13.5163 29.5947 16.797L29.2356 17.2774C26.7832 20.5576 25.8678 24.7375 26.7248 28.7425L26.9484 29.7878C27.7864 33.7042 30.3389 37.0373 33.9015 38.8673Z" fill="#F59D38" stroke="#F59D38" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 									</svg>
 									<NavDropdown className='me-3' title={user ? user.displayName : 'User'} id="basic-nav-dropdown" menuVariant='dark'>
-										<Link to="/settings" className='nav-link drop-down ms-3' onClick={updateIsBodyLoading}>Settings</Link>
-										<Link to="/login" className='nav-link drop-down ms-3' onClick={navLogout}>Log out</Link>
+										<Link to="/settings" className='nav-link drop-down ms-3' onClick={navigate}>Settings</Link>
+										<Link to="/" className='nav-link drop-down ms-3' onClick={navLogout}>Log out</Link>
 									</NavDropdown>
 								</Container>
 							}

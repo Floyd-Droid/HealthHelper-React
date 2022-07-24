@@ -44,15 +44,22 @@ const App = () => {
 
 	React.useEffect(() => {
 		if (isUserLoading) return false;
-		if (!user) navigate('/login');
+		if (!user) navigate('/');
 	}, [user, isUserLoading]);
+
+	React.useEffect(() => {
+		if (isBodyLoading && !user && !isUserLoading) {
+			navigate('/');
+			setIsBodyLoading(false);
+		}
+	}, [isBodyLoading]);
 
 	return (
 		<GlobalProvider
 			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, updateMessages}}>
 			<Routes>
 				<Route path='/' element={<Layout messages={messages}/>}>
-					<Route path='login' 
+					<Route path='' 
 						element={<Login status={'login'}/>}
 					/>
 					<Route path='register' 
