@@ -91,12 +91,12 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 					the log associated with the date above.
 				</p>
 			}
-      <table className='table table-sm  position-relative' {...getTableProps()}>
+      <table className='table table-sm position-relative' {...getTableProps()}>
         <thead className='thead-dark align-end'>
           {headerGroups.map(headerGroup => (
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
-                <th className='text-center text-white position-sticky top-56 bg-header'
+                <th className='header text-center text-white'
 									{...column.getHeaderProps(column.getSortByToggleProps())}
 										onClick={() => {
 											if (column.canSort) {
@@ -116,7 +116,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             return (
               <tr {...row.getRowProps()}>
                 {row.cells.map(cell => {
-                  return <td className='text-center align-middle p-0 ' {...cell.getCellProps()}>{cell.render('Cell')}</td>
+                  return <td className='text-center align-middle p-0' {...cell.getCellProps()}>{cell.render('Cell')}</td>
                 })}
               </tr>
             )
@@ -127,7 +127,7 @@ export default function Table({ columns, data, date, defaultColumn, entries,
 						{footerGroups.map(group => (
 							<tr {...group.getFooterGroupProps()}>
 								{group.headers.map(column => (
-									<td className='bg-footer text-white text-center p-0 m-0 position-sticky bottom-50' {...column.getFooterProps()}>{column.render('Footer')}</td>
+									<td className='footer text-white text-center p-0 m-0' {...column.getFooterProps()}>{column.render('Footer')}</td>
 								))}
 							</tr>
 						))}

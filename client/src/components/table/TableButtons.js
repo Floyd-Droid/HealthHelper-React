@@ -27,9 +27,9 @@ export default function TableButtons(props) {
   }
 
 	return (
-		<div className='button-container d-flex justify-content-center bg-button-container rounded p-2'>
+		<div className='button-container d-flex justify-content-center rounded p-2'>
 			{status==='createLog' &&
-				<Link to='/log' className='btn mx-4' onClick={() => setIsBodyLoading(true)}>
+				<Link to='/log' className='btn table-btn mx-4' onClick={() => setIsBodyLoading(true)}>
 					<svg height='24' width='24' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
 						<path fill="white" d="M11.293,7.293l-3.9997,3.99969a1.00354,1.00354,0,0,0,0,1.41468L11.293,16.707A.99989.99989,0,0,0,12.707,15.293L10.41406,13H16a1,1,0,0,0,0-2H10.41406l2.293-2.293A.99989.99989,0,0,0,11.293,7.293Z"/>
 						<path fill="#FFA203" d="M2,12A10,10,0,1,0,12,2,10.01114,10.01114,0,0,0,2,12ZM12.707,7.293a.99963.99963,0,0,1,0,1.41406L10.41406,11H16a1,1,0,0,1,0,2H10.41406l2.293,2.293A.99989.99989,0,0,1,11.293,16.707l-3.9997-3.99969a1.00354,1.00354,0,0,1,0-1.41468L11.293,7.293A.99962.99962,0,0,1,12.707,7.293Z"/>
@@ -37,7 +37,7 @@ export default function TableButtons(props) {
 				</Link>
 			}
 			{status!=='createLog' &&
-				<button type='button' className='btn mx-4' disabled={disableButton} onClick={handleDeleteEntries}>
+				<button type='button' className='btn table-btn mx-4' disabled={disableButton} onClick={handleDeleteEntries}>
 					<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
 						<g transform="translate(0 -1028.4)">
 							<path d="m22 12c0 5.523-4.477 10-10 10-5.5228 0-10-4.477-10-10 0-5.5228 4.4772-10 10-10 5.523 0 10 4.4772 10 10z" fill="#c0392b" transform="translate(0 1029.4)"/>
@@ -47,7 +47,7 @@ export default function TableButtons(props) {
 					</svg>
 				</button>
 			}
-			<button type='button' className='btn mx-4' disabled={disableButton} onClick={handleResetData}>
+			<button type='button' className='btn table-btn mx-4' disabled={disableButton} onClick={handleResetData}>
 				<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
 					<g transform="translate(0 -1028.4)">
 						<path d="m22 12a10 10 0 1 1 -20 0 10 10 0 1 1 20 0z" fill="#2980b9" transform="matrix(-1 0 0 1 24 1029.4)"/>
@@ -62,7 +62,7 @@ export default function TableButtons(props) {
 				</svg>
 			</button>
 			{status==='log' &&
-				<Link to='/log/create' className='btn mx-4' onClick={() => setIsBodyLoading(true)}>
+				<Link to='/log/create' className='btn table-btn mx-4' onClick={() => setIsBodyLoading(true)}>
 					<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
 						<g transform="translate(0 -1028.4)">
 							<path d="m22 12c0 5.523-4.477 10-10 10-5.5228 0-10-4.477-10-10 0-5.5228 4.4772-10 10-10 5.523 0 10 4.4772 10 10z" fill="#27ae60" transform="translate(0 1029.4)"/>
@@ -75,7 +75,7 @@ export default function TableButtons(props) {
 			}
 
 			{status==='index' &&
-				<button type='button' className='btn mx-4' disabled={disableButton} onClick={handleAddNewRow}>
+				<button type='button' className='btn table-btn mx-4' disabled={disableButton} onClick={handleAddNewRow}>
 					<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
 						<g transform="translate(0 -1028.4)">
 							<path d="m22 12c0 5.523-4.477 10-10 10-5.5228 0-10-4.477-10-10 0-5.5228 4.4772-10 10-10 5.523 0 10 4.4772 10 10z" fill="#27ae60" transform="translate(0 1029.4)"/>
@@ -87,7 +87,7 @@ export default function TableButtons(props) {
 				</button>
 			}
 
-			<button type='button' className='btn mx-4' disabled={disableButton} onClick={handleSubmit}>
+			<button type='button' className='btn table-btn mx-4' disabled={disableButton} onClick={handleSubmit}>
 				<svg height="24" width="24" xmlns="http://www.w3.org/2000/svg">
 					<g transform="translate(0 -1028.4)">
 						<path d="m22 12c0 5.523-4.477 10-10 10-5.5228 0-10-4.477-10-10 0-5.5228 4.4772-10 10-10 5.523 0 10 4.4772 10 10z" fill="#27ae60" transform="translate(0 1029.4)"/>

@@ -72,9 +72,9 @@ export default function Settings() {
 
 	if (!isBodyLoading) {
 		return (
-			<div className='container d-flex justify-content-center text-white mt-3'>
-				<div className='settings-container rounded bg-form'>
-					<div className='container-fluid title-container d-flex justify-content-center bg-title p-2'>
+			<div className='container d-flex justify-content-center text-white my-3'>
+				<div className='settings-container form-container rounded'>
+					<div className='container-fluid title-container d-flex justify-content-center p-2'>
 						<h2 className='text-white'>
 							<span>Settings</span>
 						</h2>

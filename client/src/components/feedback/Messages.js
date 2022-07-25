@@ -1,5 +1,5 @@
-import Alert from 'react-bootstrap/Alert';
 import React, { useRef, useContext } from 'react';
+import Alert from 'react-bootstrap/Alert';
 
 import GlobalContext from '../../context/GlobalContext';
 
@@ -53,7 +53,7 @@ export default function MessageContainer(props) {
 				{(type === 'error' || type === 'success') && 
 					<>
 					{messages.map((message, i) => 
-						<div className='d-flex justify-content-start align-items-start'>
+						<div className='d-flex justify-content-start align-items-start' key={i}>
 							<div>
 								{type === 'error' &&
 									<svg height='20' width='20' enableBackground="new 0 0 48 48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">

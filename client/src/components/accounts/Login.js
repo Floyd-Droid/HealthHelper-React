@@ -87,8 +87,8 @@ export default function Login(props) {
 	if (!isBodyLoading) {
 		return (
 			<div className='container d-flex justify-content-center mt-5'>
-				<div className='login-container rounded bg-form'>
-					<div className='container-fluid title-container d-flex justify-content-center bg-title p-2'>
+				<div className='login-container form-container rounded'>
+					<div className='container-fluid title-container d-flex justify-content-center p-2'>
 						<h2 className='text-white'>
 							{status === 'login' &&
 								<span>Log in</span>

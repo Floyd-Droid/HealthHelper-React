@@ -1,14 +1,16 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+
 import './index.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './css/style.css';
+
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 import { BrowserRouter } from 'react-router-dom';
 import * as Sentry from "@sentry/react";
 import { BrowserTracing } from "@sentry/tracing";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './css/style.css';
 
 process.env.NODE_ENV === 'production' && 
 	Sentry.init({

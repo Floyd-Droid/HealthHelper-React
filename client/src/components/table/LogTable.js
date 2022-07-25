@@ -359,7 +359,7 @@ export default function LogTable(props) {
 						updateTableData={updateTableData}
 					/>
 				</div>
-				<div className='container-fluid table-button-container position-sticky bottom-0 d-flex justify-content-center bg-app-body p-0'>
+				<div className='container-fluid table-button-container position-sticky bottom-0 d-flex justify-content-center p-0'>
 					<TableButtons
 						data={data}
 						status={status}

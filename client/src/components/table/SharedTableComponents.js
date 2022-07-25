@@ -229,7 +229,7 @@ export const Input = ({
 	let inputClassName ='table-cell-input';
 
 	if (isEdited) {
-		divClassName += ' bg-cell-edit';
+		divClassName += ' cell-edit';
 		inputClassName += ' text-black';
 	} else {
 		inputClassName += ' text-white';
@@ -340,7 +340,7 @@ export const Select = ({
 
 	let divClassName = 'cell-container select-container d-flex justify-content-center align-items-center';
   if (isEdited) {
-		divClassName += ' bg-cell-edit';
+		divClassName += ' cell-edit';
 	}
 
 	return (
@@ -382,7 +382,7 @@ export const IndexCostCell = ({
 	let divClassName = 'cell-container input-container d-flex justify-content-center align-items-center';
 
 	if (original.isNew) {
-		divClassName += ' bg-cell-edit';
+		divClassName += ' cell-edit';
 	}
 
 	React.useEffect(() => {

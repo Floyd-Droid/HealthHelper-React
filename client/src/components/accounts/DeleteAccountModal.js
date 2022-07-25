@@ -5,13 +5,13 @@ export default function DeleteAccountModal(props) {
 
 	return (
 		<Modal show={props.show}>
-			<Modal.Header className='bg-header text-white border-header'>
+			<Modal.Header className='header modal-header text-white' >
 				<Modal.Title>Delete Account</Modal.Title>
 			</Modal.Header>
-			<Modal.Body className='bg-modal-body text-white'>
+			<Modal.Body className='modal-body text-white'>
 				Are you sure you would like to delete your account? This action cannot be undone.
 			</Modal.Body>
-			<Modal.Footer className='bg-modal-body text-white border-0'>
+			<Modal.Footer className='modal-body text-white border-0'>
 			<button type='button' className='btn form-btn mx-4' onClick={props.onDeleteAccount}>
 				Delete Account
 			</button>
@@ -19,6 +19,6 @@ export default function DeleteAccountModal(props) {
 				Cancel
 			</button>
 			</Modal.Footer>
-	</Modal>
+		</Modal>
 	);
 }

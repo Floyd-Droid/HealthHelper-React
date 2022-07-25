@@ -10,7 +10,6 @@
 /client/build
 
 # misc
-/client/src/scss/
 .DS_Store
 *.env*
 .env.local

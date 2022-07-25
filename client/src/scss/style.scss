@@ -1,0 +1,271 @@
+
+$app-body-color: rgb(35, 35, 35);
+$navbar-color: rgb(45, 45, 45);
+$title-color: rgb(0, 40, 90);
+$form-color: rgb(0, 50, 100);
+$button-container-color: rgb(0, 75, 100);
+$header-color: rgb(100, 0, 25);
+$footer-color: rgb(43, 33, 32);
+$btn-color: rgb(65, 0, 90);
+$cell-edit-color: rgb(247, 255, 136);
+$cell-error-color: rgb(238, 80, 68);
+$modal-body-color: rgb(63, 53, 52);
+$container-border-color: rgb(100, 100, 100);
+
+
+html {
+	font-size: 14px;
+	padding: 0;
+	margin: 0;
+	width: auto;
+	height: auto;
+	background-color: $app-body-color;
+}
+
+/* forms and input */
+
+.form-container {
+	background-color: $form-color;
+}
+
+.login-container {
+	width: 300px;
+	border: 1px solid $container-border-color;
+	margin-bottom: 50px;
+	z-index: 10;
+}
+
+.settings-container {
+	border: 1px solid $container-border-color;
+	width: 800px;
+	z-index: 10;
+}
+
+.title-container {
+	background-color: $title-color;
+}
+
+.section-title {
+	border-bottom: 1px solid $container-border-color;
+}
+
+.btn.form-btn {
+	background-color: white;
+	color: black;
+	border: 1px solid black;
+}
+
+.btn.form-btn:hover {
+	background-color: rgb(65, 0, 90);
+	color: white;
+	border: 1px solid $container-border-color;
+}
+
+.btn.table-btn {
+	border: 0;
+}
+
+.btn.table-btn:hover {
+	background-color: white;
+}
+
+input.date-input {
+	width: 100px;
+	height: 30px;
+}
+
+.user-input {
+	width: 220px;
+}
+
+input.table-cell-input {
+  background-color: inherit;
+	border: 0;
+} 
+
+.cell-edit {
+	background-color: $cell-edit-color;
+}
+
+.modal-header {
+	border-bottom: 1px solid $container-border-color;
+}
+
+.modal-body {
+	background-color: $modal-body-color;
+}
+
+
+/*  navbar  */
+
+.navbar-container {
+	height: 56px;
+	background-color: $navbar-color;
+	z-index: 50;
+}
+
+.brand {
+	font-size: 1.5rem;
+}
+
+.active {
+	background-color: $app-body-color;
+}
+
+.drop-down {
+	color: rgb(200, 200, 200) !important;
+}
+
+.drop-down:hover {
+	color: white !important;
+}
+
+
+/* page body */
+
+div#root {
+	background-color: $app-body-color;
+	margin: 0;
+	padding: 0;
+}
+
+.body-container {
+	margin-top: 56px;
+}
+
+.message-container {
+	width: 80%;
+}
+
+
+/* table */
+
+.table {
+	font-size: 0.8em;
+	border: 1px solid $container-border-color !important;
+}
+
+.log-table-container {
+	margin-left: 15px;
+	margin-right: 15px;
+	max-width: 1135px;
+}
+
+.index-table-container {
+	margin-left: 15px;
+	margin-right: 15px;
+	max-width: 1425px;
+}
+
+div#layer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 50px;
+	background-color: $app-body-color;
+	z-index: 5;
+}
+
+.table>thead>tr>th {
+	border-right: 1px solid black;
+	border-top: 1px solid black;
+	border-bottom: 1px solid black;
+}
+
+.table {
+	border-collapse: separate;
+	border-spacing: 0;
+}
+
+.table>tbody>tr:nth-child(odd)>td, 
+.table>tbody>tr:nth-child(odd)>th {
+	background-color: rgb(83, 73, 72);
+}
+
+.table>tbody>tr:nth-child(even)>td, 
+.table>tbody>tr:nth-child(even)>th {
+  background-color: rgb(63, 53, 52);
+}
+
+.table>tbody>tr>td:nth-child(2) {
+  text-align: left !important;
+}
+
+.table>tbody>tr>td {
+	border: 0;
+	border-top: 1px solid black;
+}
+
+.header, th.header {
+	background-color: $header-color;
+}
+
+th.header {
+	position: sticky;
+	top: 56px;
+}
+
+.cell-container {
+	padding-left: 5px;
+	padding-right: 5px;
+	height: 30px;
+}
+
+.footer-container {
+	border-top: 1px solid $container-border-color;
+}
+
+td.footer {
+	background-color: $footer-color;
+	position: sticky;
+	bottom: 50px;
+}
+
+.text-footer {
+	color: $footer-color;
+}
+
+/* table buttons */
+
+.table-button-container {
+	background-color: $app-body-color;
+	z-index: 15;
+}
+
+.button-container {
+	height: 50px;
+	width: 400px;
+	background-color: $button-container-color;
+	z-index: 15;
+	border: 1px solid $container-border-color;
+}
+
+/* media queries */
+
+@media (min-width: 992px) { 
+	.message-container {
+		width: 60%;
+	}
+}
+
+@media (min-width: 1200px) { 
+	.message-container {
+		width: 50%;
+	}
+
+	.log-table-container {
+		margin-left: 50px;
+		margin-right: 50px;
+	}
+}
+
+@media (min-width: 1400px) { 
+	div#root {
+		display: flex;
+		justify-content: center;
+	}
+
+	.log-table-container .index-table-container {
+		padding: 0;
+	}
+}

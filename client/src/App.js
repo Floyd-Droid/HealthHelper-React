@@ -1,5 +1,4 @@
 import React from 'react';
-import './index.css';
 
 import { GlobalProvider } from './context/GlobalContext';
 import { Routes, Route, useNavigate } from 'react-router-dom';
