@@ -11,7 +11,7 @@ import { auth, logInWithEmailAndPassword, logInWithGoogle,
 
 export default function Login(props) {
 	const status = props.status;
-	const { isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
@@ -51,9 +51,9 @@ export default function Login(props) {
 	const checkIfNewAccount = (result) => {
 		const accountCreationTime = Number(result.user.metadata.createdAt);
 		const now = new Date();
-		const minute = 60000;
+		const five_minutes = 60000 * 5;
 
-		const isAccountNew = (now.getTime() - minute) < accountCreationTime;
+		const isAccountNew = (now.getTime() - five_minutes) < accountCreationTime;
 		return isAccountNew;
 	}
 
@@ -76,6 +76,12 @@ export default function Login(props) {
 		}
 
 		redirectAfterLogin();
+	}, [isBodyLoading])
+
+	React.useEffect(() => {
+		if (!isUserLoading && user && !isBodyLoading) {
+			navigate('/log');
+		}
 	}, [isBodyLoading])
 
 	if (!isBodyLoading) {
