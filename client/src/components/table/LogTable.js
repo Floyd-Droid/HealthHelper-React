@@ -24,7 +24,6 @@ export default function LogTable(props) {
   const [selectedEntries, setSelectedEntries] = React.useState({});
 	const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
-	const [showFooter, setShowFooter] = React.useState(false);
 	const [sortState, setSortState] = React.useState({colId: '', desc: false});
 
 	const defaultColumn = React.useMemo(
@@ -166,7 +165,6 @@ export default function LogTable(props) {
   }
 
 	const resetData = () => {
-		setShowFooter(false);
     setEditedRowIndices([]);
 		updateMessages({});
 		setSkipFiltersReset(false);
@@ -188,7 +186,6 @@ export default function LogTable(props) {
 		const preparedEntries = prepareEntries(body.entries || [], status);
 		updateTableEntries(preparedEntries, preparedEntries);
 		setIsBodyLoading(false);
-		setShowFooter(true);
   }
 
 	const submitChanges = async () => {
@@ -336,7 +333,6 @@ export default function LogTable(props) {
   React.useEffect(() => {
     setSkipSelectedRowsReset(true);
 		setSkipFiltersReset(true);
-		setShowFooter(true);
   }, [data])
 
 	if (!isBodyLoading) {
@@ -349,7 +345,6 @@ export default function LogTable(props) {
 						date={date}
 						defaultColumn={defaultColumn}
 						entries={entries}
-						showFooter={showFooter}
 						skipFiltersReset={skipFiltersReset}
 						skipSelectedRowsReset={skipSelectedRowsReset}
 						sortData={sortData}
