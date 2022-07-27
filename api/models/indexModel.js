@@ -208,3 +208,17 @@ export async function deleteIndexEntries(entries, userId) {
 
   return result;
 }
+
+export async function createBaseEntries(userId) {
+	const client = await pool.connect();
+
+	try {
+		const createBaseEntriesQuery = 'SELECT * FROM insertBaseEntries($1)';
+		await client.query(createBaseEntriesQuery, [userId]);
+	} catch (err) {
+		return {errorMessage: 'Starter entries were not created'}
+	} finally {
+		client.release();
+	}
+	return {successMessage: 'Starter entries successfully created'}
+}

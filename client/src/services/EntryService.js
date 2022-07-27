@@ -83,3 +83,25 @@ export async function deleteEntries(url, firebaseIdToken, entries) {
     return defaultError;
   }
 }
+
+export async function createBaseEntries(firebaseIdToken) {
+	// Create a baseline set of entries for each new account
+
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
+  try {
+    const res = await fetch('/api/create-base-entries', {
+      method: 'POST',
+      headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${firebaseIdToken}`,
+			}
+    });
+
+    return res.json();
+  } catch(err) {
+    return {errorMessage: 'Starter entries were not created.'};
+  }
+}

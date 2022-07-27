@@ -34,6 +34,12 @@ export const emailProvider = new EmailAuthProvider();
 export const googleProvider = new GoogleAuthProvider();
 
 export const welcomeMessage = `Welcome aboard! This is the Index, where food entries are stored. 
+	We'll start you off with some basic foods, but feel free to edit or remove them. After you're done, 
+	you can head over to the Log section and use them as the basis to build a daily log of foods to 
+	track total nutrition and cost.
+`;
+
+export const errorWelcomeMessage = `Welcome aboard! This is the Index, where food entries are stored. 
 	After creating a few entries, you can head over to the Log section and use them as the basis 
 	to build a daily log of foods to track total nutrition and cost.
 `;

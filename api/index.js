@@ -230,6 +230,26 @@ app.delete('/api/index', async (req, res) => {
   }
 });
 
+
+// Other endpoints
+
+app.post('/api/create-base-entries', async (req, res) => {
+	// Create a baseline set of entries for each new account
+	try {
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
+
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.createBaseEntries(decodedTokenResult.uid);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 201 : 500;
+			res.status(code).json(dbResult);
+		}
+	} catch (err) {
+		res.status(500).json({errorMessage: 'Starter entries were not created'});
+	}
+})
+
 app.get("*", (req, res) => {
 	res.sendFile(
 		path.join(__dirname, "../client/build/index.html")

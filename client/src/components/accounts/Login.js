@@ -3,9 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { getRedirectResult } from 'firebase/auth';
 
 import GlobalContext from '../../context/GlobalContext';
+import { createBaseEntries } from '../../services/EntryService';
 import { auth, logInWithEmailAndPassword, logInWithGoogle, 
-	registerUserWithEmailAndPassword, welcomeMessage, 
-	extractFirebaseErrorMessage
+	registerUserWithEmailAndPassword, extractFirebaseErrorMessage,
+	welcomeMessage, errorWelcomeMessage
 } from '../../firebase';
 
 
@@ -64,7 +65,14 @@ export default function Login(props) {
 				if (result) {
 					const isAccountNew = checkIfNewAccount(result);
 					if (isAccountNew) {
-						updateMessages({successMessage: welcomeMessage});
+						const token = await result.user.getIdToken(true);
+						const baseEntriesResult = await createBaseEntries(token);
+						
+						if (typeof baseEntriesResult.errorMessage === 'undefined') {
+							updateMessages({successMessage: welcomeMessage})
+						} else {
+							updateMessages({successMessage: errorWelcomeMessage});
+						}
 					}
 					navigateAfterLogin({isAccountNew: isAccountNew});
 				}
