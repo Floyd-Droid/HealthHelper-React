@@ -250,6 +250,23 @@ app.post('/api/create-base-entries', async (req, res) => {
 	}
 })
 
+app.post('/api/delete-all-user-rows', async (req, res) => {
+	// Delete all entries associated with a user
+	try {
+		const decodedTokenResult = await verifyFirebaseIdToken(req);
+
+		if (typeof decodedTokenResult.errorMessage !== 'undefined') {
+			res.status(401).json(decodedTokenResult);
+		} else {
+			const dbResult = await indexModel.deleteAllUserRows(decodedTokenResult.uid);
+			const code = typeof dbResult.successMessage !== 'undefined' ? 200 : 500;
+			res.status(code).json(dbResult);
+		}
+	} catch (err) {
+		res.status(500).json({errorMessage: 'User entries were not deleted'});
+	}
+})
+
 app.get("*", (req, res) => {
 	res.sendFile(
 		path.join(__dirname, "../client/build/index.html")

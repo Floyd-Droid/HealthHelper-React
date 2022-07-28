@@ -105,3 +105,25 @@ export async function createBaseEntries(firebaseIdToken) {
     return {errorMessage: 'Starter entries were not created.'};
   }
 }
+
+export async function deleteAllUserRows(firebaseIdToken) {
+	// If user deletes their account, also delete all rows associated the account
+
+	if (firebaseIdToken === null) {
+		return authError;
+	}
+
+  try {
+    const res = await fetch('/api/delete-all-user-rows', {
+      method: 'POST',
+      headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${firebaseIdToken}`,
+			}
+    });
+
+    return res.json();
+  } catch(err) {
+    return {errorMessage: 'User entries were not deleted.'};
+  }
+}

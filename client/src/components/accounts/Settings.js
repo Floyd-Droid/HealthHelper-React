@@ -1,8 +1,10 @@
 import React, { useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getRedirectResult } from 'firebase/auth';
 
 import GlobalContext from '../../context/GlobalContext';
 import DeleteAccountModal from './DeleteAccountModal';
+import { deleteAllUserRows } from '../../services/EntryService';
 import { 
 	auth, googleProvider, logInWithGoogle, passwordReset, 
 	authEmailLink, updateUsername, updateUserEmail, deleteAccount,
@@ -12,13 +14,14 @@ import {
 
 export default function Settings() {
 	const { user, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
+
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
-
 	const [linkedEmail, setLinkedEmail] = React.useState('');
 	const [linkedPassword, setLinkedPassword] = React.useState('');
-
 	const [deleteModalShow, setDeleteModalShow] = React.useState(false);
+
+	const navigate = useNavigate();
 
 	const handleUpdateUsername = async () => {
 		setIsBodyLoading(true);
@@ -52,8 +55,14 @@ export default function Settings() {
 
 	const handleDeleteAccount = async () => {
 		setIsBodyLoading(true);
+
+		// Delete all rows from the DB associated with the user before deleting the account
+		const token = await user.getIdToken(true);
+		await deleteAllUserRows(token);
+
 		const res = await deleteAccount();
 		updateMessages(res);
+		navigate('/');
 	}
 
 	React.useEffect(() => {

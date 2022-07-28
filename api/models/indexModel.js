@@ -222,3 +222,17 @@ export async function createBaseEntries(userId) {
 	}
 	return {successMessage: 'Starter entries successfully created'}
 }
+
+export async function deleteAllUserRows(userId) {
+	const client = await pool.connect();
+	
+	try {
+		const deleteAllUserRowsQuery = 'DELETE FROM food_index WHERE user_id=$1;';
+		await client.query(deleteAllUserRowsQuery, [userId]);
+	} catch (err) {
+		return {errorMessage: 'Starter entries were not created'}
+	} finally {
+		client.release();
+	}
+	return {successMessage: 'Starter entries successfully created'}
+}
