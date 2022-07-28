@@ -105,7 +105,7 @@ export default function NavbarWrapper()  {
 										<path d="M33.9015 38.8673C37.7294 40.8336 42.2706 40.8336 46.0985 38.8673C49.6611 37.0373 52.2136 33.7042 53.0516 29.7878L53.2752 28.7425C54.1322 24.7375 53.2168 20.5576 50.7644 17.2774L50.4053 16.797C47.9525 13.5163 44.0962 11.5845 40 11.5845C35.9038 11.5845 32.0475 13.5163 29.5947 16.797L29.2356 17.2774C26.7832 20.5576 25.8678 24.7375 26.7248 28.7425L26.9484 29.7878C27.7864 33.7042 30.3389 37.0373 33.9015 38.8673Z" fill="#F59D38" stroke="#F59D38" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
 									</svg>
 									<NavDropdown className='me-3' title={user ? user.displayName : 'User'} id="basic-nav-dropdown" menuVariant='dark'>
-										<Link to="/settings" className='nav-link drop-down ms-3' onClick={navigate}>Settings</Link>
+										<Link to="/settings" className='nav-link drop-down ms-3'>Settings</Link>
 										<Link to="/" className='nav-link drop-down ms-3' onClick={navLogout}>Log out</Link>
 									</NavDropdown>
 								</Container>

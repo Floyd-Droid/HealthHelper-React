@@ -7,8 +7,7 @@ import MessageContainer from '../feedback/Messages';
 import Spinner from '../feedback/Spinner';
 
 export default function Layout(props) {
-	const { isBodyLoading } = useContext(GlobalContext);
-	const messages = props.messages;
+	const { isBodyLoading, isUserLoading, messages } = useContext(GlobalContext);
 
 	return (
 		<>
@@ -17,7 +16,7 @@ export default function Layout(props) {
 			</div>
 			
 			<div className='body-container p-0'>
-				{isBodyLoading &&
+				{(isBodyLoading || isUserLoading) &&
 					<div className='container spinner-container d-flex justify-content-center align-items-center vh-100'>
 						<Spinner />
 					</div>

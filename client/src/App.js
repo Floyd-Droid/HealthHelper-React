@@ -51,11 +51,11 @@ const App = () => {
 			navigate('/');
 			setIsBodyLoading(false);
 		}
-	}, [isBodyLoading]);
+	}, [isBodyLoading, user, isUserLoading]);
 
 	return (
 		<GlobalProvider
-			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, updateMessages}}>
+			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, messages, updateMessages}}>
 			<Routes>
 				<Route path='/' element={<Layout messages={messages}/>}>
 					<Route path='' 
