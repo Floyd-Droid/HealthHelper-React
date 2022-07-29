@@ -216,7 +216,10 @@ export async function createBaseEntries(userId) {
 		const createBaseEntriesQuery = 'SELECT * FROM insertBaseEntries($1)';
 		await client.query(createBaseEntriesQuery, [userId]);
 	} catch (err) {
-		return {errorMessage: 'Starter entries were not created'}
+		// code 21000 = Rows already exist, ie new user account setup has already occurred.
+		if (err.code !== '21000') {
+			return {errorMessage: 'Starter entries were not created'}
+		}
 	} finally {
 		client.release();
 	}

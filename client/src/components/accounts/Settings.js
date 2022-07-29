@@ -12,7 +12,7 @@ import {
 
 
 export default function Settings() {
-	const { user, isBodyLoading, setIsBodyLoading, messages, updateMessages } = useContext(GlobalContext);
+	const { user, isBodyLoading, setIsBodyLoading, messages, updateMessages, setIsRedirecting } = useContext(GlobalContext);
 
 	const [username, setUsername] = React.useState('');
 	const [email, setEmail] = React.useState('');
@@ -45,9 +45,11 @@ export default function Settings() {
 	}
 	
 	const handleLinkGoogleAccount = async () => {
+		setIsRedirecting(true);
 		setIsBodyLoading(true);
 		const res = await logInWithGoogle(auth, googleProvider);
 		updateMessages(res);
+		setIsBodyLoading(false);
 	}
 
 	const handleDeleteAccount = async () => {
@@ -65,7 +67,10 @@ export default function Settings() {
 	React.useEffect(() => {
 		async function redirectAfterLogin() {
 			try {
-				await getRedirectResult(auth);
+				const result = await getRedirectResult(auth);
+				if (result) {
+					updateMessages({successMessage: 'Accounts successfully linked'})
+				}
 			} catch (err) {
 				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;
 				updateMessages({errorMessage: message});

@@ -67,7 +67,7 @@ export const registerUserWithEmailAndPassword = async (username, email, password
 			displayName: username
 		});
 
-		return {successMessage: welcomeMessage};
+		return {user: userCredential.user};
 	} catch (err) {
 		return {errorMessage: `Login failed: ${extractFirebaseErrorMessage(err)}.`};
 	}

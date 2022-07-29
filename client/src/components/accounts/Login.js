@@ -12,45 +12,44 @@ import { auth, logInWithEmailAndPassword, logInWithGoogle,
 
 export default function Login(props) {
 	const status = props.status;
-	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
+	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages, setIsRedirecting } = useContext(GlobalContext);
 	const [email, setEmail] = React.useState('');
 	const [password, setPassword] = React.useState('');
 	const [username, setUsername] = React.useState('');
 
 	const navigate = useNavigate();
 
-	const navigateAfterLogin = (res) => {
-		if (typeof res.errorMessage === 'undefined') {
-			if (status === 'register' || (typeof res.isAccountNew !== 'undefined' && res.isAccountNew === true)) {
-				navigate('/index');
-			} else if (status === 'login') {
-				navigate('/log');
-			}
-		}
-	}
-
 	const handleLoginOrRegisterWithEmail = async () => {
+		setIsRedirecting(true);
 		setIsBodyLoading(true);
 		let res = {};
 
 		if (status === 'login') {
 			res = await logInWithEmailAndPassword(email, password);
+			updateMessages(res);
+			navigate('/log');
 		} else if (status === 'register') {
 			res = await registerUserWithEmailAndPassword(username, email, password);
+			if (typeof res.errorMessage === 'undefined') {
+				await newAccountSetup(res.user);
+				navigate('/index');
+			} else {
+				updateMessages(res);
+				setIsBodyLoading(false)
+			}
 		}
-
-		updateMessages(res);
-		navigateAfterLogin(res);
 	}
 
 	const handleLoginWithGoogle = async () => {
 		setIsBodyLoading(true);
+		setIsRedirecting(true);
 		const res = await logInWithGoogle();
 		updateMessages(res);
+		setIsBodyLoading(false);
 	}
 
-	const checkIfNewAccount = (result) => {
-		const accountCreationTime = Number(result.user.metadata.createdAt);
+	const checkIfNewAccount = (user) => {
+		const accountCreationTime = Number(user.metadata.createdAt);
 		const now = new Date();
 		const five_minutes = 60000 * 5;
 
@@ -58,39 +57,45 @@ export default function Login(props) {
 		return isAccountNew;
 	}
 
+	const newAccountSetup = async (user) => {
+		const token = await user.getIdToken(true);
+		const baseEntriesResult = await createBaseEntries(token);
+
+		if (typeof baseEntriesResult.errorMessage === 'undefined') {
+			updateMessages({successMessage: welcomeMessage})
+		} else {
+			updateMessages({successMessage: errorWelcomeMessage});
+		}
+	}
+
 	React.useEffect(() => {
 		async function redirectAfterLogin() {
 			try {
 				const result = await getRedirectResult(auth);
 				if (result) {
-					const isAccountNew = checkIfNewAccount(result);
+					const isAccountNew = checkIfNewAccount(result.user);
 					if (isAccountNew) {
-						const token = await result.user.getIdToken(true);
-						const baseEntriesResult = await createBaseEntries(token);
-						
-						if (typeof baseEntriesResult.errorMessage === 'undefined') {
-							updateMessages({successMessage: welcomeMessage})
-						} else {
-							updateMessages({successMessage: errorWelcomeMessage});
-						}
+						await newAccountSetup(result.user);
+						navigate('/index');
+					} else {
+						navigate('/log');
 					}
-					navigateAfterLogin({isAccountNew: isAccountNew});
 				}
 			} catch (err) {
 				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;
 				updateMessages({errorMessage: message});
+				setIsBodyLoading(false);
 			}
-			setIsBodyLoading(false);
 		}
 
 		redirectAfterLogin();
-	}, [isBodyLoading])
+	}, []);
 
 	React.useEffect(() => {
 		if (!isUserLoading && user && !isBodyLoading) {
 			navigate('/log');
 		}
-	}, [isBodyLoading])
+	}, [isBodyLoading]);
 
 	if (!isBodyLoading) {
 		return (

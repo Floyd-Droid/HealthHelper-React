@@ -17,6 +17,7 @@ const App = () => {
 	const [user, isUserLoading, error] = useAuthState(auth);
 	const [isBodyLoading, setIsBodyLoading] = React.useState(true);
 	const [messages, setMessages] = React.useState({successMessages: [], errorMessages: [], validationMessages: []});
+	const [isRedirecting, setIsRedirecting] = React.useState(false);
 	const navigate = useNavigate();
 
 	const updateDate = (newDate) => {
@@ -42,20 +43,21 @@ const App = () => {
 	}
 
 	React.useEffect(() => {
-		if (isUserLoading) return false;
-		if (!user) navigate('/');
-	}, [user, isUserLoading]);
-
-	React.useEffect(() => {
-		if (isBodyLoading && !user && !isUserLoading) {
+		if (isBodyLoading && !user && !isUserLoading && !isRedirecting) {
 			navigate('/');
 			setIsBodyLoading(false);
 		}
 	}, [isBodyLoading, user, isUserLoading]);
 
+	React.useEffect(() => {
+		if (!isBodyLoading && isRedirecting) {
+			setIsRedirecting(false);
+		}
+	}, [isBodyLoading]);
+
 	return (
 		<GlobalProvider
-			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, messages, updateMessages}}>
+			value={{user, isUserLoading, isBodyLoading, setIsBodyLoading, date, updateDate, messages, updateMessages, setIsRedirecting}}>
 			<Routes>
 				<Route path='/' element={<Layout messages={messages}/>}>
 					<Route path='' 

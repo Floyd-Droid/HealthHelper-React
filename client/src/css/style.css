@@ -81,6 +81,9 @@ input.table-cell-input {
 .drop-down:hover {
   color: white !important; }
 
+.disabled-link {
+  pointer-events: none; }
+
 /* page body */
 div#root {
   background-color: #232323;
