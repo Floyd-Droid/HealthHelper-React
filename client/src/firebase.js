@@ -101,6 +101,10 @@ export const logInWithGoogle = async () => {
 }
 
 export const passwordReset = async (email) => {
+	if (!validateEmail(email)) {
+		return {errorMessage: 'Invalid email'};
+	}
+	
 	try {
 		await sendPasswordResetEmail(auth, email);
 		return {successMessage: `Password reset email has been sent to ${email}.`};

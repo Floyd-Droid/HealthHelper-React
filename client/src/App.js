@@ -7,6 +7,7 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 
 import Layout from './components/layout/Layout';
 import Login from './components/accounts/Login';
+import ResetPassword from './components/accounts/ResetPassword';
 import Settings from './components/accounts/Settings';
 import TableSet from './components/table/TableSet';
 import NotFoundPage from './components/pages/NotFoundPage';
@@ -65,6 +66,9 @@ const App = () => {
 					/>
 					<Route path='register' 
 						element={<Login status={'register'}/>}
+					/>
+					<Route path='reset-password' 
+						element={<ResetPassword/>}
 					/>
 					<Route path='settings' 
 						element={<Settings/>}

@@ -194,5 +194,7 @@ td.footer {
   div#root {
     display: flex;
     justify-content: center; }
+  .message-container {
+    min-width: 500px; }
   .log-table-container .index-table-container {
     padding: 0; } }

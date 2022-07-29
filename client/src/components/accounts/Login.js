@@ -26,8 +26,12 @@ export default function Login(props) {
 
 		if (status === 'login') {
 			res = await logInWithEmailAndPassword(email, password);
-			updateMessages(res);
-			navigate('/log');
+			if (res.errorMessage === 'undefined') {
+				navigate('/log');
+			} else {
+				updateMessages(res);
+				setIsBodyLoading(false)
+			}
 		} else if (status === 'register') {
 			res = await registerUserWithEmailAndPassword(username, email, password);
 			if (typeof res.errorMessage === 'undefined') {
@@ -154,7 +158,7 @@ export default function Login(props) {
 								/>
 							</div>
 						}
-						<button type='button' className='btn form-btn my-3' onClick={handleLoginOrRegisterWithEmail}>
+						<button type='button' className='btn form-btn mt-4' onClick={handleLoginOrRegisterWithEmail}>
 							{status === 'login' &&
 								<span>Log In</span>
 							}
@@ -163,12 +167,15 @@ export default function Login(props) {
 							}
 						</button>
 					</div>
-					<div className='d-flex justify-content-center text-white my-3'>
+					<div className='d-flex flex-column justify-content-center align-items-center text-white my-3'>
 						{status === 'login' &&
-							<span>Don't have an account? <Link className='text-white' to='/register' onClick={() => updateMessages({})}>Register here</Link></span>
+						<>
+							<span className='py-2'>Don't have an account? <Link className='text-white' to='/register' onClick={() => updateMessages({})}>Register here</Link></span>
+							<span className='py-2'>Forgot password? <Link className='text-white' to='/reset-password' onClick={() => updateMessages({})}>Click here</Link></span>
+						</>
 						}
 						{status === 'register' &&
-							<span>Already have an account? <Link className='text-white' to='/' onClick={() => updateMessages({})}>Log in</Link></span>
+							<span className='py-2'>Already have an account? <Link className='text-white' to='/' onClick={() => updateMessages({})}>Log in</Link></span>
 						}
 					</div>
 				</div>
