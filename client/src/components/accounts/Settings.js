@@ -1,11 +1,11 @@
 import React, { useContext } from 'react';
-import { getRedirectResult } from 'firebase/auth';
+import { getRedirectResult, GoogleAuthProvider } from 'firebase/auth';
 
 import GlobalContext from '../../context/GlobalContext';
 import DeleteAccountModal from './DeleteAccountModal';
 import { deleteAllUserRows } from '../../services/EntryService';
 import { 
-	auth, googleProvider, logInWithGoogle, passwordReset, 
+	auth, authProviderLink, passwordReset, 
 	authEmailLink, updateUsername, updateUserEmail, deleteAccount,
 	extractFirebaseErrorMessage
 } from '../../firebase';
@@ -47,7 +47,7 @@ export default function Settings() {
 	const handleLinkGoogleAccount = async () => {
 		setIsRedirecting(true);
 		setIsBodyLoading(true);
-		const res = await logInWithGoogle(auth, googleProvider);
+		const res = await authProviderLink();
 		updateMessages(res);
 		setIsBodyLoading(false);
 	}
@@ -69,7 +69,10 @@ export default function Settings() {
 			try {
 				const result = await getRedirectResult(auth);
 				if (result) {
-					updateMessages({successMessage: 'Accounts successfully linked'})
+					const credential = GoogleAuthProvider.credentialFromResult(result);
+					if (credential) {
+						updateMessages({successMessage: 'Accounts successfully linked'})
+					}
 				}
 			} catch (err) {
 				const message = `Process failed: ${extractFirebaseErrorMessage(err)}.`;

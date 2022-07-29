@@ -119,7 +119,8 @@ export const logout = () => {
 
 export const authProviderLink = async () => {
 	try {
-		await linkWithRedirect(auth.currentUser, googleProvider);
+		const res = await linkWithRedirect(auth.currentUser, googleProvider);
+		return res;
 	} catch (err) {
 		return {errorMessage: `Could not link accounts: ${extractFirebaseErrorMessage(err)}`};
 	}
