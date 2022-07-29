@@ -16,6 +16,7 @@ import {
 } from "firebase/auth";
 
 import { validate } from 'react-email-validator';
+import { validateUsername } from "./services/Validation";
 
 const config = {
   apiKey: "AIzaSyBXdXg6cS2diYHfF4qaLJmkpR3lgDybkmE",
@@ -58,13 +59,17 @@ export const extractFirebaseErrorMessage = (err) => {
 
 export const registerUserWithEmailAndPassword = async (username, email, password) => {
 	if (!validateEmail(email)) {
-		return ({errorMessage: 'Invalid email'});
+		return {errorMessage: 'Invalid email'};
+	}
+
+	if (!validateUsername('', username)) {
+		return {errorMessage: 'Please provide a different username'}
 	}
 
 	try {
 		const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 		await updateProfile(userCredential.user, {
-			displayName: username
+			displayName: username.trim()
 		});
 
 		return {user: userCredential.user};
@@ -142,9 +147,11 @@ export const authEmailLink = async (linkEmail, linkPassword) => {
 
 export const updateUsername = async (currentUsername, newUsername) => {
 	try {
-		if (currentUsername !== newUsername) {
-			await updateProfile(auth.currentUser, {displayName: newUsername});
+		if (!validateUsername(currentUsername, newUsername)) {
+			await updateProfile(auth.currentUser, {displayName: newUsername.trim()});
 			return {successMessage: 'Username updated'};
+		} else {
+			return {errorMessage: 'Username not updated. Please provide a different username.'};
 		}
 	} catch(err) {
 		return {errorMessage: `Could not update username: ${extractFirebaseErrorMessage(err)}`};
@@ -160,6 +167,8 @@ export const updateUserEmail = async (currentEmail, newEmail) => {
 		if (newEmail !== currentEmail) {
 			await updateEmail(auth.currentUser, newEmail);
 			return {successMessage: 'Email successfully updated'};
+		} else {
+			return {errorMessage: 'Email not updated. Please provide a different email'}
 		}
 	} catch (err) {
 		return {errorMessage: `Could not update email: ${extractFirebaseErrorMessage(err)}`};

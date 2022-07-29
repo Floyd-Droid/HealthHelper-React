@@ -1,6 +1,6 @@
 import {weightUnits, volumeUnits, fourDigitIds, twoDecimalIds} from '../services/TableData';
 
-// Validation functions for pre-submission
+// Validation functions for table before submission attempt
 
 const validateInputLength = (input, colId) => {
   const disallowedInput = ['00', ' '];
@@ -49,7 +49,7 @@ export const validateSelect = (value, colId, amountUnits) => {
 }
 
 
-// Validation functions for post-submission
+// Validation functions for table after submission attempt
 
 export const validateRequiredName = (entries) => {
   for (const entry of entries) {
@@ -118,4 +118,11 @@ export const validateIndexSubmission = (entries) => {
   ];
 
   return messages;
+}
+
+// Validation functions for account-related forms
+
+export const validateUsername = (currentUsername, newUsername) => {
+	const trimmedName = newUsername.trim();
+	return (currentUsername !== trimmedName && trimmedName !== '');
 }
