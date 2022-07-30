@@ -124,6 +124,16 @@ input.table-cell-input {
 	pointer-events: none;
 }
 
+.dropdown-menu {
+	background-color: $navbar-color;
+	border: 1px solid $container-border-color;
+	position: fixed !important;
+	top: 56px !important;
+	left: 90% !important;
+	right: 0 !important;
+	margin: 1px !important;
+	margin-right: 3px !important;
+}
 
 /* page body */
 
@@ -261,6 +271,10 @@ td.footer {
 		margin-left: 50px;
 		margin-right: 50px;
 	}
+
+	.dropdown-menu {
+		left: 93% !important;
+	}
 }
 
 @media (min-width: 1400px) { 
@@ -282,5 +296,9 @@ td.footer {
 
 	.log-table-container .index-table-container {
 		padding: 0;
+	}
+
+	.dropdown-menu {
+		left: 95% !important;
 	}
 }

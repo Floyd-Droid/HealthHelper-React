@@ -84,6 +84,16 @@ input.table-cell-input {
 .disabled-link {
   pointer-events: none; }
 
+.dropdown-menu {
+  background-color: #2d2d2d;
+  border: 1px solid #646464;
+  position: fixed !important;
+  top: 56px !important;
+  left: 90% !important;
+  right: 0 !important;
+  margin: 1px !important;
+  margin-right: 3px !important; }
+
 /* page body */
 div#root {
   background-color: #232323;
@@ -188,7 +198,9 @@ td.footer {
     width: 50%; }
   .log-table-container {
     margin-left: 50px;
-    margin-right: 50px; } }
+    margin-right: 50px; }
+  .dropdown-menu {
+    left: 93% !important; } }
 
 @media (min-width: 1400px) {
   div#root {
@@ -202,4 +214,6 @@ td.footer {
     justify-content: center;
     align-items: center; }
   .log-table-container .index-table-container {
-    padding: 0; } }
+    padding: 0; }
+  .dropdown-menu {
+    left: 95% !important; } }

@@ -151,7 +151,7 @@ export const authEmailLink = async (linkEmail, linkPassword) => {
 
 export const updateUsername = async (currentUsername, newUsername) => {
 	try {
-		if (!validateUsername(currentUsername, newUsername)) {
+		if (validateUsername(currentUsername, newUsername)) {
 			await updateProfile(auth.currentUser, {displayName: newUsername.trim()});
 			return {successMessage: 'Username updated'};
 		} else {
