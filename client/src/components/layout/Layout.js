@@ -33,7 +33,7 @@ export default function Layout(props) {
 						</div>
 					</div>
 
-					<div className='p-0 mt-2'>
+					<div className='outlet-container p-0 mt-2'>
 						<Outlet />
 					</div>
 				</>

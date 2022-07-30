@@ -248,7 +248,7 @@ export default function IndexTable(props) {
 		const createBody = newEntries.length ? await createEntries(url, token, newEntries) : {};
 
 		updateMessages(editBody, createBody);
-
+		setEditedRowIndices([]);
 		fetchEntries();
 	}
 
@@ -333,7 +333,7 @@ export default function IndexTable(props) {
 		if (!isUserLoading && user) {
 			fetchEntries();
 		}
-  }, [isUserLoading])
+  }, [isUserLoading]);
 
 	if (!isBodyLoading) {
 		return (

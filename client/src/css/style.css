@@ -196,5 +196,10 @@ td.footer {
     justify-content: center; }
   .message-container {
     min-width: 500px; }
+  .outlet-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; }
   .log-table-container .index-table-container {
     padding: 0; } }
