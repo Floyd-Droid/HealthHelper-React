@@ -16,7 +16,7 @@ import {
 } from "firebase/auth";
 
 import { validate } from 'react-email-validator';
-import { validateSubmittedUsername } from "./services/Validation";
+import { validateSubmittedUsername, validateSubmittedPassword } from "./services/Validation";
 
 const config = {
   apiKey: "AIzaSyBXdXg6cS2diYHfF4qaLJmkpR3lgDybkmE",
@@ -67,6 +67,11 @@ export const registerUserWithEmailAndPassword = async (username, email, password
 		return validateUsernameResult;
 	}
 
+	const validatePasswordResult = validateSubmittedPassword(password);
+	if (typeof validatePasswordResult.errorMessage !== 'undefined') {
+		return validatePasswordResult;
+	}
+
 	try {
 		const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 		await updateProfile(userCredential.user, {
@@ -88,7 +93,7 @@ export const logInWithEmailAndPassword = async (email, password) => {
 		const res = await signInWithEmailAndPassword(auth, email, password);
 		return res;
 	} catch (err) {
-		return {errorMessage: `Login failed: ${extractFirebaseErrorMessage(err)}.`};
+		return {errorMessage: `Your email or password was incorrect. Please try again.`};
 	}
 }
 

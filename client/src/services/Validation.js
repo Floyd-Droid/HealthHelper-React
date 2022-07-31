@@ -138,3 +138,13 @@ export const validateSubmittedUsername = (newUsername) => {
 
 	return result;
 }
+
+export const validateSubmittedPassword = (password) => {
+	const result = {};
+
+	if (password.length < 8) {
+		result.errorMessage = 'Password should be at least 8 characters';
+	}
+
+	return result;
+}
