@@ -20,7 +20,7 @@ export default function LogTable(props) {
 
 	const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);  
-  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
+  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
 	const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
@@ -150,13 +150,13 @@ export default function LogTable(props) {
     );
   }
 
-  const updateEditedRowIndices = (entryId, action) => {
+  const updateEditedEntryIds = (entryId, action) => {
     if (action === 'add') {
-      setEditedRowIndices(old => [...old, entryId]);
+      setEditedEntryIds(old => [...old, entryId]);
     } else {
-      const idsCopy = [...editedRowIndices];
+      const idsCopy = [...editedEntryIds];
       idsCopy.splice(idsCopy.indexOf(entryId), 1);
-      setEditedRowIndices(idsCopy);
+      setEditedEntryIds(idsCopy);
     }
   }
 
@@ -165,7 +165,7 @@ export default function LogTable(props) {
   }
 
 	const resetData = () => {
-    setEditedRowIndices([]);
+    setEditedEntryIds([]);
 		updateMessages({});
 		setSkipFiltersReset(false);
 		setData(entries);
@@ -192,7 +192,7 @@ export default function LogTable(props) {
 		setIsBodyLoading(true);
 
 		const newOrEditedLogEntries = [];
-		let entryRowIndices = [];
+		let entryIds = [];
 
 		if (status === 'log') {
 			const validationErrors = validateLogSubmission(data);
@@ -206,19 +206,30 @@ export default function LogTable(props) {
 			}
 
 			// remove duplicate indices in the case of multiple edits per entry
-			entryRowIndices = [...new Set(editedRowIndices)];
+			entryIds = [...new Set(editedEntryIds)];
+
+			for (const entry of data) {
+				if (entryIds.includes(entry.id)) {
+					newOrEditedLogEntries.push({
+						amount: entry.amount,
+						amount_unit: entry.amount_unit,
+						id: entry.id,
+						name: entry.name
+					});
+				}
+			}
 
 		} else if (status === 'createLog') {
-			entryRowIndices = Object.keys(selectedEntries);
-		}
+			entryIds = Object.keys(selectedEntries);
 
-		for (const rowId of entryRowIndices) {
-			newOrEditedLogEntries.push({
-				amount: data[rowId].amount,
-				amount_unit: data[rowId].amount_unit,
-				id: data[rowId].id,
-				name: data[rowId].name
-			});
+			for (const rowId of entryIds) {
+				newOrEditedLogEntries.push({
+					amount: data[rowId].amount,
+					amount_unit: data[rowId].amount_unit,
+					id: data[rowId].id,
+					name: data[rowId].name
+				});
+			}
 		}
 
     if (newOrEditedLogEntries.length) {
@@ -229,7 +240,7 @@ export default function LogTable(props) {
 			if (status === 'log') {
 				body = await updateEntries(url, tokenResult, newOrEditedLogEntries);
 
-				setEditedRowIndices([]);
+				setEditedEntryIds([]);
 				fetchEntries();
 			} else if (status === 'createLog') {
 				body = await createEntries(url, tokenResult, newOrEditedLogEntries);
@@ -349,7 +360,7 @@ export default function LogTable(props) {
 						skipSelectedRowsReset={skipSelectedRowsReset}
 						sortData={sortData}
 						status={status}
-						updateEditedRowIndices={updateEditedRowIndices}
+						updateEditedEntryIds={updateEditedEntryIds}
 						updateSelectedEntries={updateSelectedEntries}
 						updateTableData={updateTableData}
 					/>

@@ -17,7 +17,7 @@ export default function IndexTable(props) {
 
 	const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);
-  const [editedRowIndices, setEditedRowIndices] = React.useState([]);
+  const [editedEntryIds, setEditedEntryIds] = React.useState([]);
   const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
   const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
@@ -168,13 +168,13 @@ export default function IndexTable(props) {
     );
   }
 
-  const updateEditedRowIndices = (rowId, action) => {
+  const updateEditedEntryIds = (rowId, action) => {
     if (action === 'add') {
-      setEditedRowIndices(old => [...old, rowId]);
+      setEditedEntryIds(old => [...old, rowId]);
     } else if (action === 'remove') {
-      const idsCopy = [...editedRowIndices];
+      const idsCopy = [...editedEntryIds];
       idsCopy.splice(idsCopy.indexOf(rowId), 1);
-      setEditedRowIndices(idsCopy);
+      setEditedEntryIds(idsCopy);
     }
   }
 
@@ -190,7 +190,7 @@ export default function IndexTable(props) {
   }
   
   const resetData = () => {
-		setEditedRowIndices([]);
+		setEditedEntryIds([]);
 		updateMessages({});
 		setSkipFiltersReset(false);
     setData(entries);
@@ -222,18 +222,15 @@ export default function IndexTable(props) {
 		}
 
     // remove duplicate ids in the case of multiple edits per entry
-    const dedupedRowIds = [...new Set(editedRowIndices)];
+    const dedupedEntryIds = [...new Set(editedEntryIds)];
 
-    for (let rowId of dedupedRowIds) {
-      editedEntries.push(data[rowId]);
-    }
-
-    for (let newEntry of data.reverse()) {
-      if (typeof newEntry.id !== 'undefined') {
-        break;
-      } 
-      newEntries.push(newEntry);
-    }
+		for (const entry of data) {
+			if (typeof entry.isNew !== 'undefined') {
+				newEntries.push(entry);
+			} else if (dedupedEntryIds.includes(entry.id)) {
+				editedEntries.push(entry);
+			}
+		}
 
 		if (!(newEntries.length || editedEntries.length)) {
 			updateMessages({});
@@ -248,7 +245,7 @@ export default function IndexTable(props) {
 		const createBody = newEntries.length ? await createEntries(url, token, newEntries) : {};
 
 		updateMessages(editBody, createBody);
-		setEditedRowIndices([]);
+		setEditedEntryIds([]);
 		fetchEntries();
 	}
 
@@ -348,7 +345,7 @@ export default function IndexTable(props) {
 						skipSelectedRowsReset={skipSelectedRowsReset}
 						sortData={sortData}
 						status={status}
-						updateEditedRowIndices={updateEditedRowIndices}
+						updateEditedEntryIds={updateEditedEntryIds}
 						updateSelectedEntries={updateSelectedEntries}
 						updateTableData={updateTableData}
 					/>

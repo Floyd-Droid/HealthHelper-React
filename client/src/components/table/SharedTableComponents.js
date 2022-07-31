@@ -168,7 +168,7 @@ export const Input = ({
   row: { index, original },
   entries,
   status,
-  updateEditedRowIndices,
+  updateEditedEntryIds,
   updateTableData,
 }) => {
 
@@ -196,10 +196,10 @@ export const Input = ({
 
       if (status !== 'createLog' && !original.isNew) {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
-          updateEditedRowIndices(index, 'add');
+          updateEditedEntryIds(original.id, 'add');
           setIsEdited(true);
         } else if ((String(newValue) === String(originalValue)) && isEdited) {
-          updateEditedRowIndices(index, 'remove');
+          updateEditedEntryIds(original.id, 'remove');
           setIsEdited(false);
         }
       }
@@ -220,7 +220,7 @@ export const Input = ({
 	React.useEffect(() => {
     // In the case of user removal of corresponding index unit
     if (colId === 'amount' && original.isReset) {
-      updateEditedRowIndices(index, 'add');
+      updateEditedEntryIds(original.id, 'add');
       updateTableData(index, colId, '');
     }
   }, [original.isReset])
@@ -271,7 +271,7 @@ export const Select = ({
   column: { id: colId },
   entries,
   status,
-  updateEditedRowIndices,
+  updateEditedEntryIds,
   updateTableData,
 }) => {
 
@@ -311,7 +311,7 @@ export const Select = ({
 
 	React.useEffect(() => {
     if (colId === 'amount_unit' && ![...units, '---'].includes(initialCellValue)) {
-      updateEditedRowIndices(index, 'add');
+      updateEditedEntryIds(original.id, 'add');
       updateTableData(index, colId, "---");
 			updateTableData(index, 'isReset', true);
     }
@@ -326,10 +326,10 @@ export const Select = ({
 
       if (status !== 'createLog' && !original.isNew) {
         if ((String(newValue) !== String(originalValue)) && !isEdited) {
-          updateEditedRowIndices(index, 'add');
+          updateEditedEntryIds(original.id, 'add');
           setIsEdited(true);
         } else if ((String(newValue) === String(originalValue)) && isEdited) {
-          updateEditedRowIndices(index, 'remove');
+          updateEditedEntryIds(original.id, 'remove');
           setIsEdited(false);
         }
       }
