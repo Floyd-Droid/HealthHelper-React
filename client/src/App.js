@@ -16,7 +16,7 @@ import NotFoundPage from './components/pages/NotFoundPage';
 const App = () => {
 	const [date, setDate] = React.useState(new Date());
 	const [user, isUserLoading, error] = useAuthState(auth);
-	const [isBodyLoading, setIsBodyLoading] = React.useState(true);
+	const [isBodyLoading, setIsBodyLoading] = React.useState(false);
 	const [messages, setMessages] = React.useState({successMessages: [], errorMessages: [], validationMessages: []});
 	const [isRedirecting, setIsRedirecting] = React.useState(false);
 	const navigate = useNavigate();

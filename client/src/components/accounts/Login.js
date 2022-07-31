@@ -103,7 +103,7 @@ export default function Login(props) {
 	}, []);
 
 	React.useEffect(() => {
-		if (!isUserLoading && user && isBodyLoading) {
+		if (!isUserLoading && user && !isBodyLoading) {
 			navigate('/log');
 		}
 	}, [isBodyLoading, user, isUserLoading]);
