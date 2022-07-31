@@ -122,7 +122,19 @@ export const validateIndexSubmission = (entries) => {
 
 // Validation functions for account-related forms
 
-export const validateUsername = (currentUsername, newUsername) => {
+export const validateUsername = (username) => {
+	return username.trim().length < 40;
+}
+
+export const validateSubmittedUsername = (newUsername) => {
 	const trimmedName = newUsername.trim();
-	return (currentUsername !== trimmedName && trimmedName !== '');
+	const result = {};
+
+	if (trimmedName === '') {
+		result.errorMessage = 'Please provide a username';
+	} else if (trimmedName.length < 2) {
+		result.errorMessage = 'Username should be at least 2 characters';
+	}
+
+	return result;
 }

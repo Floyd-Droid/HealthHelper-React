@@ -8,6 +8,7 @@ import { auth, logInWithEmailAndPassword, logInWithGoogle,
 	registerUserWithEmailAndPassword, extractFirebaseErrorMessage,
 	welcomeMessage, errorWelcomeMessage
 } from '../../firebase';
+import { validateUsername } from '../../services/Validation';
 
 
 export default function Login(props) {
@@ -18,6 +19,12 @@ export default function Login(props) {
 	const [username, setUsername] = React.useState('');
 
 	const navigate = useNavigate();
+
+	const updateUsername = (username) => {
+		if (validateUsername(username)) {
+			setUsername(username);
+		}
+	}
 
 	const handleLoginOrRegisterWithEmail = async () => {
 		setIsRedirecting(true);
@@ -30,7 +37,7 @@ export default function Login(props) {
 				navigate('/log');
 			} else {
 				updateMessages(res);
-				setIsBodyLoading(false)
+				setIsBodyLoading(false);
 			}
 		} else if (status === 'register') {
 			res = await registerUserWithEmailAndPassword(username, email, password);
@@ -39,7 +46,7 @@ export default function Login(props) {
 				navigate('/index');
 			} else {
 				updateMessages(res);
-				setIsBodyLoading(false)
+				setIsBodyLoading(false);
 			}
 		}
 	}
@@ -96,10 +103,10 @@ export default function Login(props) {
 	}, []);
 
 	React.useEffect(() => {
-		if (!isUserLoading && user && !isBodyLoading) {
+		if (!isUserLoading && user && isBodyLoading) {
 			navigate('/log');
 		}
-	}, [isBodyLoading]);
+	}, [isBodyLoading, user, isUserLoading]);
 
 	if (!isBodyLoading) {
 		return (
@@ -154,7 +161,8 @@ export default function Login(props) {
 								<input
 									className='user-input rounded'
 									type="text"
-									onChange={e => setUsername(e.target.value)}
+									value={username}
+									onChange={e => updateUsername(e.target.value)}
 								/>
 							</div>
 						}
