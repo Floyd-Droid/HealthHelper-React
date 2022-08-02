@@ -7,6 +7,7 @@ export const twoDecimalIds = ['amount', 'serving_by_weight', 'serving_by_volume'
 
 export const newIndexRow = {
 	isNew: true,
+	isSelected: false,
 	name: '',
 	serving_by_weight: '',
 	weight_unit: '',
@@ -35,6 +36,7 @@ export const newIndexRow = {
 
 export const placeholderLogRow = {
 	isPlaceholder: true,
+	isSelected: false,
 	name: '',
 	amount: '',
 	amount_unit: '---',
@@ -86,6 +88,8 @@ export const prepareEntries = (entries, status) => {
       entry.amount = '';
       entry.amount_unit = 'servings';
     }
+
+		entry.isSelected = false;
 
     preparedEntries.push(entry);
   }

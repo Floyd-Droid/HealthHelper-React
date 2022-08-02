@@ -7,8 +7,8 @@ import { validateIndexSubmission} from '../../services/Validation';
 import GlobalContext from '../../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
-import { IndexCostCell, Input, NumberRangeFilter, Select,
-  TextFilter } from './SharedTableComponents';
+import { Checkbox, IndexCostCell, Input, NumberRangeFilter, Select,
+  TextFilter, ToggleAllCheckbox } from './SharedTableComponents';
 
 export default function IndexTable(props) {
 	const { user, isUserLoading, isBodyLoading, setIsBodyLoading, updateMessages } = useContext(GlobalContext);
@@ -18,9 +18,7 @@ export default function IndexTable(props) {
 	const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState({});
   const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
 	const [sortState, setSortState] = React.useState({colId: '', desc: false});
 
 	const defaultColumn = React.useMemo(
@@ -34,6 +32,12 @@ export default function IndexTable(props) {
 
   const columns = React.useMemo(
     () => [
+			{
+        Header: ToggleAllCheckbox,
+        accessor: 'isSelected',
+        disableFilters: true,
+        Cell: Checkbox
+      },
       {
         Header: () => <div className='mb-4'>Name</div>,
         accessor: 'name',
@@ -178,10 +182,6 @@ export default function IndexTable(props) {
     }
   }
 
-  const updateSelectedEntries = (selectedRowIds) => {
-    setSelectedEntries(selectedRowIds);
-  }
-
 	const addNewRow = () => {
 		updateMessages({});
 		const newRow = newIndexRow;
@@ -250,35 +250,36 @@ export default function IndexTable(props) {
 	}
 
 	const deleteRows = async () => {
-		if (!Object.values(selectedEntries).length)	{
-			updateMessages({});
-			return false;
-		}
-
 		setIsBodyLoading(true);
 		
-    const existingEntryIds = [];
+    const selectedExistingEntries = [];
     const dataCopy = [...data];
     const entriesCopy = [...entries];
 
-    for (const rowId of Object.keys(selectedEntries).reverse()) {
-      if (typeof data[rowId].id !== 'undefined') {
-        existingEntryIds.push({
-					id: data[rowId].id,
-					name: data[rowId].name
-				});
-      }
-      dataCopy.splice(rowId, 1);
-      entriesCopy.splice(rowId, 1);
-    }
+		for (const entry of [...data].reverse()) {
+			if (entry.isSelected) {
+				if (typeof entry.id !== 'undefined') {
+					selectedExistingEntries.push({
+						id: entry.id,
+						name: entry.name
+					});	
+				}
 
-    setSkipSelectedRowsReset(false);
+				const rowIndex = data.indexOf(entry);
+
+				dataCopy.splice(rowIndex, 1);
+				entriesCopy.splice(rowIndex, 1);
+			}
+		}
+
 		updateTableEntries(dataCopy, entriesCopy);
 		
-    if (existingEntryIds.length) {
+    if (selectedExistingEntries.length) {
 			const tokenResult = await user.getIdToken(true);
-			const body = await deleteEntries(url, tokenResult, existingEntryIds);
+			const body = await deleteEntries(url, tokenResult, selectedExistingEntries);
 			updateMessages(body);
+		} else {
+			updateMessages({});
 		}
 
 		setIsBodyLoading(false);
@@ -321,8 +322,18 @@ export default function IndexTable(props) {
 		setData(dataCopy);
 	}
 
+	const toggleAllRowsSelected = (toggle) => {
+		setData(old =>
+      old.map((row) => {
+				return {
+					...row,
+					'isSelected': toggle,
+				};
+			})
+    );
+	}
+
   React.useEffect(() => {
-    setSkipSelectedRowsReset(true);
 		setSkipFiltersReset(true);
   }, [data])
 
@@ -342,11 +353,10 @@ export default function IndexTable(props) {
 						defaultColumn={defaultColumn}
 						entries={entries}
 						skipFiltersReset={skipFiltersReset}
-						skipSelectedRowsReset={skipSelectedRowsReset}
 						sortData={sortData}
 						status={status}
+						toggleAllRowsSelected={toggleAllRowsSelected}
 						updateEditedEntryIds={updateEditedEntryIds}
-						updateSelectedEntries={updateSelectedEntries}
 						updateTableData={updateTableData}
 					/>
 				</div>

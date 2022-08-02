@@ -3,22 +3,42 @@ import React, { useRef } from 'react';
 import { weightUnits, volumeUnits, round } from '../../services/TableData';
 import { validateInput, validateSelect } from '../../services/Validation';
 
-export const IndeterminateCheckbox = React.forwardRef(
-  ({ indeterminate, ...rest }, ref) => {
-    const defaultRef = React.useRef();
-    const resolvedRef = ref || defaultRef;
 
-    React.useEffect(() => {
-      resolvedRef.current.indeterminate = indeterminate;
-    }, [resolvedRef, indeterminate])
+export function Checkbox({
+	row: { index, original },
+	updateTableData
+}) {
+	const [checked, setChecked] = React.useState(original.isSelected)
 
-    return (
-      <>
-        <input type="checkbox" ref={resolvedRef} {...rest} />
-      </>
-    );
-  }
-)
+	const toggleRow = () => {
+		const newVal = !checked;
+		setChecked(newVal);
+		updateTableData(index, 'isSelected', newVal);
+	}
+
+	React.useEffect(() => {
+		setChecked(original.isSelected);
+	}, [original])
+
+	return (
+		<input type="checkbox" checked={checked} onChange={toggleRow} />
+	);
+}
+
+export function ToggleAllCheckbox({
+	toggleAllRowsSelected
+}) {
+	const [checked, setChecked] = React.useState(false);
+
+	const toggleAllRows = () => {
+		toggleAllRowsSelected(!checked);
+		setChecked(!checked);
+	}
+
+	return (
+		<input type="checkbox" checked={checked} onChange={toggleAllRows} />
+	);
+}
 
 export function TextFilter({ column: { filterValue, setFilter, id: colId } }) {
 
@@ -401,7 +421,6 @@ export const IndexCostCell = ({
 }
 
 export const SumFooter = ({
-  state: { selectedRowIds },
   preFilteredFlatRows,
   data,
   status,
@@ -416,16 +435,16 @@ export const SumFooter = ({
 
   const selectedTotal = React.useMemo(
     () => {
-			let selectedRows = preFilteredFlatRows.filter((row) => Object.keys(selectedRowIds).includes(row.id));
+			let selectedRows = preFilteredFlatRows.filter((row) => row.original.isSelected);
 			let selectedTotal = selectedRows.reduce((sum, row) => Number(row.values[colId]) + sum, 0);
 			return selectedTotal;
-    }, [selectedRowIds, data]
+    }, [data]
   )
 
 	let selectedTotalDivClassName = 'footer-container py-2';
   let totalDivClassName = 'footer-container py-2';
 
-  const emptyFooterIds = ['amount', 'amount_unit', 'name'];
+  const emptyFooterIds = ['isSelected', 'amount', 'amount_unit', 'name'];
   const showTotal = !emptyFooterIds.includes(colId);
 	const precision = colId === 'cost_per_serving' ? 2 : 1;
 

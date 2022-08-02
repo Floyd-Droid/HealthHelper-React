@@ -1,12 +1,10 @@
 import React from 'react';
-import { useTable, useRowSelect, useSortBy, useFilters } from 'react-table';
-
-import { IndeterminateCheckbox } from './SharedTableComponents';
+import { useTable, useSortBy, useFilters } from 'react-table';
 
 
-export default function Table({ columns, data, date, defaultColumn, entries,
-		skipFiltersReset, skipSelectedRowsReset, sortData, status, 
-		updateEditedEntryIds, updateSelectedEntries, updateTableData
+export default function Table({ columns, data, defaultColumn, entries,
+		skipFiltersReset, sortData, status, toggleAllRowsSelected, updateEditedEntryIds, 
+		updateTableData
   }) {
 
   const {
@@ -16,8 +14,6 @@ export default function Table({ columns, data, date, defaultColumn, entries,
     footerGroups,
     prepareRow,
     rows,
-    state: { selectedRowIds },
-    toggleAllRowsSelected
   } = useTable(
     {
       columns,
@@ -25,62 +21,15 @@ export default function Table({ columns, data, date, defaultColumn, entries,
       defaultColumn,
       autoResetFilters: !skipFiltersReset,
       autoResetSortBy: false,
-      autoResetSelectedRows: !skipSelectedRowsReset,
       entries,
       status,
+			toggleAllRowsSelected,
       updateEditedEntryIds,
-      updateSelectedEntries,
       updateTableData,
     },
     useFilters,
     useSortBy,
-    useRowSelect,
-    hooks => {
-      hooks.visibleColumns.push(columns => [
-        {
-          id: 'selection',
-          Header: ({ getToggleAllRowsSelectedProps }) => (
-            <div>
-              <IndeterminateCheckbox {...getToggleAllRowsSelectedProps()} />
-            </div>
-          ),
-          Cell: ({ row }) => (
-            <div className='d-flex align-middle justify-content-center'>
-              <IndeterminateCheckbox {...row.getToggleRowSelectedProps()} />
-            </div>
-          ),
-          Footer: () => {
-						return (
-							<>
-								<div className='footer-container text-footer py-2'>
-								{'-'}
-								</div>
-								{status === 'log' && 
-									<div className='footer-container text-footer py-2'>
-										{'-'}
-									</div>}
-							</>
-						)
-					}
-        },
-        ...columns
-      ])
-    }
   );
-
-  React.useEffect(() => {
-		if (status === 'log') {
-			toggleAllRowsSelected(false);
-		}
-  }, [date])
-
-	React.useEffect(() => {
-		toggleAllRowsSelected(false);
-  }, [status])
-
-  React.useEffect(() => {
-    updateSelectedEntries(selectedRowIds);
-  }, [selectedRowIds])
 
   return (
     <>
@@ -97,11 +46,9 @@ export default function Table({ columns, data, date, defaultColumn, entries,
             <tr {...headerGroup.getHeaderGroupProps()}>
               {headerGroup.headers.map(column => (
                 <th className='header text-center text-white'
-									{...column.getHeaderProps(column.getSortByToggleProps())}
+									{...column.getHeaderProps()}
 										onClick={() => {
-											if (column.canSort) {
-												sortData(column.id)
-											}
+											sortData(column.id)
 										}}>
                   {column.render('Header')}
                   <div>{column.canFilter ? column.render('Filter') : null}</div>

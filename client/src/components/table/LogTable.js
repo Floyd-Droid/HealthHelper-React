@@ -7,8 +7,8 @@ import { validateLogSubmission } from '../../services/Validation';
 import GlobalContext from '../../context/GlobalContext';
 import Table from './Table';
 import TableButtons from './TableButtons';
-import { CalculatedCell, Input, NumberRangeFilter, Select,
-  SumFooter, TextFilter } from './SharedTableComponents';
+import { CalculatedCell, Checkbox, Input, NumberRangeFilter, Select,
+  SumFooter, TextFilter, ToggleAllCheckbox } from './SharedTableComponents';
 
 
 export default function LogTable(props) {
@@ -21,9 +21,7 @@ export default function LogTable(props) {
 	const [data, setData] = React.useState([]);
   const [entries, setEntries] = React.useState([]);  
   const [editedEntryIds, setEditedEntryIds] = React.useState([]);
-  const [selectedEntries, setSelectedEntries] = React.useState({});
 	const [skipFiltersReset, setSkipFiltersReset] = React.useState(true);
-  const [skipSelectedRowsReset, setSkipSelectedRowsReset] = React.useState(true);
 	const [sortState, setSortState] = React.useState({colId: '', desc: false});
 
 	const defaultColumn = React.useMemo(
@@ -38,6 +36,12 @@ export default function LogTable(props) {
   
   const columns = React.useMemo(
     () => [
+			{
+        Header: ToggleAllCheckbox,
+        accessor: 'isSelected',
+        disableFilters: true,
+        Cell: Checkbox
+      },
       {
         Header: <div className='mb-4'>Name</div>,
         accessor: 'name',
@@ -136,7 +140,6 @@ export default function LogTable(props) {
 	}
 
   const updateTableData = (rowIndex, columnId, value) => {
-    setSkipSelectedRowsReset(true);
     setData(old =>
       old.map((row, index) => {
         if (index === rowIndex) {
@@ -158,10 +161,6 @@ export default function LogTable(props) {
       idsCopy.splice(idsCopy.indexOf(entryId), 1);
       setEditedEntryIds(idsCopy);
     }
-  }
-
-  const updateSelectedEntries = (selectedRowIds) => {
-    setSelectedEntries(selectedRowIds);
   }
 
 	const resetData = () => {
@@ -220,15 +219,15 @@ export default function LogTable(props) {
 			}
 
 		} else if (status === 'createLog') {
-			entryIds = Object.keys(selectedEntries);
-
-			for (const rowId of entryIds) {
-				newOrEditedLogEntries.push({
-					amount: data[rowId].amount,
-					amount_unit: data[rowId].amount_unit,
-					id: data[rowId].id,
-					name: data[rowId].name
-				});
+			for (const entry of data) {
+				if (entry.isSelected) {
+					newOrEditedLogEntries.push({
+						amount: entry.amount,
+						amount_unit: entry.amount_unit,
+						id: entry.id,
+						name: entry.name
+					});
+				}
 			}
 		}
 
@@ -255,27 +254,30 @@ export default function LogTable(props) {
   }
 
 	const deleteRows = async () => {
-		if (!Object.values(selectedEntries).length)	{
+		const entriesToDelete = [];
+		const dataCopy = [...data];
+    const entriesCopy = [...entries];
+
+		for (const entry of [...data].reverse()) {
+			if (entry.isSelected) {
+				entriesToDelete.push({
+					id: entry.id,
+					name: entry.name
+				});
+
+				const rowIndex = data.indexOf(entry);
+
+				dataCopy.splice(rowIndex, 1);
+				entriesCopy.splice(rowIndex, 1);
+			}
+		}
+
+		if (!entriesToDelete.length)	{
 			updateMessages({});
 			return false;
 		}
 		
 		setIsBodyLoading(true);
-
-    const entriesToDelete = [];
-    const dataCopy = [...data];
-    const entriesCopy = [...entries];
-
-    for (const rowId of Object.keys(selectedEntries).reverse()) {
-      entriesToDelete.push({
-				id: data[rowId].id,
-				name: data[rowId].name
-			});
-      dataCopy.splice(rowId, 1);
-      entriesCopy.splice(rowId, 1);
-    }
-
-    setSkipSelectedRowsReset(false);
 		updateTableEntries(dataCopy, entriesCopy);
 		
 		const tokenResult = await user.getIdToken(true);
@@ -323,12 +325,22 @@ export default function LogTable(props) {
 		setData(dataCopy);
 	}
 
+	const toggleAllRowsSelected = (toggle) => {
+		setData(old =>
+      old.map((row) => {
+				return {
+					...row,
+					'isSelected': toggle,
+				};
+			})
+    );
+	}
+
   React.useEffect(() => {
 		updateMessages({});
 
 		if (status === 'log' && !isUserLoading && user) {
 			setIsBodyLoading(true);
-			setSkipSelectedRowsReset(false);
 			fetchEntries();
 		}
   }, [date, isUserLoading])
@@ -342,7 +354,6 @@ export default function LogTable(props) {
   }, [status, isUserLoading])
 
   React.useEffect(() => {
-    setSkipSelectedRowsReset(true);
 		setSkipFiltersReset(true);
   }, [data])
 
@@ -357,11 +368,10 @@ export default function LogTable(props) {
 						defaultColumn={defaultColumn}
 						entries={entries}
 						skipFiltersReset={skipFiltersReset}
-						skipSelectedRowsReset={skipSelectedRowsReset}
 						sortData={sortData}
 						status={status}
+						toggleAllRowsSelected={toggleAllRowsSelected}
 						updateEditedEntryIds={updateEditedEntryIds}
-						updateSelectedEntries={updateSelectedEntries}
 						updateTableData={updateTableData}
 					/>
 				</div>
