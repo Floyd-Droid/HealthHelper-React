@@ -400,9 +400,13 @@ export const IndexCostCell = ({
   }, [servingsPerContainer, costPerContainer])
 
 	let divClassName = 'cell-container input-container d-flex justify-content-center align-items-center';
+	let inputClassName = 'table-cell-input border-0'
 
 	if (original.isNew) {
 		divClassName += ' cell-edit';
+		inputClassName += ' text-black';
+	} else {
+		inputClassName += ' text-white'
 	}
 
 	React.useEffect(() => {
@@ -413,7 +417,7 @@ export const IndexCostCell = ({
 
   return (
     <div className={divClassName} >
-      <input className='table-cell-input border-0 text-white'
+      <input className={inputClassName}
 				disabled value={value} style={{width: '3em'}}>
 			</input>
     </div>
