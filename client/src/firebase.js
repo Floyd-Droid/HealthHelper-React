@@ -2,6 +2,7 @@ import { initializeApp } from "firebase/app";
 import { 
 	EmailAuthProvider,
 	GoogleAuthProvider,
+	GithubAuthProvider,
 	getAuth,
 	createUserWithEmailAndPassword,
 	signInWithEmailAndPassword,
@@ -33,6 +34,8 @@ const app = initializeApp(config);
 export const auth = getAuth(app);
 export const emailProvider = new EmailAuthProvider();
 export const googleProvider = new GoogleAuthProvider();
+export const githubProvider = new GithubAuthProvider();
+
 
 export const welcomeMessage = `Welcome aboard! This is the Index, where food entries are stored. 
 	We'll start you off with some basic foods, but feel free to edit or remove them. After you're done, 
@@ -106,6 +109,15 @@ export const logInWithGoogle = async () => {
 	}
 }
 
+export const logInWithGithub = async () => {
+	try {
+		const res = await signInWithRedirect(auth, githubProvider);
+		return res;
+	} catch (err) {
+		return {errorMessage: `Login failed: ${extractFirebaseErrorMessage(err)}.`};
+	}
+}
+
 export const passwordReset = async (email) => {
 	if (!validateEmail(email)) {
 		return {errorMessage: 'Invalid email'};
@@ -132,9 +144,17 @@ export const logout = () => {
 	signOut(auth);
 };
 
-export const authProviderLink = async () => {
+export const authProviderLink = async (type) => {
+	let provider;
+	
+	if (type === 'google') {
+		provider = googleProvider;
+	} else if (type === 'github') {
+		provider = githubProvider;
+	}
+
 	try {
-		const res = await linkWithRedirect(auth.currentUser, googleProvider);
+		const res = await linkWithRedirect(auth.currentUser, provider);
 		return res;
 	} catch (err) {
 		return {errorMessage: `Could not link accounts: ${extractFirebaseErrorMessage(err)}`};
